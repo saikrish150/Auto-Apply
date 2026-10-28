@@ -1,0 +1,28 @@
+# Dependency directories
+node_modules/
+package-lock.json
+
+# Local Chrome runtime profile and active sessions
+.chrome-profile/
+chrome_log.txt
+*.log
+
+# Sensitive Configuration & API Keys
+config/settings.json
+config/settings.backup.json
+*.backup.json
+.env
+.env.*
+
+# Personal documents
+*.pdf
+config/*.pdf
+
+# Temporary test files & screenshots
+scratch/
+*.png
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,463 @@
+{
+  "personal": {
+    "fullName": "Sai Krishna G",
+    "firstName": "Sai Krishna",
+    "lastName": "G",
+    "email": "gsaikrishna150@gmail.com",
+    "phone": "+91 8688373517",
+    "phoneCountryCode": "India (+91)",
+    "phoneDigits": "8688373517",
+    "location": "Hyderabad, Telangana, India",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "postalCode": "500081",
+    "streetAddress": "Hyderabad, Telangana",
+    "address": "Hyderabad, Telangana, India - 500081",
+    "linkedInUrl": "https://www.linkedin.com/in/saikrishnag150",
+    "githubUrl": "https://github.com",
+    "portfolioUrl": "https://indianmetroguide.in",
+    "socialLinks": {
+      "linkedin": "https://www.linkedin.com/in/saikrishnag150",
+      "github": "https://github.com",
+      "portfolio": "https://indianmetroguide.in"
+    },
+    "resumePath": "D:\\Downloads\\Projects files\\AutoApply\\config\\resume.pdf"
+  },
+  "career": {
+    "primaryRole": "Full Stack Developer (Angular, Java, Spring Boot)",
+    "totalYearsExperience": 3,
+    "currentCompany": "Tech Mahindra",
+    "currentClient": "GE Aerospace",
+    "currentDesignation": "Full Stack Developer",
+    "currentSalaryLPA": "4.10 LPA",
+    "expectedSalaryLPA": "11 LPA",
+    "noticePeriodDays": 30,
+    "noticePeriodDescription": "30 days (Negotiable)",
+    "willingToRelocate": true,
+    "needsVisaSponsorship": false,
+    "workAuthorization": "Indian Citizen / Authorized to work without restriction",
+    "shiftPreference": "Flexible / Day or Rotational",
+    "offersInHand": "None (Actively interviewing)"
+  },
+  "skills": [
+    {
+      "name": "Java",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Spring Boot",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Angular",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "TypeScript",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "JavaScript",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "RESTful APIs & Microservices",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Hibernate",
+      "years": 2.5,
+      "proficiency": "Advanced"
+    },
+    {
+      "name": "PostgreSQL & SQL",
+      "years": 3,
+      "proficiency": "Advanced"
+    },
+    {
+      "name": "AWS (Lambda)",
+      "years": 2,
+      "proficiency": "Intermediate"
+    },
+    {
+      "name": "Docker & Jenkins CI/CD",
+      "years": 2,
+      "proficiency": "Intermediate"
+    },
+    {
+      "name": "Git & GitHub",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Supabase",
+      "years": 2,
+      "proficiency": "Advanced"
+    },
+    {
+      "name": "HTML5 & CSS3",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Agentic AI Dev (Antigravity, Copilot)",
+      "years": 1.5,
+      "proficiency": "Advanced"
+    }
+  ],
+  "experience": [
+    {
+      "title": "Full Stack Developer",
+      "company": "Tech Mahindra (GE Aerospace Client)",
+      "duration": "Dec 2023 – Present",
+      "highlights": "Delivered features across 8+ enterprise applications integrating Angular frontends with Spring Boot backend services. Automated access management for 3,000+ users via Java/Spring Boot REST APIs and AWS Lambda. Built hierarchical date-tree filters and automated data-entry workflows."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Indian Metro Guide",
+      "techStack": "Angular 17, Leaflet, Antigravity AI",
+      "liveUrl": "https://indianmetroguide.in/",
+      "highlights": "Metro route-planning web app used by 6,000+ users with 5M+ Google Search impressions through organic SEO."
+    },
+    {
+      "name": "Hotelytics",
+      "techStack": "Angular 18, Supabase, PostgreSQL",
+      "liveUrl": "https://hotelytics.netlify.app/login",
+      "highlights": "Multi-tenant hotel management SaaS digitizing front-desk operations, guest tracking, and financial analytics dashboards."
+    }
+  ],
+  "education": {
+    "degree": "B.Tech in Electronics and Communication Engineering",
+    "institution": "SRM Institute of Science and Technology, Ramapuram Campus",
+    "graduationYear": 2023,
+    "cgpa": "8.9 / 10"
+  },
+  "achievements": [
+    "Formally recognized by management with Pat on the Back award for outstanding performance and project contributions at Tech Mahindra (GE Aerospace Client).",
+    "Mentored junior developers in Angular development practices, improving team code quality and delivery efficiency.",
+    "Solved 250+ Data Structures & Algorithms problems on LeetCode.",
+    "Certified in SQL (Coursera) and Angular & Spring Boot Development (Udemy)."
+  ],
+  "certifications": [
+    "Certified in SQL (Coursera)",
+    "Certified in Angular & Spring Boot Development (Udemy)"
+  ],
+  "screeningQA": [
+    {
+      "pattern": "example.*https//www.linkedin.com/in/your-name",
+      "answerType": "fixed",
+      "defaultAnswer": "https//www.linkedin.com/in/saikrishnag150",
+      "notes": "Learned from screening Q: \"Example https//www.linkedin.com/in/your-name\"",
+      "updatedAt": "2026-10-28T14:53:45.500Z"
+    },
+    {
+      "pattern": "joining.*date.*current.*organization",
+      "answerType": "fixed",
+      "defaultAnswer": "28/12/2023",
+      "notes": "Learned from screening Q: \"Joining Date (Current Organization)\"",
+      "updatedAt": "2026-10-27T11:00:32.640Z"
+    },
+    {
+      "pattern": "consent.*foundit.*creating.*profile",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes",
+      "notes": "Learned from screening Q: \"I consent to foundit creating my profile for recruiter visib\"",
+      "updatedAt": "2026-10-27T11:00:19.096Z"
+    },
+    {
+      "pattern": "relevant.*experience",
+      "answerType": "fixed",
+      "defaultAnswer": "3",
+      "notes": "Learned from screening Q: \"Relevant Experience\"",
+      "updatedAt": "2026-10-27T11:00:10.987Z"
+    },
+    {
+      "pattern": "available.*join.*days",
+      "answerType": "fixed",
+      "defaultAnswer": "30",
+      "notes": "Learned from screening Q: \"Available to join is Days\"",
+      "updatedAt": "2026-10-27T11:00:08.484Z"
+    },
+    {
+      "pattern": "how.*did.*hear.*about",
+      "answerType": "fixed",
+      "defaultAnswer": "Linked In",
+      "notes": "Learned from screening Q: \"How did you hear about our company\"",
+      "updatedAt": "2026-10-27T11:00:03.249Z"
+    },
+    {
+      "pattern": "(?:years|experience).*(?:with|in|using|on)?\\s*genaiprojects|genaiprojects.*(?:years|experience)",
+      "answerType": "fixed",
+      "defaultAnswer": "3",
+      "notes": "Learned from screening Q: \"How many years of work experience do you have with Gen AI Pr\"",
+      "updatedAt": "2026-10-27T09:45:15.755Z"
+    },
+    {
+      "pattern": "linkedin.*profile.*url",
+      "answerType": "fixed",
+      "defaultAnswer": "www.linkedin.com/in/saikrishnag150",
+      "notes": "Learned from screening Q: \"Please enter your LinkedIn profile URL\"",
+      "updatedAt": "2026-10-27T08:47:38.310Z"
+    },
+    {
+      "pattern": "cctc",
+      "answerType": "fixed",
+      "defaultAnswer": "4.10",
+      "notes": "Learned from screening Q: \"What is your CCTC?\"",
+      "updatedAt": "2026-10-27T08:47:31.042Z"
+    },
+    {
+      "pattern": "mention.*days.*0-15",
+      "answerType": "fixed",
+      "defaultAnswer": "30",
+      "notes": "Learned from screening Q: \"What is your NP? Mention in days 0-15?\"",
+      "updatedAt": "2026-10-27T08:47:25.281Z"
+    },
+    {
+      "pattern": "interview.*(?:in person|face to face|f2f|in-office|office|onsite)|available for interview|in-person interview|face-to-face",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes",
+      "notes": "Candidate is available for virtual and in-person interviews"
+    },
+    {
+      "pattern": "background verification|bgv|background check",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes",
+      "notes": "Consents to standard company background verification"
+    },
+    {
+      "pattern": "currently employed|are you currently working",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes",
+      "notes": "Currently working at Tech Mahindra"
+    },
+    {
+      "pattern": "serving notice period|currently serving",
+      "answerType": "fixed",
+      "defaultAnswer": "No",
+      "notes": "Not currently serving, ready to serve 30 days notice"
+    },
+    {
+      "pattern": "all documents|relieving letter|payslips|form 16",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes",
+      "notes": "All previous employment documents, payslips, and relieving letters available"
+    },
+    {
+      "pattern": "comfortable.*working.*(?:office|hybrid|onsite)|work from office",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes"
+    },
+    {
+      "pattern": "total.*(?:work\\s*)?experience|overall\\s*experience|total\\s*years",
+      "answerType": "fixed",
+      "defaultAnswer": "3",
+      "notes": "Candidate total professional software experience is 3 years"
+    },
+    {
+      "pattern": "current.*(?:ctc|salary|package|compensation)",
+      "answerType": "fixed",
+      "defaultAnswer": "4.10",
+      "notes": "Candidate current compensation is 4.10 LPA"
+    },
+    {
+      "pattern": "expected.*(?:ctc|salary|package|compensation)",
+      "answerType": "fixed",
+      "defaultAnswer": "10",
+      "notes": "Candidate expected compensation is 10 LPA"
+    },
+    {
+      "pattern": "notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time",
+      "answerType": "fixed",
+      "defaultAnswer": "30",
+      "notes": "Candidate notice period is 30 days"
+    },
+    {
+      "pattern": "current.*residence.*address",
+      "answerType": "fixed",
+      "defaultAnswer": "Flat 402, High-Tech Residency, Madhapur, Hyderabad, Telangana - 500081",
+      "notes": "Learned from screening Q: \"What is your current residence address?\"",
+      "updatedAt": "2026-10-27T06:07:12.414Z"
+    },
+    {
+      "pattern": "comfortable.*with.*night.*shifts",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes",
+      "notes": "Learned from screening Q: \"Are you comfortable with night shifts for US clients?\"",
+      "updatedAt": "2026-10-27T06:05:49.657Z"
+    },
+    {
+      "pattern": "\\bcity\\b|current city|city of residence|location preference",
+      "answerType": "fixed",
+      "defaultAnswer": "Hyderabad",
+      "notes": "Candidate residence city for typeaheads and form inputs"
+    },
+    {
+      "pattern": "\\bcountry\\b|country of residence|current country|citizenship|nationality",
+      "answerType": "fixed",
+      "defaultAnswer": "India",
+      "notes": "Candidate country for dropdowns and inputs"
+    },
+    {
+      "pattern": "\\bstate\\b|province|region",
+      "answerType": "fixed",
+      "defaultAnswer": "Telangana"
+    },
+    {
+      "pattern": "postal code|zip code|pincode|pin code",
+      "answerType": "fixed",
+      "defaultAnswer": "500081"
+    },
+    {
+      "pattern": "\\baddress\\b|street address|address line|home address",
+      "answerType": "fixed",
+      "defaultAnswer": "Hyderabad, Telangana, India - 500081"
+    },
+    {
+      "pattern": "phone country code|country dial code|dialing code",
+      "answerType": "fixed",
+      "defaultAnswer": "India (+91)"
+    },
+    {
+      "pattern": "first name|given name",
+      "answerType": "fixed",
+      "defaultAnswer": "Sai Krishna"
+    },
+    {
+      "pattern": "last name|surname|family name",
+      "answerType": "fixed",
+      "defaultAnswer": "G"
+    },
+    {
+      "pattern": "gender|sex",
+      "answerType": "fixed",
+      "defaultAnswer": "Male"
+    },
+    {
+      "pattern": "university|college|institution|school",
+      "answerType": "fixed",
+      "defaultAnswer": "SRM Institute of Science and Technology"
+    },
+    {
+      "pattern": "graduation year|year of graduation|year of passing",
+      "answerType": "fixed",
+      "defaultAnswer": "2023"
+    },
+    {
+      "pattern": "gpa|cgpa|percentage",
+      "answerType": "fixed",
+      "defaultAnswer": "8.9"
+    },
+    {
+      "pattern": "current company|current employer|present employer",
+      "answerType": "fixed",
+      "defaultAnswer": "Tech Mahindra"
+    },
+    {
+      "pattern": "current designation|current job title|current role",
+      "answerType": "fixed",
+      "defaultAnswer": "Full Stack Developer"
+    },
+    {
+      "pattern": "experience.*pipelines|years.*pipelines",
+      "answerType": "fixed",
+      "defaultAnswer": "2+ years building Docker containers and configuring Jenkins CI/CD pipelines at Tech Mahindra",
+      "notes": "Learned from screening Q: \"What is your hands-on experience with Docker and CI/CD pipel\"",
+      "updatedAt": "2026-10-27T05:17:25.762Z"
+    },
+    {
+      "pattern": "notice period|how soon can you join|days to join",
+      "answerType": "fixed",
+      "defaultAnswer": "30 days (Negotiable)"
+    },
+    {
+      "pattern": "current.*ctc|current.*salary|current.*annual",
+      "answerType": "fixed",
+      "defaultAnswer": "4.10 LPA"
+    },
+    {
+      "pattern": "expected.*ctc|expected.*salary|salary expectation",
+      "answerType": "fixed",
+      "defaultAnswer": "11 LPA"
+    },
+    {
+      "pattern": "how many years.*experience.*java",
+      "answerType": "fixed",
+      "defaultAnswer": "3"
+    },
+    {
+      "pattern": "how many years.*experience.*spring",
+      "answerType": "fixed",
+      "defaultAnswer": "3"
+    },
+    {
+      "pattern": "how many years.*experience.*angular",
+      "answerType": "fixed",
+      "defaultAnswer": "3"
+    },
+    {
+      "pattern": "how many years.*experience.*(typescript|javascript)",
+      "answerType": "fixed",
+      "defaultAnswer": "3"
+    },
+    {
+      "pattern": "how many years.*experience.*(sql|postgres|database)",
+      "answerType": "fixed",
+      "defaultAnswer": "3"
+    },
+    {
+      "pattern": "how many years.*experience.*aws",
+      "answerType": "fixed",
+      "defaultAnswer": "2"
+    },
+    {
+      "pattern": "total.*years.*experience|overall experience",
+      "answerType": "fixed",
+      "defaultAnswer": "3"
+    },
+    {
+      "pattern": "relocate|willing to move|preferred location",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes"
+    },
+    {
+      "pattern": "work remotely|hybrid|on-site",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes"
+    },
+    {
+      "pattern": "shift|rotational|night shift",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes"
+    },
+    {
+      "pattern": "sponsorship|require.*visa|work authorization",
+      "answerType": "fixed",
+      "defaultAnswer": "No"
+    },
+    {
+      "pattern": "authorized to work in india|citizen",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes"
+    },
+    {
+      "pattern": "offers in hand|competing offer",
+      "answerType": "fixed",
+      "defaultAnswer": "No"
+    },
+    {
+      "pattern": "highest level of education|degree",
+      "answerType": "fixed",
+      "defaultAnswer": "Bachelor's Degree (B.Tech - 8.9 CGPA)"
+    }
+  ],
+  "customCoverLetterIntro": "I am a Full Stack Developer with nearly 3 years of experience building enterprise web applications with Angular, Java, and Spring Boot at Tech Mahindra (GE Aerospace Client). I am passionate about scalable microservices, clean UI architecture, and high-impact software engineering."
+}

@@ -1,0 +1,4342 @@
+{
+  "summary": {
+    "totalApplications": 110,
+    "totalApplied": 39,
+    "today": 26,
+    "yesterday": 7,
+    "thisMonth": 37,
+    "previousMonth": 2,
+    "allTime": 39,
+    "manualQueuePending": 22,
+    "unverifiedSubmissions": 3,
+    "byPlatform": {
+      "LinkedIn": 29,
+      "Naukri": 68,
+      "Foundit": 10,
+      "Career Website": 3
+    },
+    "byStatus": {
+      "skipped": 4,
+      "already_applied_or_closed": 42,
+      "applied": 39,
+      "needs_manual_review": 3,
+      "ready_for_review": 3,
+      "already_applied_or_external": 16,
+      "applied (career website)": 3
+    },
+    "lastUpdated": "2026-10-28T17:06:21.720Z"
+  },
+  "applications": [
+    {
+      "id": "li-1793207136380-1-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Canvendor",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483860859/?alternateChannel=search&eBP=CwEAAAGhg3lDTWqbR8asoiy8nGd1IM6kHGmwkSePq17jruEZb0BgBPp2MZQSPBZcJMgzmbPrYgao6Ln0PaIAu47ziv3co6MBfL7TmNlibG0NLBA_yKVMgZqodHTnjGW8DyALmppmYpUkDP3rM_xgnuKSgMXTcRKkz30o_E6ptQJuDX5u80goDRn1u3gTgf81_HwaA9zxgJAy6OSBRRcfLuHRLcsSI1gUTDjsxgQo41PmJ2c2U9O1CAgVLYlOMCOaC3fvKo2Cg--f-BR_01L-IF-i4cK-P-7I9oVYbVAlL83Oxc24xCfd5-Z0UeHw4cwuHP2OVeXc9gHBvPVTl3FR_F4rPO0jzvVrHQDtSOEFt43lP1JPBi6hGovnih7Ci__J67oguhluV5vq_C3leL7MquaQf-o80Ot1scjONb5sqWmuihVAp2ORSBE3NSTiMzBaFGj2KGB7GAM1gPGXUwcFEBWN24fYikHq1nMqDDmFoI8d0LQOy66pnlRAo4ySIRhdE7-s&refId=3Q8UWBycFv8aBcvbAO59IQ%3D%3D&trackingId=TqLNKBUXDoMB99vX1uwYNg%3D%3D",
+      "normalizedUrl": "https://www.linkedin.com/jobs/view/4483860859/?alternateChannel=search&eBP=CwEAAAGhg3lDTWqbR8asoiy8nGd1IM6kHGmwkSePq17jruEZb0BgBPp2MZQSPBZcJMgzmbPrYgao6Ln0PaIAu47ziv3co6MBfL7TmNlibG0NLBA_yKVMgZqodHTnjGW8DyALmppmYpUkDP3rM_xgnuKSgMXTcRKkz30o_E6ptQJuDX5u80goDRn1u3gTgf81_HwaA9zxgJAy6OSBRRcfLuHRLcsSI1gUTDjsxgQo41PmJ2c2U9O1CAgVLYlOMCOaC3fvKo2Cg--f-BR_01L-IF-i4cK-P-7I9oVYbVAlL83Oxc24xCfd5-Z0UeHw4cwuHP2OVeXc9gHBvPVTl3FR_F4rPO0jzvVrHQDtSOEFt43lP1JPBi6hGovnih7Ci__J67oguhluV5vq_C3leL7MquaQf-o80Ot1scjONb5sqWmuihVAp2ORSBE3NSTiMzBaFGj2KGB7GAM1gPGXUwcFEBWN24fYikHq1nMqDDmFoI8d0LQOy66pnlRAo4ySIRhdE7-s",
+      "matchScore": 60,
+      "overallFitScore": 60,
+      "technicalScore": 60,
+      "experienceCompatibility": "meets_required",
+      "status": "skipped",
+      "normalizedStatus": "SKIPPED_LOW_MATCH",
+      "skipReason": "ATS score 60% < threshold",
+      "appliedAt": "2026-10-28T17:05:36.380Z",
+      "timestamp": "2026-10-28T17:05:36.380Z",
+      "directApplicationUrl": "",
+      "applicationMethod": "platform_auto",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 60,
+        "overallScore": 60,
+        "overallFitScore": 60,
+        "technicalScore": 30,
+        "experienceCompatibility": "experience_not_specified",
+        "experienceRequiredRange": "Not explicitly specified",
+        "isRecommended": false,
+        "isMatch": false,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingRequiredSkills": [],
+        "missingPreferredSkills": [],
+        "breakdown": {
+          "technical": 30,
+          "experience": 75,
+          "role": 75,
+          "mandatory": 50,
+          "location": 75
+        },
+        "reasoning": "Overall fit (60%) is below target threshold. Missing key requirements: seniority requirements.",
+        "scoringVersion": "2.0.0",
+        "aiPowered": false
+      },
+      "scenario": "Java Developer"
+    },
+    {
+      "id": "li-1793207109435-0-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Ace Rooms Ltd",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4482503873/?alternateChannel=search&eBP=CwEAAAGhg3jK0_i78BZfkZ5jVuXs8vyQPLgSNk0DN6npc0-6yggNpq5aWRetmgaMctVgGWNfH8yQ88rqQ-INWI5vEReHrNyFfSows6CPAO2x-BKdhqNGE1cs1HPBhCnUhxBUjwt_pKXBnjufJ9jGYrOs-Din6Hln-FXstBr0ln1_9JrzsSVlnXnNISzWaKZ2POJt2oIsPb_E7S7TwSg9kIp8yxjiEAavQid2Y1D1sEphpdNyF2142l6-Uk-svrHS8K31mj4OcEq8KPsRbiExt_fYtyXFLV0i6GBtnqCmzxdCNGF17BM3-ci_0qeRILgX0ogh6A4ile3mSiMIMbFR0ufsi9uPLPFmu4EUBmDMXrsU6HPD2hFcBQwoHmo-mAHAgCt2GaH6VI6m2Jve8GqFDte-ufw7cVJoC2SUIZMjcnyon1DN14ngI9SGkkxR7CCcy3eLCVzcaj-w2CP6OF9-w-DcVvXtSHE3CvfkDIGzn8dAwJJg6EUoW23fJW4ypP6WZsLV&refId=vRQuTcj1FXUGnjUu9Fctgw%3D%3D&trackingId=xb3oghhc53N7fM0EyF1U3g%3D%3D",
+      "normalizedUrl": "https://www.linkedin.com/jobs/view/4482503873/?alternateChannel=search&eBP=CwEAAAGhg3jK0_i78BZfkZ5jVuXs8vyQPLgSNk0DN6npc0-6yggNpq5aWRetmgaMctVgGWNfH8yQ88rqQ-INWI5vEReHrNyFfSows6CPAO2x-BKdhqNGE1cs1HPBhCnUhxBUjwt_pKXBnjufJ9jGYrOs-Din6Hln-FXstBr0ln1_9JrzsSVlnXnNISzWaKZ2POJt2oIsPb_E7S7TwSg9kIp8yxjiEAavQid2Y1D1sEphpdNyF2142l6-Uk-svrHS8K31mj4OcEq8KPsRbiExt_fYtyXFLV0i6GBtnqCmzxdCNGF17BM3-ci_0qeRILgX0ogh6A4ile3mSiMIMbFR0ufsi9uPLPFmu4EUBmDMXrsU6HPD2hFcBQwoHmo-mAHAgCt2GaH6VI6m2Jve8GqFDte-ufw7cVJoC2SUIZMjcnyon1DN14ngI9SGkkxR7CCcy3eLCVzcaj-w2CP6OF9-w-DcVvXtSHE3CvfkDIGzn8dAwJJg6EUoW23fJW4ypP6WZsLV",
+      "matchScore": 60,
+      "overallFitScore": 60,
+      "technicalScore": 60,
+      "experienceCompatibility": "meets_required",
+      "status": "skipped",
+      "normalizedStatus": "SKIPPED_LOW_MATCH",
+      "skipReason": "ATS score 60% < threshold",
+      "appliedAt": "2026-10-28T17:05:09.435Z",
+      "timestamp": "2026-10-28T17:05:09.435Z",
+      "directApplicationUrl": "",
+      "applicationMethod": "platform_auto",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 60,
+        "overallScore": 60,
+        "overallFitScore": 60,
+        "technicalScore": 30,
+        "experienceCompatibility": "experience_not_specified",
+        "experienceRequiredRange": "Not explicitly specified",
+        "isRecommended": false,
+        "isMatch": false,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingRequiredSkills": [],
+        "missingPreferredSkills": [],
+        "breakdown": {
+          "technical": 30,
+          "experience": 75,
+          "role": 75,
+          "mandatory": 50,
+          "location": 75
+        },
+        "reasoning": "Overall fit (60%) is below target threshold. Missing key requirements: seniority requirements.",
+        "scoringVersion": "2.0.0",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793202142683-0-23",
+      "platform": "Naukri",
+      "title": "Frontend Angular developer",
+      "company": "GENZEON (INDIA) PRIVATE LIMITED",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-frontend-angular-developer-genzeon-technology-solutions-private-limited-hyderabad-5-to-7-years-261023500552",
+      "matchScore": 80,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:42:22.683Z",
+      "timestamp": "2026-10-28T15:42:22.683Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 80,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793202017054-0-13",
+      "platform": "Naukri",
+      "title": "Walkin drive For Software Engineer -Vanguard India(GCC) on 7th October",
+      "company": "Vanguard",
+      "location": "Hybrid - Hyderabad",
+      "url": "https://www.naukri.com/job-listings-walkin-drive-for-software-engineer-vanguard-india-gcc-on-7th-october-vanguard-hyderabad-3-to-5-years-061026009055",
+      "matchScore": 85,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:40:17.055Z",
+      "timestamp": "2026-10-28T15:40:17.055Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 85,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "AWS (Lambda)"
+        ],
+        "missingSkills": [
+          "react"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, AWS (Lambda).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201990357-0-11",
+      "platform": "Naukri",
+      "title": "Senior Software Developer - Java FS Angular",
+      "company": "Epam Systems",
+      "location": "Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-senior-software-developer-java-fs-angular-epam-systems-hyderabad-chennai-bengaluru-5-to-8-years-040926021902",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:39:50.357Z",
+      "timestamp": "2026-10-28T15:39:50.357Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201970889-0-9",
+      "platform": "Naukri",
+      "title": "Software Engineer - Angular",
+      "company": "Majulah Infotech",
+      "location": "Hyderabad, Chennai, Bengaluru, Pune, Kolkata, Mumbai, New Delhi",
+      "url": "https://www.naukri.com/job-listings-software-engineer-angular-majulah-infotech-private-limited-kolkata-mumbai-new-delhi-hyderabad-pune-chennai-bengaluru-4-to-8-years-260525502084",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:39:30.889Z",
+      "timestamp": "2026-10-28T15:39:30.889Z",
+      "questionsAnswered": [
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:39:22.859Z"
+        },
+        {
+          "question": "Last Name",
+          "answer": "G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:39:22.859Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-28T15:39:23.079Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201949622-0-7",
+      "platform": "Naukri",
+      "title": "Software Engineer",
+      "company": "Envoy Global",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-software-engineer-envoyglobal-hyderabad-2-to-4-years-080926500447",
+      "matchScore": 90,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:39:09.622Z",
+      "timestamp": "2026-10-28T15:39:09.622Z",
+      "questionsAnswered": [
+        {
+          "question": "First Name",
+          "answer": "Sai Krishna",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Last Name",
+          "answer": "G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Mobile Phone",
+          "answer": "8688373517",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Total Experience",
+          "answer": "3",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Total Experience",
+          "answer": "3",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Total Experience",
+          "answer": "3",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Total Experience",
+          "answer": "3",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Total Experience",
+          "answer": "3",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Total Experience",
+          "answer": "3",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Notice Period",
+          "answer": "30",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Current CTC",
+          "answer": "4.10 LPA",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:38:57.325Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-28T15:38:58.128Z"
+        }
+      ],
+      "evaluation": {
+        "score": 90,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "JavaScript",
+          "PostgreSQL & SQL"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, JavaScript, PostgreSQL & SQL.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201881031-0-1",
+      "platform": "Naukri",
+      "title": "Java Developer react or angular",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Pune",
+      "url": "https://www.naukri.com/job-listings-java-developer-react-or-angular-infosys-hyderabad-pune-chennai-2-to-3-years-100826001352",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:38:01.031Z",
+      "timestamp": "2026-10-28T15:38:01.031Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [
+          "react"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201854063-0-39",
+      "platform": "Naukri",
+      "title": "Sr. Angular Developer",
+      "company": "Photon",
+      "location": "Hyderabad, Chennai, Bengaluru, Pune, Kolkata, Mumbai, New Delhi",
+      "url": "https://www.naukri.com/job-listings-sr-angular-developer-photon-infotech-p-ltd-kolkata-mumbai-new-delhi-hyderabad-pune-chennai-bengaluru-7-to-8-years-130125505827",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:37:34.063Z",
+      "timestamp": "2026-10-28T15:37:34.063Z",
+      "questionsAnswered": [
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:37:22.288Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "Git & GitHub",
+          "HTML5 & CSS3",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201826316-0-37",
+      "platform": "Naukri",
+      "title": "Java + MSB + Angular Developer",
+      "company": "Tquanta Technologies",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-java-msb-angular-developer-tquanta-technologies-hyderabad-6-to-12-years-181225503054",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:37:06.316Z",
+      "timestamp": "2026-10-28T15:37:06.316Z",
+      "questionsAnswered": [
+        {
+          "question": "First Name",
+          "answer": "Sai Krishna",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:36:48.387Z"
+        },
+        {
+          "question": "Last Name",
+          "answer": "G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:36:48.387Z"
+        },
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:36:48.387Z"
+        },
+        {
+          "question": "Mobile Phone",
+          "answer": "8688373517",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:36:48.387Z"
+        },
+        {
+          "question": "Total Experience",
+          "answer": "3",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:36:48.387Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-28T15:36:48.461Z"
+        },
+        {
+          "question": "Years of Experience *",
+          "answer": "1-3 years",
+          "inputType": "select",
+          "source": "Local Fallback — Total career experience",
+          "timestamp": "2026-10-28T15:36:48.735Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "PostgreSQL & SQL",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201768152-0-33",
+      "platform": "Naukri",
+      "title": "Sr. Angular Developer",
+      "company": "Artify Talent Studio",
+      "location": "Hyderabad, Chennai, Bengaluru, Pune, Kolkata, Mumbai, New Delhi",
+      "url": "https://www.naukri.com/job-listings-sr-angular-developer-artify-talent-studio-kolkata-mumbai-new-delhi-hyderabad-pune-chennai-bengaluru-6-to-11-years-280525502554",
+      "matchScore": 80,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:36:08.152Z",
+      "timestamp": "2026-10-28T15:36:08.152Z",
+      "questionsAnswered": [
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:35:56.607Z"
+        },
+        {
+          "question": "Mobile Phone",
+          "answer": "8688373517",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:35:56.607Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-28T15:35:56.751Z"
+        }
+      ],
+      "evaluation": {
+        "score": 80,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201589894-0-19",
+      "platform": "Naukri",
+      "title": "Java Angular Developer",
+      "company": "Capgemini",
+      "location": "Hybrid - Hyderabad, Chennai, Pune",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-capgemini-hyderabad-pune-chennai-4-to-9-years-231026014125",
+      "matchScore": 90,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:33:09.894Z",
+      "timestamp": "2026-10-28T15:33:09.894Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 90,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201715315-0-29",
+      "platform": "Naukri",
+      "title": "Software Engineer",
+      "company": "Hackajob",
+      "location": "Hybrid - Hyderabad, Kochi, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-software-engineer-hackajob-kochi-hyderabad-bengaluru-4-to-9-years-051026013650",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:35:15.315Z",
+      "timestamp": "2026-10-28T15:35:15.315Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "JavaScript",
+          "RESTful APIs & Microservices",
+          "PostgreSQL & SQL"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793202063957-0-17",
+      "platform": "Naukri",
+      "title": "Java Angular Developer",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-infosys-hyderabad-5-to-10-years-230726020016",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:41:03.957Z",
+      "timestamp": "2026-10-28T15:41:03.957Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201426245-0-3",
+      "platform": "Naukri",
+      "title": "Junior Angular Developer",
+      "company": "Nxtwave Disruptive Technologies",
+      "location": "Hyderabad, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-junior-angular-developer-nxtwave-disruptive-technologies-hyderabad-bengaluru-0-to-1-years-101026013958",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:30:26.245Z",
+      "timestamp": "2026-10-28T15:30:26.245Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201399888-0-1",
+      "platform": "Naukri",
+      "title": "Java Spring boot + Angular Developer-Hyderabad Location",
+      "company": "Infosys",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-java-spring-boot-angular-developer-hyderabad-location-infosys-hyderabad-2-to-5-years-290926041260",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:29:59.888Z",
+      "timestamp": "2026-10-28T15:29:59.888Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "JavaScript",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "li-1793201324796-5-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Sonatype",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4474985314/?alternateChannel=search&eBP=CwEAAAGhgyCIp3x7tJcmPk0fblsaJotnPp4WXG5CI-tUww3dpzaQopZp3mhxtYXpYR5c5xlWHQPzVS3jgfJ8CYwLwdFeesJuS6eeFC8-avSmHSMXWiR6x1Uiy3PL5bv-rPajLG7MHklJ98VyPeq2KhRuCevlsM24KbquiCMWh8aoTXOFOXJ4clGTcQ1__IOTM_VlVGid3rGeSoMaiePUyE0kXn3ATZ4D0wDCrOYDcu6YDjqc7T5zrlSLUuXDTUjtfkUfKIHy6NMWwOgRQsS5rFSjbQAxTgLvNQRsAtbD24c1zgz0S8bgGmJSJB6XNUOR2E8mDYXuYRIzMCFczc-LGGjx6tO3v7jGcQ7IUUwnI2obgbQ834a0S0kKrKPCmckvTQLItiiRFnWOTz2imnXSMmtjEIVj9BCj2ZDuUrEGBm7MmxI7DOfLXbm-GE9MqWy8JrsIQbR5_XSMCLUYUgGhC_PZIy5cZC32XAq4J8eX6XZvXOPE9Su0kJDUS8jVk2ROCXFZoH0&refId=oaHxa7ns5W1IIqZW%2Bke6Fg%3D%3D&trackingId=f3KMLZjiMdLyKcNEI2M9TA%3D%3D",
+      "matchScore": 70,
+      "status": "needs_manual_review",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:28:44.796Z",
+      "timestamp": "2026-10-28T15:28:44.796Z",
+      "questionsAnswered": [
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T15:28:50.146Z"
+        },
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T15:28:50.275Z"
+        },
+        {
+          "question": "What is your current location?",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Semantic Engine — Candidate City",
+          "timestamp": "2026-10-28T15:28:56.687Z"
+        },
+        {
+          "question": "If you were referred by a current employee, please provide their full name.",
+          "answer": "",
+          "inputType": "text",
+          "source": "Local Fallback — Unknown question (needs AI/review)",
+          "timestamp": "2026-10-28T15:29:01.516Z"
+        },
+        {
+          "question": "Yes",
+          "answer": "Are you currently residing in India AND are legally authorized to work for any employer without sponsorship",
+          "inputType": "radio",
+          "source": "Local Fallback — Unknown choice (needs AI/review)",
+          "timestamp": "2026-10-28T15:29:05.400Z"
+        },
+        {
+          "question": "What is your Current Overall Compensation per Annum?",
+          "answer": "4.10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (current.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-28T15:29:08.237Z"
+        },
+        {
+          "question": "What is your Expected overall Compensation per Annum?",
+          "answer": "10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (expected.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-28T15:29:08.771Z"
+        },
+        {
+          "question": "Immediate",
+          "answer": "Please specify your actual notice period with your current employer. Note that we require the official notice period as per your contract, not a negotiable or estimated duration",
+          "inputType": "radio",
+          "source": "Local Fallback — Unknown choice (needs AI/review)",
+          "timestamp": "2026-10-28T15:29:12.120Z"
+        },
+        {
+          "question": "Currently in Hyderabad",
+          "answer": "What is your current location?",
+          "inputType": "radio",
+          "source": "Local Fallback — Unknown choice (needs AI/review)",
+          "timestamp": "2026-10-28T15:29:18.268Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Full Stack Java Developer"
+    },
+    {
+      "id": "li-1793201259966-4-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Tata Consultancy Services",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4484421211/?alternateChannel=search&eBP=CwEAAAGhgx-QGYR_9FWKx_PMd3_CfY12v5XSrigfEplRdT-EDAWZ2DEYuqOcHdMQqSC7DdtWtNOfbwLgnJCoJBtKphoFpmHC8ZSjqEasdZhEGhxMNn2POCxS5aqUH4IMrO6kL1RTXpMYh2lhSFQMq78OWOV8J_vvEQPs_r2BZDZGFReMKVzpquPHOac0ZAX3yioIZ8w44WPrRO2Xc-qHJxckj2fgElKPLKtMuXgIjl72DyVRg6pRsjgHC3cRYs58CdST_Gy4uhzckp-My1Zbo_PYQMVZ44F8Yr8cmEZT3FuoOvL7GPWPJeUsFfzf_6rcL76cETEKT-6uM4PfWztmjGGcYQUvDwJIkO-bh-3n9-edJwDM9ZgsEjwNNe-C0o4cQdA9T2NIp5nM4X35NOa8yjpYp7HGjnOUDVIoVbcJ60_Wh84ihxgR6jgJkSybRiHMiYuVKNYn6SVO-GwZ00dWuMP2jA&refId=i61uPZ7%2FiEfHC6RO0H7aXA%3D%3D&trackingId=ErS6N9P%2BNsXSl3xAi%2FGEvQ%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:27:39.966Z",
+      "timestamp": "2026-10-28T15:27:39.966Z",
+      "questionsAnswered": [
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T15:27:44.237Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T15:27:44.251Z"
+        },
+        {
+          "question": "Total IT Experience ?",
+          "answer": "3",
+          "inputType": "text",
+          "source": "Semantic Engine — Profile Memory Rule (total.*(?:work\\s*)?experience|overall\\s*experience|total\\s*years)",
+          "timestamp": "2026-10-28T15:27:49.887Z"
+        },
+        {
+          "question": "How many days of Notice period do you have ?",
+          "answer": "30",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time)",
+          "timestamp": "2026-10-28T15:27:50.937Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Java Spring Boot Developer"
+    },
+    {
+      "id": "li-1793201196110-3-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Rippling",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483852758/?alternateChannel=search&eBP=CwEAAAGhgx6YNPSMUYTemAok3cysme3-BnhAAPY2bXnxw5ovgRVge0ErffTnw0KSBLRC-bhF02StujyRHQ-dL2JDp4VooVUPzEmW44XGXss0WNv9v25dhBC9dHuV-BV63Siufjq2bcJhhHfxkGU-Y2t6Iel7Y7y876sQdKWg6A1EFiQGUsXyoRus5pORhWzBJiAw6BAq6GJ_9iMh4vbg7AlLL661mnuiTUK6dcyY7OtTU05FEKaoUX4aYblyu48RfjIpvNtRsFv7Enp868cph5RDnsvAigiMyWwm0wIhEkBPRvxZZrLJKgFLI-l1EN1bz_XJWMDGahgi0nt1YyCCNubl3zZRp_nmjbjg9oC6fo7Yc6v07fmzJoBq7Cim3DwSHotG243BYjN7DSrPTL9g2eHC1ltNFgmd0JXAP3dp9vMPVLXX8UaTw-fwb8LaeF7xiaHDHzzrltCjGnwsVuoKWygAu_XsVXKC89NXypXN6MZ1zPv3gMkJj084&refId=7UO4el%2B1EM%2B60MyHwX8BwA%3D%3D&trackingId=xN%2Bzj4j%2FxrM6Gd15xoS4tQ%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:26:36.110Z",
+      "timestamp": "2026-10-28T15:26:36.110Z",
+      "questionsAnswered": [
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Local Fallback — Unknown choice (needs AI/review)",
+          "timestamp": "2026-10-28T15:26:41.109Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T15:26:41.127Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Full Stack Developer"
+    },
+    {
+      "id": "li-1793201163475-3-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Appinventiv",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4482501056/?alternateChannel=search&eBP=CwEAAAGhgx4WP255Vt-UGfajPNbwVwDIakz0BRF2WV31eaj9IwrsoW8JtlaKydR59cKiE_0ZDkDC5DJJ_J5W3pGnubULTZuTPT2RektvZf1hYdzXv3MHCOmA0L1-WTffHIYIGmbkag04TRiOtAoPhOwbxgY2h3IgavxjyJ2MBBbdFZitpUD9PFVlTMegQBeUJlI5c-SMo2GTrptc74vlVUUI9RRC73Z-bDUfebIfbNLJpUG1314ctlCD7f5xdXI6pmcKGVdtdXql07Dc2r0vvY1__XEdd4rNeN-6KnGodGFx9rG_-8EX538cIgH4fwpzOI-x5E3q_831rKMYdCfynQuZDooNiNjmQRvGKf-D2MTVZUvGG0XCcHO9rqd32iyd1BmwGTGWO9IQH21KD384N96cGkNbfT2aLMVoHdp8fk239O60wSaCfS_ZCptu0anQM7pgW-lhpGrdQ0OEaZfPd6jzx74dY9LVXSbbXRmLgyfygAsrgdnTgNw8BWFWcXOzD0aEA1c&refId=6N0XCJyfaMkFJ9y4fHPwew%3D%3D&trackingId=Lxv85eiS6r5jhpmUbgWuUw%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:26:03.475Z",
+      "timestamp": "2026-10-28T15:26:03.475Z",
+      "questionsAnswered": [
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T15:26:08.861Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T15:26:08.888Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Full Stack Developer"
+    },
+    {
+      "id": "li-1793201021791-3-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Miratech",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4482504843/?alternateChannel=search&eBP=NOT_ELIGIBLE_FOR_CHARGING&refId=1Fvuk8Q95TpUDBnuvMwdpg%3D%3D&trackingId=NUEg1OiBMTqZ6altss%2FNjg%3D%3D",
+      "matchScore": 70,
+      "status": "needs_manual_review",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:23:41.791Z",
+      "timestamp": "2026-10-28T15:23:41.791Z",
+      "questionsAnswered": [
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T15:23:46.290Z"
+        },
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T15:23:46.308Z"
+        },
+        {
+          "question": "Location (city)",
+          "answer": "Hyderabad, Telangana, India",
+          "inputType": "typeahead",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcity\\b|current city|city of residence|location preference)",
+          "timestamp": "2026-10-28T15:23:49.835Z"
+        },
+        {
+          "question": "What is your notice period / availability to join?",
+          "answer": "15-30 days",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time) (cached)",
+          "timestamp": "2026-10-28T15:24:00.403Z"
+        },
+        {
+          "question": "Where did you learn about Miratech?",
+          "answer": "Direct search (e.g., Google, company website)",
+          "inputType": "select",
+          "source": "Local Fallback — Unknown choice (needs AI/review) (cached)",
+          "timestamp": "2026-10-28T15:24:04.321Z"
+        },
+        {
+          "question": "What is your preferred location for work? (Country, City)",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcity\\b|current city|city of residence|location preference)",
+          "timestamp": "2026-10-28T15:24:05.643Z"
+        },
+        {
+          "question": "What are your financial expectations (monthly gross)?",
+          "answer": "",
+          "inputType": "text",
+          "source": "Local Fallback — Unknown question (needs AI/review) (cached)",
+          "timestamp": "2026-10-28T15:24:07.060Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Full Stack Developer"
+    },
+    {
+      "id": "li-1793200939727-3-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Deloitte",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4482505282/?alternateChannel=search&eBP=BUDGET_EXHAUSTED_JOB&refId=%2FTSp38Jgl0nQbD1Ndc1dEg%3D%3D&trackingId=f86YTdm9aeraRv9yNFq7WA%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:22:19.728Z",
+      "timestamp": "2026-10-28T15:22:19.728Z",
+      "questionsAnswered": [
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T15:22:25.170Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T15:22:25.215Z"
+        },
+        {
+          "question": "What is your total years of experience in Full stack engineer ?",
+          "answer": "3",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (total.*(?:work\\s*)?experience|overall\\s*experience|total\\s*years)",
+          "timestamp": "2026-10-28T15:22:31.408Z"
+        },
+        {
+          "question": "What is your relevant years of experience ?",
+          "answer": "3",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (relevant.*experience)",
+          "timestamp": "2026-10-28T15:22:32.404Z"
+        },
+        {
+          "question": "What is your experience in Java ?",
+          "answer": "3",
+          "inputType": "text",
+          "source": "Semantic Engine — Matched profile skill \"Java\" (3 yrs)",
+          "timestamp": "2026-10-28T15:22:33.451Z"
+        },
+        {
+          "question": "What is your experience in React ?",
+          "answer": "0",
+          "inputType": "text",
+          "source": "Semantic Engine — Unlisted skill \"react\" auto-answered as 0 yrs",
+          "timestamp": "2026-10-28T15:22:35.521Z"
+        },
+        {
+          "question": "What is your current fixed ctc ?",
+          "answer": "4.10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (current.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-28T15:22:36.842Z"
+        },
+        {
+          "question": "What is your expected CTC ?",
+          "answer": "10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (expected.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-28T15:22:37.768Z"
+        },
+        {
+          "question": "What is your notice period ?",
+          "answer": "30",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time)",
+          "timestamp": "2026-10-28T15:22:38.771Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Full Stack Developer"
+    },
+    {
+      "id": "li-1793200791431-1-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Creospan Inc.",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483885505/?alternateChannel=search&eBP=CwEAAAGhgxhj8tNSURgZ2F2KY-JTRmZptkV3-kDdRdkV6svLqy95oabhZQbRprFFR7kVLwqjw2KRiSZHrPAUjH3e_v8OCMDic7enNwfJhCwgO8qs3DPmE1wRTEfUuxOCn72EbBveloNhoxBZvrbHsx6nbHdOq85B9ZIaj2TjeCiBocMBcxxvF0xA2gx5uI-aekCMYdwS9EQ6sA-Gtp_fNy8HJYmUyVhOfajyVbcOkCELWyU60IFS17hlORgTnRC-dWUiVYUlOL2fMmtsLfo_98aaNcI3PdIQNvDKpUSYAAL0yO--aT_rZI2bY5jXl82xwhB8raElU6lDS4MTBEN-ZZdIN8zY95VsOha8lzZQccKhhXocOQG5N8X1mEh1zvbjRH2TWmHc-gr4zy44umDfSjmsLIUSELKYHLirDYI_ZYWVEX42sFet2oZ9oYzQ3hhtBbVpeOVBR4c9bJiVziOGACo32NvhR4WDOwKgPLnRgTn2ctc2PV8&refId=6VniLnOcO%2BwV9FQkucmwFQ%3D%3D&trackingId=Vx2MyCenB80fUNiWp%2FpYfA%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:19:51.431Z",
+      "timestamp": "2026-10-28T15:19:51.431Z",
+      "questionsAnswered": [
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T15:19:56.334Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T15:19:56.348Z"
+        },
+        {
+          "question": "What is your notice period in days?",
+          "answer": "30",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time)",
+          "timestamp": "2026-10-28T15:20:02.457Z"
+        },
+        {
+          "question": "What is your minimum expected CTC?",
+          "answer": "10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (expected.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-28T15:20:03.409Z"
+        },
+        {
+          "question": "How many years of experience do you have in Java?",
+          "answer": "3",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (how many years.*experience.*java)",
+          "timestamp": "2026-10-28T15:20:04.679Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Java Developer"
+    },
+    {
+      "id": "li-1793200743718-0-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "N-able",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483846922/?alternateChannel=search&eBP=CwEAAAGhgxe1PIa_sCQ_wi4AWQ3UCEh1eXn837Drj-0hJ6iJSYKrzpBeRW_rgUXak6qy3cuo-Ojnm1LxTQpclMviIY_aKPoACFWxkeN7aN7nIVlkPrEsz2w3kpnBbw9H6NPjGt978NZr1iVfgDe-RTTJDU3OHcXSRabCDYnF9stdlPQXTh3A1k1WM_OFPuRfUkyWlG53B8uBy9Xp01KYaAVhfJt0STlxWbAQHzMRaYLh2rD9pNO2zGfYqzFk02nsasAkuzrhdUR1Zw5kA0VSk2nlKd9-Um69jY-nIMbnSne5MHXq7h33SvyH4ycEyBjcUhzKdlbZHbM5i3wtSr274QJgnuW7kKtk-GTFSEnWQDVx6sHYhwCQL3u2rAMW1KjmG9M2qwmyy1wkZ2PtcNb7fgwLtfsFIR0PQsZ2vKWHl4k7fgUyL0Bchdp2DUWd8OY1jPtr-j1X5YnAL-NiaHWfwwGSPJAkDCU9F2Juv_5tXD4-BZNS&refId=zQw8j6mqQa1Es%2FhmR%2BUL7A%3D%3D&trackingId=upa%2FCwtc89TIk5faMAlT7w%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:19:03.718Z",
+      "timestamp": "2026-10-28T15:19:03.718Z",
+      "questionsAnswered": [
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address)",
+          "timestamp": "2026-10-28T15:19:08.243Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality)",
+          "timestamp": "2026-10-28T15:19:08.287Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "cs-1793200722219",
+      "platform": "Career Website",
+      "title": "Page 2",
+      "company": "naukri",
+      "location": "India",
+      "url": "https://www.naukri.com/angular-developer-jobs-in-hyderabad-secunderabad-2?freshness=1",
+      "matchScore": 90,
+      "status": "ready_for_review",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:18:42.219Z",
+      "timestamp": "2026-10-28T15:18:42.219Z",
+      "questionsAnswered": [
+        {
+          "question": "Current Title",
+          "answer": "Full Stack Developer",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:18:40.864Z"
+        },
+        {
+          "question": "City / Location",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-28T15:18:40.864Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "nk-1793202112670-0-21",
+      "platform": "Naukri",
+      "title": "Java full stack( angular) developer",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Bengaluru, Pune",
+      "url": "https://www.naukri.com/job-listings-java-full-stack-angular-developer-infosys-hyderabad-pune-bengaluru-5-to-9-years-200326023228",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:41:52.670Z",
+      "timestamp": "2026-10-28T15:41:52.670Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793200209109-0-21",
+      "platform": "Naukri",
+      "title": "Java full stack( angular) developer(3-9years)",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Bengaluru, Pune",
+      "url": "https://www.naukri.com/job-listings-java-full-stack-angular-developer-3-9years-infosys-hyderabad-pune-bengaluru-5-to-9-years-200326023594",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:10:09.109Z",
+      "timestamp": "2026-10-28T15:10:09.109Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793202085429-0-19",
+      "platform": "Naukri",
+      "title": "Java Full Stack Developer (Angular.Js)",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-full-stack-developer-angular-js-infosys-hyderabad-chennai-bengaluru-5-to-8-years-100826024124",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:41:25.429Z",
+      "timestamp": "2026-10-28T15:41:25.429Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "PostgreSQL & SQL",
+          "Git & GitHub"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793200161286-0-17",
+      "platform": "Naukri",
+      "title": "Senior Angular Developer",
+      "company": "Origin Hr",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-senior-angular-developer-origin-hr-hyderabad-5-to-10-years-020426504546",
+      "matchScore": 90,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:09:21.286Z",
+      "timestamp": "2026-10-28T15:09:21.286Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 90,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "TypeScript",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, TypeScript, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793200137893-0-15",
+      "platform": "Naukri",
+      "title": "Sr Dotnet Angular Developer",
+      "company": "Jiva Infotech Solutions",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-sr-dotnet-angular-developer-jiva-infotech-inc-hyderabad-4-to-8-years-250326507501",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:08:57.893Z",
+      "timestamp": "2026-10-28T15:08:57.893Z",
+      "questionsAnswered": [
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-28T15:08:45.413Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, PostgreSQL & SQL, Git & GitHub.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793200111298-0-13",
+      "platform": "Naukri",
+      "title": "Angular Lead",
+      "company": "Logic Planet",
+      "location": "Hyderabad, Chennai, Bengaluru, Pune, Kolkata, Mumbai, New Delhi",
+      "url": "https://www.naukri.com/job-listings-angular-lead-logicplanet-it-services-kolkata-mumbai-new-delhi-hyderabad-pune-chennai-bengaluru-3-to-6-years-200226504812",
+      "matchScore": 75,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:08:31.298Z",
+      "timestamp": "2026-10-28T15:08:31.298Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 75,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "TypeScript",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [
+          "graphql"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, TypeScript, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793200035039-0-7",
+      "platform": "Naukri",
+      "title": "Alation Developer (Angular, Java, Spring Boot)",
+      "company": "Infosys",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-alation-developer-angular-java-spring-boot-infosys-hyderabad-3-to-5-years-260926007866",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:07:15.039Z",
+      "timestamp": "2026-10-28T15:07:15.039Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793200014168-0-5",
+      "platform": "Naukri",
+      "title": "Ground Software Engineer",
+      "company": "AST Science",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-ground-software-engineer-ast-science-hyderabad-0-to-2-years-120826504752",
+      "matchScore": 80,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:06:54.168Z",
+      "timestamp": "2026-10-28T15:06:54.168Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 80,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "JavaScript"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199992730-0-3",
+      "platform": "Naukri",
+      "title": "Java Full Stack Developer(Angular)",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-full-stack-developer-angular-infosys-hyderabad-chennai-bengaluru-2-to-5-years-020726025169",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:06:32.730Z",
+      "timestamp": "2026-10-28T15:06:32.730Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199965471-0-1",
+      "platform": "Naukri",
+      "title": "Java Full Stack Developer(React.js/Angular.js)",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Pune, Kolkata",
+      "url": "https://www.naukri.com/job-listings-java-full-stack-developer-react-js-angular-js-infosys-kolkata-hyderabad-pune-2-to-3-years-280926032117",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:06:05.471Z",
+      "timestamp": "2026-10-28T15:06:05.471Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "PostgreSQL & SQL",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [
+          "react"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199934696-0-40",
+      "platform": "Naukri",
+      "title": "Java Spring Boot + Angular Developer",
+      "company": "CGI",
+      "location": "Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-spring-boot-angular-developer-cgi-hyderabad-chennai-bengaluru-10-to-12-years-151026026512",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:05:34.696Z",
+      "timestamp": "2026-10-28T15:05:34.696Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199913228-0-38",
+      "platform": "Naukri",
+      "title": "Java + Angular Developer",
+      "company": "Leading Client",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-tekskills-india-private-limited-hyderabad-6-to-11-years-131026918106",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:05:13.228Z",
+      "timestamp": "2026-10-28T15:05:13.228Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "PostgreSQL & SQL",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [
+          "kubernetes"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199891918-0-36",
+      "platform": "Naukri",
+      "title": "Senior Angular Developer (Front End)",
+      "company": "Fastest growing Data and AI Consulting",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-senior-angular-developer-front-end-newsoft-consultants-hyderabad-8-to-12-years-271026019963",
+      "matchScore": 80,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:04:51.918Z",
+      "timestamp": "2026-10-28T15:04:51.918Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 80,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201734891-0-31",
+      "platform": "Naukri",
+      "title": ".NET Software Developer/Angular Developer",
+      "company": "Tata Consultancy Services",
+      "location": "Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-net-software-developer-angular-developer-tata-consultancy-services-hyderabad-chennai-bengaluru-5-to-7-years-271026000091",
+      "matchScore": 80,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:35:34.891Z",
+      "timestamp": "2026-10-28T15:35:34.891Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 80,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201663935-0-25",
+      "platform": "Naukri",
+      "title": "Java Angular Developer",
+      "company": "Virtusa",
+      "location": "Hybrid - Hyderabad, Chennai",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-virtusa-hyderabad-chennai-5-to-10-years-041026004979",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:34:23.935Z",
+      "timestamp": "2026-10-28T15:34:23.935Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201616307-0-21",
+      "platform": "Naukri",
+      "title": "Java Fullstack (Angular) Developer",
+      "company": "Infosys",
+      "location": "Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-fullstack-angular-developer-infosys-hyderabad-chennai-bengaluru-5-to-9-years-210926000053",
+      "matchScore": 95,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:33:36.307Z",
+      "timestamp": "2026-10-28T15:33:36.307Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 95,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [
+          "react"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199767960-0-26",
+      "platform": "Naukri",
+      "title": "Java Angular Developer",
+      "company": "Synechron",
+      "location": "Hybrid - Hyderabad, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-synechron-hyderabad-bengaluru-4-to-9-years-011026016531",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:02:47.960Z",
+      "timestamp": "2026-10-28T15:02:47.960Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199749647-0-24",
+      "platform": "Naukri",
+      "title": "Sr Angular Developer",
+      "company": "UPS Supply Chain Solutions (UPS SCS)",
+      "location": "Hyderabad, Chennai, Bengaluru, Pune, Kolkata, Mumbai, New Delhi",
+      "url": "https://www.naukri.com/job-listings-sr-angular-developer-ups-pvt-ltd-kolkata-mumbai-new-delhi-hyderabad-pune-chennai-bengaluru-4-to-8-years-300924501718",
+      "matchScore": 90,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:02:29.647Z",
+      "timestamp": "2026-10-28T15:02:29.647Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 90,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, Git & GitHub, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201546534-0-15",
+      "platform": "Naukri",
+      "title": "Java Angular Developer(3-5 yrs)-Pan India",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-3-5-yrs-pan-india-infosys-hyderabad-chennai-bengaluru-3-to-5-years-030726032195",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:32:26.534Z",
+      "timestamp": "2026-10-28T15:32:26.534Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201519361-0-13",
+      "platform": "Naukri",
+      "title": "Angular Developer",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Bengaluru, Ahmedabad",
+      "url": "https://www.naukri.com/job-listings-angular-developer-infosys-hyderabad-ahmedabad-bengaluru-3-to-8-years-200926014681",
+      "matchScore": 90,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:31:59.361Z",
+      "timestamp": "2026-10-28T15:31:59.361Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 90,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201499435-0-11",
+      "platform": "Naukri",
+      "title": "Java Angular Developer (Bangalore)",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-bangalore-infosys-hyderabad-chennai-bengaluru-3-to-8-years-261025003519",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:31:39.435Z",
+      "timestamp": "2026-10-28T15:31:39.435Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199631773-0-14",
+      "platform": "Naukri",
+      "title": "Senior Software Engineer - (Java Fullstack Angular)",
+      "company": "Epam Systems",
+      "location": "Hyderabad, Pune, Bengaluru",
+      "url": "",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:00:31.773Z",
+      "timestamp": "2026-10-28T15:00:31.773Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199624386-0-13",
+      "platform": "Naukri",
+      "title": "Sr Angular Developer",
+      "company": "Photon",
+      "location": "Hyderabad, Chennai, Bengaluru, Pune, Kolkata, Mumbai, New Delhi",
+      "url": "https://www.naukri.com/job-listings-sr-angular-developer-photon-infotech-p-ltd-kolkata-mumbai-new-delhi-hyderabad-pune-chennai-bengaluru-3-to-7-years-290425502748",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:00:24.386Z",
+      "timestamp": "2026-10-28T15:00:24.386Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201486669-0-9",
+      "platform": "Naukri",
+      "title": "Java + Angular Developer(3-9 years)",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-3-9-years-infosys-hyderabad-chennai-bengaluru-3-to-8-years-200826026820",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:31:26.669Z",
+      "timestamp": "2026-10-28T15:31:26.669Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "TypeScript",
+          "JavaScript",
+          "RESTful APIs & Microservices"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201925507-0-5",
+      "platform": "Naukri",
+      "title": "Custom Software Engineer",
+      "company": "Accenture",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-custom-software-engineer-accenture-solutions-pvt-ltd-hyderabad-2-to-7-years-121026922258",
+      "matchScore": 80,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:38:45.507Z",
+      "timestamp": "2026-10-28T15:38:45.507Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 80,
+        "isRecommended": true,
+        "matchedSkills": [
+          "AWS (Lambda)",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: AWS (Lambda), Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199527441-0-5",
+      "platform": "Naukri",
+      "title": "Software Engineer",
+      "company": "Jobaaj com",
+      "location": "Hybrid - Hyderabad, Bengaluru, Pune",
+      "url": "https://www.naukri.com/job-listings-software-engineer-jobaaj-com-hyderabad-pune-bengaluru-0-to-2-years-011026000089",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T14:58:47.441Z",
+      "timestamp": "2026-10-28T14:58:47.441Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "JavaScript",
+          "RESTful APIs & Microservices",
+          "PostgreSQL & SQL"
+        ],
+        "missingSkills": [
+          "python"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793201452877-0-5",
+      "platform": "Naukri",
+      "title": "Java Angular Developer(2-3 yrs)-Pan India",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-2-3-yrs-pan-india-infosys-hyderabad-chennai-bengaluru-2-to-3-years-270726018113",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:30:52.877Z",
+      "timestamp": "2026-10-28T15:30:52.877Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793199478143-0-1",
+      "platform": "Naukri",
+      "title": "Specialist, Software Engineer - Angular Developer",
+      "company": "Nationwide Insurance",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-specialist-software-engineer-angular-developer-nationwide-mutual-insurance-company-hyderabad-1-to-4-years-210926502119",
+      "matchScore": 90,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T14:57:58.143Z",
+      "timestamp": "2026-10-28T14:57:58.143Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 90,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, Git & GitHub, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "li-1793199294494-4-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Everbridge",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4476535993/?alternateChannel=search&eBP=BUDGET_EXHAUSTED_JOB&refId=ijIe7EVMsLLg0wwW4%2FPw9g%3D%3D&trackingId=Gp%2FJp5CaODYUb9doVwc56w%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T14:54:54.494Z",
+      "timestamp": "2026-10-28T14:54:54.494Z",
+      "questionsAnswered": [
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T14:54:58.847Z"
+        },
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T14:54:58.856Z"
+        },
+        {
+          "question": "Yes",
+          "answer": "Have you been previously employed by Everbridge or one of its subsidiaries?",
+          "inputType": "radio",
+          "source": "Local Fallback — Unknown choice (needs AI/review)",
+          "timestamp": "2026-10-28T14:55:03.924Z"
+        },
+        {
+          "question": "If yes, who?",
+          "answer": "",
+          "inputType": "text",
+          "source": "Local Fallback — Unknown question (needs AI/review)",
+          "timestamp": "2026-10-28T14:55:05.607Z"
+        },
+        {
+          "question": "If yes, what were your dates of employment?",
+          "answer": "",
+          "inputType": "text",
+          "source": "Local Fallback — Unknown question (needs AI/review)",
+          "timestamp": "2026-10-28T14:55:06.641Z"
+        },
+        {
+          "question": "Overall years of Experience",
+          "answer": "0-3 Years",
+          "inputType": "select",
+          "source": "Local Fallback — Total career experience",
+          "timestamp": "2026-10-28T14:55:08.901Z"
+        },
+        {
+          "question": "What is your Notice Period",
+          "answer": "0-30 Days",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time)",
+          "timestamp": "2026-10-28T14:55:08.932Z"
+        },
+        {
+          "question": "What is your Current Salary ?",
+          "answer": "4.10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (current.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-28T14:55:09.443Z"
+        },
+        {
+          "question": "What is your Expected Salary ?",
+          "answer": "10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (expected.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-28T14:55:09.957Z"
+        },
+        {
+          "question": "Current Location",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Semantic Engine — Candidate City",
+          "timestamp": "2026-10-28T14:55:10.738Z"
+        },
+        {
+          "question": "What is your current location?",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Semantic Engine — Candidate City",
+          "timestamp": "2026-10-28T14:55:16.813Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Java Spring Boot Developer"
+    },
+    {
+      "id": "li-1793201243908-4-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Golden Opportunities",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4476585333/?alternateChannel=search&eBP=CwEAAAGhgx9RpoEIw8B3MkDqGhBTaKWNq4doGm9Cc6riPj-49XMQ17UHxA9NJVNlkmMjB2mAYY5XRM6Wm3xqm2bflrpZPsjAfWbub1WNfi3njEKY0ca6Qp7qaL057NuzeimtwXKT1rlEALyzpv6E-LhjG3jyrzuGOyTLa8YlxC7HEuPKPjomvWsHzNZ0RozPeQNPjHBuVZ_tq6N_lb6rpWfsgT1i7GhIsKuubPvoEaaLsBb5jPB4k-ZvV5C79tbjMAvLZlL-JcXPDk63a7rzfgOuBj2AY09jKrjxnoerQYTUzP5VIk49O-Np4_gFtLGn0ht_9NX3KGAqSNSdM3AGfNaW08dgCoXFusci49MYRjHqM9inF9MA5npoQfpb9gVuJZsWNGXEqlmBJzvEKyPUxQWZx80TeEFfWbzG3pIKRbt6gqlDKlKWvNrhx0u9_yg0Egt5NJxxfy_2a8gJT8N-s_ScesHzop4KYoYGu9cBwJXNzuO1Qffg_Ulx0yuEhAM&refId=QLtZSoxWW94YGHwUvcBjFg%3D%3D&trackingId=BbxGeE8Bgfz6ioTKFYf9QQ%3D%3D",
+      "matchScore": 70,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:27:23.908Z",
+      "timestamp": "2026-10-28T15:27:23.908Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Java Spring Boot Developer"
+    },
+    {
+      "id": "li-1793201084724-3-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Amukha Technologies",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483860241/?alternateChannel=search&eBP=NOT_ELIGIBLE_FOR_CHARGING&refId=WDCeDQLYRh0rAcycEoNC8A%3D%3D&trackingId=n2%2FYszWBobLzBkDoZKQ2Gg%3D%3D",
+      "matchScore": 70,
+      "status": "needs_manual_review",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:24:44.724Z",
+      "timestamp": "2026-10-28T15:24:44.724Z",
+      "questionsAnswered": [
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T15:24:49.440Z"
+        },
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T15:24:49.767Z"
+        },
+        {
+          "question": "Location (city)",
+          "answer": "Hyderabad, Telangana, India",
+          "inputType": "typeahead",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcity\\b|current city|city of residence|location preference) (cached)",
+          "timestamp": "2026-10-28T15:24:54.990Z"
+        },
+        {
+          "question": "Select an option",
+          "answer": "",
+          "inputType": "text",
+          "source": "Local Fallback — Unknown question (needs AI/review) (cached)",
+          "timestamp": "2026-10-28T15:25:04.062Z"
+        },
+        {
+          "question": "Example https//www.linkedin.com/in/your-name",
+          "answer": "https//www.linkedin.com/in/saikrishnag150",
+          "inputType": "text",
+          "source": "Semantic Engine — Profile Memory Rule (example.*https//www.linkedin.com/in/your-name)",
+          "timestamp": "2026-10-28T15:25:10.716Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Full Stack Developer"
+    },
+    {
+      "id": "li-1793201000336-3-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Company",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483887085/?alternateChannel=search&eBP=NOT_ELIGIBLE_FOR_CHARGING&refId=NlFWKHasVWqeybrJD0JfQQ%3D%3D&trackingId=dui0%2FI4UiNfRyipyOxxKTg%3D%3D",
+      "matchScore": 70,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:23:20.336Z",
+      "timestamp": "2026-10-28T15:23:20.336Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Full Stack Developer"
+    },
+    {
+      "id": "li-1793198968754-3-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Datum Technologies Group",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483868725/?alternateChannel=search&eBP=CwEAAAGhgvya10Ps9Ou57HQsBw_Mbus6tTvRyAMfQUpudgN3RFW2tf6V5s7Aebo6TCmc9AvJ9CeOyKC6kwL9SwytjFF5IksN-qfjSxFvGOGydtZXXog64d7-njk6k_YO-pPmvWP9IEmjspMnuuEdxFj_maNUElljmUE4ttTp2egTJeiRM15zyfSSaQtoqTNRRLWFkPNWO-MiEh0cypb6554O5Jijh15LcALkp3DXzoNbp4SIRZTP7TaLZQL_N-lxf1PNIJKME1dEVXL9KaqxJvUGcJgIXbt_wpqAYf5FfziVoCuAapTH35kn9h8tO9y2lxTmaz8TfBOpMpgKCNCjQ36EfPW0fpKM80eMsWFv753Ro2qxJwR_Yuk0dwQvQxBWgFP0-5RG7DbAfYNg95t8WEGzkXT8z95d2eGkQ_v_0CrmzTedk0jhXzEvn3xQXoXn41-PHmqwE2sjWCn_bG7T6aX5htl5PI3EAa15hG0axAwMUFxWEY84yw1tXKKdJQndrOO_hlXWJ8t0&refId=kTjYup7CKnPJp%2B7%2FbGsHdg%3D%3D&trackingId=DSqFErjmweHb2VgiKFm5bQ%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T14:49:28.754Z",
+      "timestamp": "2026-10-28T14:49:28.754Z",
+      "questionsAnswered": [
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T14:49:32.645Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T14:49:32.669Z"
+        },
+        {
+          "question": "How many years of work experience do you have with Ci/Cd ?",
+          "answer": "0",
+          "inputType": "number",
+          "source": "Semantic Engine — Unlisted skill \"ci\" auto-answered as 0 yrs",
+          "timestamp": "2026-10-28T14:49:37.480Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Full Stack Developer"
+    },
+    {
+      "id": "li-1793207181717-2-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Persistent Systems",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4482285941/?alternateChannel=search&eBP=CwEAAAGhg3nvcGOK35dPwtXX3drm77Gl1xMVi0s97a8f2OAe_YUjKndGKKLsi8k8H6m_fumPcBfoYfTHtrYlhY_ryenRkXY4_fwErfJtSJ-2DO4QluejclslySk8861mUVn3AebB64v30MbAc6MF2BOgl1_6d4jCJm8ANgf5Q1kt7SMYyMzbtimY52ahUmykpsxbGG0xH93ldfG8z4r_jEoxWKzR3uYRsWLpuOxAYw4eQIJccAEl5JS24yGni_Do3CTt5Zab-ZPubWJEyoHBKZiOQKlviedLCvtP9WYLdktGlJ6YcLHMMiq1CNT8tIdxalookN7-AvvuzqL73wY2aza0JjdZ3iBtIcKm7z9DgkjJmNTqIaIMoOuUtIyNcNsmnTnRZnz-EA30wvUsJVEC_JBFhzJQPFvHNGRugJa9UpsSt3ofNzUvmSTZBASAj3XZ0TzCKFTwGL3hfGSLCmoj6ODXRHzSZ-DihY4jXMHqKh3bgBjBUb5YdTLfiR8FTLOJJtERfp8&refId=pbP8N4icFIBtrqWbO21Fuw%3D%3D&trackingId=ps43wlHz%2FdC1fTPYx7Fu%2Bg%3D%3D",
+      "matchScore": 60,
+      "status": "skipped",
+      "skipReason": "ATS score 60% < threshold",
+      "appliedAt": "2026-10-28T17:06:21.717Z",
+      "timestamp": "2026-10-28T17:06:21.717Z",
+      "questionsAnswered": [
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T14:57:14.531Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T14:57:14.553Z"
+        }
+      ],
+      "evaluation": {
+        "score": 60,
+        "overallScore": 60,
+        "overallFitScore": 60,
+        "technicalScore": 30,
+        "experienceCompatibility": "experience_not_specified",
+        "experienceRequiredRange": "Not explicitly specified",
+        "isRecommended": false,
+        "isMatch": false,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingRequiredSkills": [],
+        "missingPreferredSkills": [],
+        "breakdown": {
+          "technical": 30,
+          "experience": 75,
+          "role": 75,
+          "mandatory": 50,
+          "location": 75
+        },
+        "reasoning": "Overall fit (60%) is below target threshold. Missing key requirements: seniority requirements.",
+        "scoringVersion": "2.0.0",
+        "aiPowered": false
+      },
+      "scenario": "Angular Java Developer",
+      "normalizedUrl": "https://www.linkedin.com/jobs/view/4482285941/?alternateChannel=search&eBP=CwEAAAGhg3nvcGOK35dPwtXX3drm77Gl1xMVi0s97a8f2OAe_YUjKndGKKLsi8k8H6m_fumPcBfoYfTHtrYlhY_ryenRkXY4_fwErfJtSJ-2DO4QluejclslySk8861mUVn3AebB64v30MbAc6MF2BOgl1_6d4jCJm8ANgf5Q1kt7SMYyMzbtimY52ahUmykpsxbGG0xH93ldfG8z4r_jEoxWKzR3uYRsWLpuOxAYw4eQIJccAEl5JS24yGni_Do3CTt5Zab-ZPubWJEyoHBKZiOQKlviedLCvtP9WYLdktGlJ6YcLHMMiq1CNT8tIdxalookN7-AvvuzqL73wY2aza0JjdZ3iBtIcKm7z9DgkjJmNTqIaIMoOuUtIyNcNsmnTnRZnz-EA30wvUsJVEC_JBFhzJQPFvHNGRugJa9UpsSt3ofNzUvmSTZBASAj3XZ0TzCKFTwGL3hfGSLCmoj6ODXRHzSZ-DihY4jXMHqKh3bgBjBUb5YdTLfiR8FTLOJJtERfp8",
+      "overallFitScore": 60,
+      "technicalScore": 60,
+      "experienceCompatibility": "meets_required",
+      "normalizedStatus": "SKIPPED_LOW_MATCH",
+      "directApplicationUrl": "",
+      "applicationMethod": "platform_auto"
+    },
+    {
+      "id": "li-1793200859014-1-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Oracle",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483878136/?alternateChannel=search&eBP=CwEAAAGhgxlqH_-sUq8rCQ3J-NNW5rfEf0c9WilsN4V53k8Cs8zuj-zCY27KGJZJ9IvAyIQl2f6nCyinpSxTHmnTE_GPKj5GM98MkJFUlOPyTP1EOkP8Y1HsMgFNl7_q9CjeBkumx2oB1jwIWu8Ne6B_yycb3ZaqbLpsfxtaW-b27BZqWJhoGrKZ07rNDZYQUweP9tLqj47duE_CC9lc4SJpRmxbBQ_102R9UjauyYrO2Ch_2Ig_ujN-ENko3X5630BmjUnD7N2RrtllxaGvmp1f41usprHIasrVeqZ_FY-lUcXJKVSLTaeeYb-krekucloGbkTJnCIaf5x8jih0QzjYkIKzBf4jlhw8ts0RfJu7Ku_f8zs3vuJPeOGR1fZgrPDpBzE9dPAP4ovD9wGMVlrLZqUzqmXgKwXFhaTjQbcLSUhbkVVIorzb6JvzLd-cyYn4y9b-HezaIR4mt0k_F2vE4dYpcCqn2DzMgE4AOyypq_u3TI-5bZzaHFzB0VKg4HtkUls&refId=6IByBz9RpeUsqj4ew0JqUg%3D%3D&trackingId=hZw08DkGMrIU4T0kV8Lv8A%3D%3D",
+      "matchScore": 70,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T15:20:59.015Z",
+      "timestamp": "2026-10-28T15:20:59.015Z",
+      "questionsAnswered": [
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T14:47:17.999Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T14:47:18.010Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Java Developer"
+    },
+    {
+      "id": "li-1793207165198-2-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "SAP Fioneer",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483887085/?alternateChannel=search&eBP=NOT_ELIGIBLE_FOR_CHARGING&refId=Iy3yydGAkYU9Jz8g1kJzeA%3D%3D&trackingId=r0y7Xzh88ygUkw5WrpmUiQ%3D%3D",
+      "matchScore": 60,
+      "status": "skipped",
+      "skipReason": "ATS score 60% < threshold",
+      "appliedAt": "2026-10-28T17:06:05.198Z",
+      "timestamp": "2026-10-28T17:06:05.198Z",
+      "questionsAnswered": [
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality) (cached)",
+          "timestamp": "2026-10-28T14:56:23.855Z"
+        },
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address) (cached)",
+          "timestamp": "2026-10-28T14:56:23.869Z"
+        },
+        {
+          "question": "Location (city)",
+          "answer": "Hyderabad",
+          "inputType": "typeahead",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcity\\b|current city|city of residence|location preference) (cached)",
+          "timestamp": "2026-10-28T14:56:27.526Z"
+        },
+        {
+          "question": "Photo",
+          "answer": "",
+          "inputType": "text",
+          "source": "Local Fallback — Unknown question (needs AI/review) (cached)",
+          "timestamp": "2026-10-28T14:56:27.645Z"
+        },
+        {
+          "question": "Headline",
+          "answer": "",
+          "inputType": "text",
+          "source": "Local Fallback — Unknown question (needs AI/review) (cached)",
+          "timestamp": "2026-10-28T14:56:30.351Z"
+        },
+        {
+          "question": "Salary expectation",
+          "answer": "11",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (expected.*ctc|expected.*salary|salary expectation) (cached)",
+          "timestamp": "2026-10-28T14:56:38.359Z"
+        },
+        {
+          "question": "Notice period",
+          "answer": "30",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time) (cached)",
+          "timestamp": "2026-10-28T14:56:38.865Z"
+        }
+      ],
+      "evaluation": {
+        "score": 60,
+        "overallScore": 60,
+        "overallFitScore": 60,
+        "technicalScore": 30,
+        "experienceCompatibility": "experience_not_specified",
+        "experienceRequiredRange": "Not explicitly specified",
+        "isRecommended": false,
+        "isMatch": false,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingRequiredSkills": [],
+        "missingPreferredSkills": [],
+        "breakdown": {
+          "technical": 30,
+          "experience": 75,
+          "role": 75,
+          "mandatory": 50,
+          "location": 75
+        },
+        "reasoning": "Overall fit (60%) is below target threshold. Missing key requirements: seniority requirements.",
+        "scoringVersion": "2.0.0",
+        "aiPowered": false
+      },
+      "scenario": "Angular Java Developer",
+      "normalizedUrl": "https://www.linkedin.com/jobs/view/4483887085/?alternateChannel=search&eBP=NOT_ELIGIBLE_FOR_CHARGING",
+      "overallFitScore": 60,
+      "technicalScore": 60,
+      "experienceCompatibility": "meets_required",
+      "normalizedStatus": "SKIPPED_LOW_MATCH",
+      "directApplicationUrl": "",
+      "applicationMethod": "platform_auto"
+    },
+    {
+      "id": "li-1793198748516-1-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Trantor",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483886423/?alternateChannel=search&eBP=CwEAAAGhgvk3cD21rszBGuV67hqyt5Q19lfKLcwbgH2emfq75r0GxDDetVezvnq6QtQtNfviqqb9_29r0Bv4ooczZtIxQijvjWqwG_ZAUxrbI6dohDNToGTUhRcyuJEOPAsEX4cHK5emiHhpYbyI7hS44dLt9XAMVx3mLIQRXkPXlKAYzvxG7AQWoQd_v_9XtxMiVSYPC7fv07n_OEZ1vo_zdu5ZkvVaBy32YDGe6qajaWIclJhF-H7LkOhxNmRocYJFjW6Ef2ozf4gVR4i_QB_2Tb40iNcDZrnuyUhBMS58ilf_vih9Sj-YC3Q4gIK492MusjxyztIUMh92wlO2Oj9Pj917p_Qbw7BPwL3UXDRebTG66WYejSl6Z5i3_paFNFUB3D0NRVLMNAjaBJl0B8AeroG7hpVyDtocQPic43nep5U3iue543_hbWuPK_jkVv8F9vpKrO2HOHfVXp6i5cjitovY7jmLbqvGoaQ_Ref77V7R&refId=RxRLQQhb34CVVJLqw8ezoQ%3D%3D&trackingId=AIG%2Bzy4LAeUrJCTp%2BD%2FAaA%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T14:45:48.516Z",
+      "timestamp": "2026-10-28T14:45:48.516Z",
+      "questionsAnswered": [
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address)",
+          "timestamp": "2026-10-28T14:45:53.035Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality)",
+          "timestamp": "2026-10-28T14:45:53.078Z"
+        },
+        {
+          "question": "Yes",
+          "answer": "Have you done the Migration from Java 8 to Java 17 or any higher version ?",
+          "inputType": "radio",
+          "source": "Local Fallback — Unknown choice (needs AI/review)",
+          "timestamp": "2026-10-28T14:46:00.446Z"
+        },
+        {
+          "question": "Years of experience with unit testing ?",
+          "answer": "0",
+          "inputType": "number",
+          "source": "Semantic Engine — Unlisted skill \"unittesting\" auto-answered as 0 yrs",
+          "timestamp": "2026-10-28T14:46:00.688Z"
+        },
+        {
+          "question": "Total Years of experience ?",
+          "answer": "3",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (total.*(?:work\\s*)?experience|overall\\s*experience|total\\s*years)",
+          "timestamp": "2026-10-28T14:46:01.267Z"
+        },
+        {
+          "question": "Expected Annual CTC ?",
+          "answer": "10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (expected.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-28T14:46:01.732Z"
+        },
+        {
+          "question": "Notice period ? (If serving mention days left )",
+          "answer": "30",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time)",
+          "timestamp": "2026-10-28T14:46:02.219Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Java Developer"
+    },
+    {
+      "id": "li-1793198715112-0-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "zenda",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4474628460/?alternateChannel=search&eBP=BUDGET_EXHAUSTED_JOB&refId=SkdAlcU203lN1n%2FDEvg4lQ%3D%3D&trackingId=4yFhx2Tsqpl9nEDTR4gvTA%3D%3D",
+      "matchScore": 70,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-28T14:45:15.112Z",
+      "timestamp": "2026-10-28T14:45:15.112Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "foundit-1793113449987-11",
+      "platform": "Foundit",
+      "title": "Java Full Stack Developer - Angular",
+      "company": "Unison Group New Zealand",
+      "location": "Hyderabad, India",
+      "url": "https://www.foundit.in/srp/results?sort=1&limit=15&query=Angular+Developer&locations=Hyderabad&postedWithin=1&quickApplyJobs=true&searchId=133aac94-b115-433f-920c-f1089bc22bf8",
+      "matchScore": 98,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:04:09.987Z",
+      "timestamp": "2026-10-27T15:04:09.987Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, PostgreSQL & SQL.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "foundit-1793113444433-10",
+      "platform": "Foundit",
+      "title": "Lead Full Stack Developer (Angular and C /.NET)",
+      "company": "SimCorp",
+      "location": "Hyderabad, India",
+      "url": "https://www.foundit.in/srp/results?sort=1&limit=15&query=Angular+Developer&locations=Hyderabad&postedWithin=1&quickApplyJobs=true&searchId=133aac94-b115-433f-920c-f1089bc22bf8",
+      "matchScore": 98,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:04:04.433Z",
+      "timestamp": "2026-10-27T15:04:04.433Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, PostgreSQL & SQL, Git & GitHub.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "foundit-1793113440386-9",
+      "platform": "Foundit",
+      "title": "Arena Developer_Angular Java Springboot",
+      "company": "Infosys",
+      "location": "Hyderabad, India",
+      "url": "https://www.foundit.in/srp/results?sort=1&limit=15&query=Angular+Developer&locations=Hyderabad&postedWithin=1&quickApplyJobs=true&searchId=133aac94-b115-433f-920c-f1089bc22bf8",
+      "matchScore": 98,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:04:00.386Z",
+      "timestamp": "2026-10-27T15:04:00.386Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "foundit-1793113435340-8",
+      "platform": "Foundit",
+      "title": "Arena Developer_Angular Java Springboot",
+      "company": "Infosys Limited",
+      "location": "Hyderabad, India",
+      "url": "https://www.foundit.in/srp/results?sort=1&limit=15&query=Angular+Developer&locations=Hyderabad&postedWithin=1&quickApplyJobs=true&searchId=133aac94-b115-433f-920c-f1089bc22bf8",
+      "matchScore": 98,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:03:55.340Z",
+      "timestamp": "2026-10-27T15:03:55.340Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "foundit-1793113426138-6",
+      "platform": "Foundit",
+      "title": "Angular-Ui Developer",
+      "company": "Infosys Limited",
+      "location": "Hyderabad, India",
+      "url": "https://www.foundit.in/srp/results?sort=1&limit=15&query=Angular+Developer&locations=Hyderabad&postedWithin=1&quickApplyJobs=true&searchId=133aac94-b115-433f-920c-f1089bc22bf8",
+      "matchScore": 98,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:03:46.138Z",
+      "timestamp": "2026-10-27T15:03:46.138Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, PostgreSQL & SQL, Git & GitHub.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "foundit-1793113414889-4",
+      "platform": "Foundit",
+      "title": "Angular-Ui Developer",
+      "company": "Infosys",
+      "location": "Hyderabad, India",
+      "url": "https://www.foundit.in/srp/results?sort=1&limit=15&query=Angular+Developer&locations=Hyderabad&postedWithin=1&quickApplyJobs=true&searchId=133aac94-b115-433f-920c-f1089bc22bf8",
+      "matchScore": 98,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:03:34.889Z",
+      "timestamp": "2026-10-27T15:03:34.889Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, PostgreSQL & SQL, Git & GitHub.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "foundit-1793113409735-3",
+      "platform": "Foundit",
+      "title": "Senior Angular Developer (Remote, Full-Time)",
+      "company": "Smart Working",
+      "location": "Hyderabad, India",
+      "url": "https://www.foundit.in/srp/results?sort=1&limit=15&query=Angular+Developer&locations=Hyderabad&postedWithin=1&quickApplyJobs=true&searchId=133aac94-b115-433f-920c-f1089bc22bf8",
+      "matchScore": 98,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:03:29.735Z",
+      "timestamp": "2026-10-27T15:03:29.735Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, PostgreSQL & SQL, Git & GitHub.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "foundit-1793113405142-2",
+      "platform": "Foundit",
+      "title": "Angular developer",
+      "company": "Grid Dynamics",
+      "location": "Hyderabad, India",
+      "url": "https://www.foundit.in/srp/results?sort=1&limit=15&query=Angular+Developer&locations=Hyderabad&postedWithin=1&quickApplyJobs=true&searchId=133aac94-b115-433f-920c-f1089bc22bf8",
+      "matchScore": 98,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:03:25.142Z",
+      "timestamp": "2026-10-27T15:03:25.142Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, PostgreSQL & SQL, Git & GitHub.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "foundit-1793113400683-1",
+      "platform": "Foundit",
+      "title": "Angular Developer",
+      "company": "technogen india pvt. ltd.",
+      "location": "Hyderabad, India",
+      "url": "https://www.foundit.in/srp/results?sort=1&limit=15&query=Angular+Developer&locations=Hyderabad&postedWithin=1&quickApplyJobs=true&searchId=133aac94-b115-433f-920c-f1089bc22bf8",
+      "matchScore": 98,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:03:20.683Z",
+      "timestamp": "2026-10-27T15:03:20.683Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "PostgreSQL & SQL",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, PostgreSQL & SQL, Git & GitHub.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113303975-0-9",
+      "platform": "Naukri",
+      "title": "Java Angular Developer",
+      "company": "Infosys",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-infosys-limited-hyderabad-3-to-5-years-061026917436",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:01:43.975Z",
+      "timestamp": "2026-10-27T15:01:43.975Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "AWS (Lambda)",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, RESTful APIs & Microservices.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113277824-0-7",
+      "platform": "Naukri",
+      "title": "Junior Angular Developer",
+      "company": "Nxtwave Disruptive Technologies",
+      "location": "Hyderabad, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-junior-angular-developer-nxtwave-disruptive-technologies-hyderabad-bengaluru-0-to-1-years-101026013958",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:01:17.824Z",
+      "timestamp": "2026-10-27T15:01:17.824Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113250952-0-5",
+      "platform": "Naukri",
+      "title": "Java Spring boot + Angular Developer-Hyderabad Location",
+      "company": "Infosys",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-java-spring-boot-angular-developer-hyderabad-location-infosys-hyderabad-2-to-5-years-290926041260",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:00:50.952Z",
+      "timestamp": "2026-10-27T15:00:50.952Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "JavaScript",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113230628-0-3",
+      "platform": "Naukri",
+      "title": "Front End- Angular developer",
+      "company": "Medxperts",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-front-end-angular-developer-medxperts-hyderabad-2-to-5-years-180521501081",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:00:30.628Z",
+      "timestamp": "2026-10-27T15:00:30.628Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "PostgreSQL & SQL",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113209613-0-1",
+      "platform": "Naukri",
+      "title": "Java Full Stack Developer(React.js/Angular.js)",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Pune, Kolkata",
+      "url": "https://www.naukri.com/job-listings-java-full-stack-developer-react-js-angular-js-infosys-kolkata-hyderabad-pune-2-to-3-years-280926032117",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:00:09.613Z",
+      "timestamp": "2026-10-27T15:00:09.613Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "PostgreSQL & SQL",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [
+          "react"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113180398-0-39",
+      "platform": "Naukri",
+      "title": "Angular Developer",
+      "company": "Heptarc",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-angular-developer-heptarc-talent-acquisition-hyderabad-9-to-14-years-111224504118",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:59:40.398Z",
+      "timestamp": "2026-10-27T14:59:40.398Z",
+      "questionsAnswered": [
+        {
+          "question": "Full Name",
+          "answer": "Sai Krishna G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:59:32.790Z"
+        },
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:59:32.791Z"
+        },
+        {
+          "question": "Mobile Phone",
+          "answer": "8688373517",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:59:32.791Z"
+        },
+        {
+          "question": "Portfolio",
+          "answer": "https://indianmetroguide.in",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:59:32.791Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-27T14:59:32.813Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "HTML5 & CSS3",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113162446-0-37",
+      "platform": "Naukri",
+      "title": "ReactJS + NodeJS OR Angular + Node Developers: Max 15 Days Joiners",
+      "company": "80 Years Old Global MNC",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-reactjs-nodejs-or-angular-node-developers-max-15-days-joiners-daksh-consultancy-services-hyderabad-chennai-bengaluru-8-to-10-years-081026001078",
+      "matchScore": 70,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:59:22.446Z",
+      "timestamp": "2026-10-27T14:59:22.446Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [
+          "react",
+          "node.js"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113144135-0-35",
+      "platform": "Naukri",
+      "title": "Java Angular Developer",
+      "company": "Krazy Mantra It",
+      "location": "Hyderabad, Chennai, Bengaluru, Pune",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-krazy-mantra-group-of-companies-hyderabad-pune-chennai-bengaluru-7-to-10-years-220425503117",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:59:04.135Z",
+      "timestamp": "2026-10-27T14:59:04.135Z",
+      "questionsAnswered": [
+        {
+          "question": "First Name",
+          "answer": "Sai Krishna",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:58:52.781Z"
+        },
+        {
+          "question": "Last Name",
+          "answer": "G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:58:52.781Z"
+        },
+        {
+          "question": "Mobile Phone",
+          "answer": "8688373517",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:58:52.781Z"
+        },
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:58:52.781Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-27T14:58:52.812Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113124514-0-33",
+      "platform": "Naukri",
+      "title": "Java Full Stack With Angular Developer",
+      "company": "Tata Consultancy Services",
+      "location": "Hyderabad, Chennai, Pune",
+      "url": "https://www.naukri.com/job-listings-java-full-stack-with-angular-developer-tata-consultancy-services-hyderabad-pune-chennai-6-to-11-years-300126035850",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:58:44.514Z",
+      "timestamp": "2026-10-27T14:58:44.514Z",
+      "questionsAnswered": [
+        {
+          "question": "Current Title",
+          "answer": "Full Stack Developer",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:58:36.702Z"
+        },
+        {
+          "question": "City / Location",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:58:36.702Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "AWS (Lambda)",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113107012-0-31",
+      "platform": "Naukri",
+      "title": "Software Engineer",
+      "company": "Mphasis",
+      "location": "Hyderabad, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-software-engineer-mphasis-hyderabad-bengaluru-5-to-10-years-270926000623",
+      "matchScore": 90,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:58:27.012Z",
+      "timestamp": "2026-10-27T14:58:27.012Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 90,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113353538-0-14",
+      "platform": "Naukri",
+      "title": "Custom Software Engineer",
+      "company": "Accenture",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-custom-software-engineer-accenture-solutions-pvt-ltd-hyderabad-3-to-8-years-191026916020",
+      "matchScore": 95,
+      "status": "ready_for_review",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:02:33.538Z",
+      "timestamp": "2026-10-27T15:02:33.538Z",
+      "questionsAnswered": [
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:57:54.812Z"
+        }
+      ],
+      "evaluation": {
+        "score": 95,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "TypeScript",
+          "RESTful APIs & Microservices",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [
+          "graphql"
+        ],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, TypeScript, RESTful APIs & Microservices.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113041468-0-25",
+      "platform": "Naukri",
+      "title": "Angular Developer",
+      "company": "Techmojo Solutions",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-angular-developer-techmojo-solutions-hyderabad-4-to-5-years-051026504888",
+      "matchScore": 80,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:57:21.468Z",
+      "timestamp": "2026-10-27T14:57:21.468Z",
+      "questionsAnswered": [
+        {
+          "question": "Mobile Phone",
+          "answer": "8688373517",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:57:13.850Z"
+        }
+      ],
+      "evaluation": {
+        "score": 80,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113020930-0-23",
+      "platform": "Naukri",
+      "title": "Angular Developer",
+      "company": "Mobigesture Software",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-angular-developer-mobigesture-hyderabad-4-to-8-years-301025501940",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:57:00.930Z",
+      "timestamp": "2026-10-27T14:57:00.930Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "Docker & Jenkins CI/CD",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112999591-0-21",
+      "platform": "Naukri",
+      "title": "Core .Net Developer - Angular",
+      "company": "ECS ME",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-core-net-developer-angular-ecs-me-llc-hyderabad-4-to-5-years-270126502105",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:56:39.591Z",
+      "timestamp": "2026-10-27T14:56:39.591Z",
+      "questionsAnswered": [
+        {
+          "question": "First Name",
+          "answer": "Sai Krishna",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:28.593Z"
+        },
+        {
+          "question": "Last Name",
+          "answer": "G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:28.593Z"
+        },
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:28.593Z"
+        },
+        {
+          "question": "Mobile Phone",
+          "answer": "8688373517",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:28.593Z"
+        },
+        {
+          "question": "Portfolio",
+          "answer": "https://indianmetroguide.in",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:28.593Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-27T14:56:28.643Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "PostgreSQL & SQL",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112972654-0-19",
+      "platform": "Naukri",
+      "title": "Angular Developer",
+      "company": "Zessta Software Services",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-angular-developer-zessta-software-services-pvt-ltd-hyderabad-4-to-12-years-030726501888",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:56:12.654Z",
+      "timestamp": "2026-10-27T14:56:12.654Z",
+      "questionsAnswered": [
+        {
+          "question": "First Name",
+          "answer": "Sai Krishna",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:00.902Z"
+        },
+        {
+          "question": "Last Name",
+          "answer": "G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:00.902Z"
+        },
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:00.902Z"
+        },
+        {
+          "question": "Mobile Phone",
+          "answer": "8688373517",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:00.902Z"
+        },
+        {
+          "question": "Portfolio",
+          "answer": "https://indianmetroguide.in",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:00.902Z"
+        },
+        {
+          "question": "Current CTC",
+          "answer": "4.10 LPA",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:00.902Z"
+        },
+        {
+          "question": "Expected CTC",
+          "answer": "11 LPA",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:00.902Z"
+        },
+        {
+          "question": "Notice Period",
+          "answer": "30",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:00.902Z"
+        },
+        {
+          "question": "City / Location",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:56:00.902Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-27T14:56:00.946Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "JavaScript",
+          "Git & GitHub",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, JavaScript.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112938704-0-17",
+      "platform": "Naukri",
+      "title": "Java Angular Developer(3-5 yrs)-Pan India",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-3-5-yrs-pan-india-infosys-hyderabad-chennai-bengaluru-3-to-5-years-030726032195",
+      "matchScore": 98,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:55:38.704Z",
+      "timestamp": "2026-10-27T14:55:38.704Z",
+      "questionsAnswered": [
+        {
+          "question": "Current Title",
+          "answer": "Full Stack Developer",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:55:30.157Z"
+        },
+        {
+          "question": "City / Location",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:55:30.157Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112903465-0-15",
+      "platform": "Naukri",
+      "title": "Angular Developer",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Bengaluru, Ahmedabad",
+      "url": "https://www.naukri.com/job-listings-angular-developer-infosys-hyderabad-ahmedabad-bengaluru-3-to-8-years-200926014681",
+      "matchScore": 90,
+      "status": "applied (career website)",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:55:03.465Z",
+      "timestamp": "2026-10-27T14:55:03.465Z",
+      "questionsAnswered": [
+        {
+          "question": "Current Title",
+          "answer": "Full Stack Developer",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:55:12.501Z"
+        },
+        {
+          "question": "City / Location",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:55:12.501Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-27T14:55:12.575Z"
+        }
+      ],
+      "evaluation": {
+        "score": 90,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112888067-0-13",
+      "platform": "Naukri",
+      "title": "Java Angular Developer (Bangalore)",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-bangalore-infosys-hyderabad-chennai-bengaluru-3-to-8-years-261025003519",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:54:48.067Z",
+      "timestamp": "2026-10-27T14:54:48.067Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112875561-0-11",
+      "platform": "Naukri",
+      "title": "Front-End / Angular Developers",
+      "company": "Icriya Digital Technologies",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-front-end-angular-developers-icriya-hyderabad-3-to-5-years-070826503371",
+      "matchScore": 90,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:54:35.561Z",
+      "timestamp": "2026-10-27T14:54:35.561Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 90,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Spring Boot, Angular, Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112856228-0-9",
+      "platform": "Naukri",
+      "title": "Java + Angular Developer(3-9 years)",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-3-9-years-infosys-hyderabad-chennai-bengaluru-3-to-8-years-200826026820",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:54:16.228Z",
+      "timestamp": "2026-10-27T14:54:16.228Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "TypeScript",
+          "JavaScript",
+          "RESTful APIs & Microservices"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793113346928-0-13",
+      "platform": "Naukri",
+      "title": "Java Fullstack (Angular) Developer",
+      "company": "Infosys",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-java-fullstack-angular-developer-infosys-limited-hyderabad-3-to-5-years-061026918521",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T15:02:26.928Z",
+      "timestamp": "2026-10-27T15:02:26.928Z",
+      "questionsAnswered": [
+        {
+          "question": "Current Title",
+          "answer": "Full Stack Developer",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:53:53.113Z"
+        },
+        {
+          "question": "City / Location",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:53:53.113Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Angular",
+          "RESTful APIs & Microservices",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Angular, RESTful APIs & Microservices.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112822554-0-5",
+      "platform": "Naukri",
+      "title": "Java with Angular Developer (Rohith POC)",
+      "company": "Han Digital Solution",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-java-with-angular-developer-rohith-poc-han-digital-solution-hyderabad-3-to-6-years-221125500837",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:53:42.554Z",
+      "timestamp": "2026-10-27T14:53:42.554Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "PostgreSQL & SQL",
+          "Docker & Jenkins CI/CD",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112799685-0-3",
+      "platform": "Naukri",
+      "title": "Software Engineer",
+      "company": "Vajra Iot",
+      "location": "Hyderabad",
+      "url": "https://www.naukri.com/job-listings-software-engineer-vajra-iot-pvt-ltd-hyderabad-2-to-3-years-190626500755",
+      "matchScore": 98,
+      "status": "already_applied_or_closed",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:53:19.685Z",
+      "timestamp": "2026-10-27T14:53:19.685Z",
+      "questionsAnswered": [
+        {
+          "question": "Full Name",
+          "answer": "Sai Krishna G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:52:57.962Z"
+        },
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:52:57.962Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-27T14:52:57.974Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Hibernate",
+          "PostgreSQL & SQL"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Hibernate.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "nk-1793112769879-0-1",
+      "platform": "Naukri",
+      "title": "Java Angular Developer(2-3 yrs)-Pan India",
+      "company": "Infosys",
+      "location": "Hybrid - Hyderabad, Chennai, Bengaluru",
+      "url": "https://www.naukri.com/job-listings-java-angular-developer-2-3-yrs-pan-india-infosys-hyderabad-chennai-bengaluru-2-to-3-years-270726018113",
+      "matchScore": 98,
+      "status": "applied (career website)",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:52:49.879Z",
+      "timestamp": "2026-10-27T14:52:49.879Z",
+      "questionsAnswered": [
+        {
+          "question": "Current Title",
+          "answer": "Full Stack Developer",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:52:38.983Z"
+        },
+        {
+          "question": "City / Location",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:52:38.983Z"
+        },
+        {
+          "question": "Full Name",
+          "answer": "Sai Krishna G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:52:57.507Z"
+        },
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:52:57.507Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-27T14:52:57.539Z"
+        },
+        {
+          "question": "position",
+          "answer": "Software Engineer",
+          "inputType": "select",
+          "source": "🤖 Gemini AI: The candidate is a Full Stack Developer (Java, Spring Boot, Angular) with 3 years of experience, making 'Software Engineer' the most appropriate professional title among the available choices for a Java Angular Developer role.",
+          "timestamp": "2026-10-27T14:52:59.211Z"
+        }
+      ],
+      "evaluation": {
+        "score": 98,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Java",
+          "Spring Boot",
+          "Angular",
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Java, Spring Boot, Angular.",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "li-1793112726770-1-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Media.net",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4484081165/?alternateChannel=search&eBP=CwEAAAGhfdi5lCo-gOLbmFFIUuFCd-jqNy2o0zMDUzs13oxizMVmstwbfiDlrjJpoE0gcyebL4OpuvlCkv6FK3ZAZYf9aVPbkWYS7nV2rTwqUnTzH-ByacbPIDZJVVMLHdh5geRNjp5SDJ499Y3Xix4IbBG0ngpuqt4bDxV_V3GAUtdRopDRB_Gt7dUNTOtQDdrxrqqHzViB8OhEn71NBnKpZxUSeb68wgPx-2p6XJyrPbvJzfuYBp7sJhZrXvL-JuKoZd9r81b1cEnrltScfAFE_sLnKRREPSJl8RwZ8sWpoowv-MLLjYnEpQuPqv7hkykQ-aE0ftjirL6q4Vbj8mkp0-A-WHc9pVr6nDhiWW6qmpB_2ft94XPl1Ga-zD5aLVozxEds80pyNqa_iQFUqog_lQJnflq3d0wKRKxr32O6QtFJPTaKgfkE4WdFEGiHHLVu9myOMrqMQVyQBlE&refId=ArndpsDGmn2rI0q8b3K3LQ%3D%3D&trackingId=zVLK5AZWAbB%2B4Muwp6lhgg%3D%3D",
+      "matchScore": 70,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:52:06.770Z",
+      "timestamp": "2026-10-27T14:52:06.770Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Java Developer"
+    },
+    {
+      "id": "li-1793112709396-1-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "foundit",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483793658/?alternateChannel=search&eBP=NOT_ELIGIBLE_FOR_CHARGING&refId=zL82pW0weij9K%2BuOCeBrYA%3D%3D&trackingId=TdOFO%2BefLV0vQHCgfJfFqg%3D%3D",
+      "matchScore": 70,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:51:49.396Z",
+      "timestamp": "2026-10-27T14:51:49.396Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Java Developer"
+    },
+    {
+      "id": "li-1793112681994-0-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Webologix Ltd/ INC",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4479002136/?alternateChannel=search&eBP=CwEAAAGhfdgNF16pyT58dI30qaZ7TmJ7AlXNOq3Hwa5DkvuIagsZNT3BN_BBSdD1HnVWHlKPZ5zYd2EHf-XMxds_mwd14Udcqcn1UdyzX1iiU2Dcg0whGOstyupGnH58kTcTacz3oB8aDCEkRdeNC9W9XRHj8u3LUJEtwFLXO0CCQt_6lTl8J3PyxYBzRr8gMykff1jAkQvk3ycbJnETrTk7T7Qj5q3Iw9vSbP5txHdR4u3Y8mXMN9p0fbDH61UYeaRVO_GUEdVsdGzDfCIcJvdNaVVxBmrAqlGMbSzQG7i34V38FMAve65xagtNv60qDSmGuwry2jWduOD71VsNb66M1K1gwlwvFeFkhAJAaDy5SUv99PdiUnfWcCfuVEV7iWbnzm_r3-JgsVs4fH6CxJ45A8NL6C19gF1CuQ_1znIxHgTyZb3MWXWdUz0wf_eWxKDpVJskXJA&refId=HUmhMyLi0QGFXVAwlxJzgw%3D%3D&trackingId=HLe9yDKo6Lp9Bg242wFlRQ%3D%3D",
+      "matchScore": 70,
+      "status": "already_applied_or_external",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:51:21.994Z",
+      "timestamp": "2026-10-27T14:51:21.994Z",
+      "questionsAnswered": [],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "li-1793112621010-0-0",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "Valam Solutions",
+      "location": "India",
+      "url": "https://www.linkedin.com/jobs/view/4483654070/?alternateChannel=search&eBP=NOT_ELIGIBLE_FOR_CHARGING&refId=KDK2to3dGeh4dtxEUjqllg%3D%3D&trackingId=JlI7XMHB9YX3V57ziGD6Nw%3D%3D",
+      "matchScore": 70,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:50:21.010Z",
+      "timestamp": "2026-10-27T14:50:21.010Z",
+      "questionsAnswered": [
+        {
+          "question": "Phone country code",
+          "answer": "India (+91)",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality)",
+          "timestamp": "2026-10-27T14:50:24.599Z"
+        },
+        {
+          "question": "Email address",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "select",
+          "source": "Semantic Engine — Profile Memory Rule (\\baddress\\b|street address|address line|home address)",
+          "timestamp": "2026-10-27T14:50:24.657Z"
+        },
+        {
+          "question": "Location (city)",
+          "answer": "Hyderabad, Telangana, India",
+          "inputType": "typeahead",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcity\\b|current city|city of residence|location preference)",
+          "timestamp": "2026-10-27T14:50:27.052Z"
+        },
+        {
+          "question": "Select an option",
+          "answer": "0 month",
+          "inputType": "select",
+          "source": "🤖 Gemini AI: The candidate's notice period is 30 days (1 month), but this question likely asks for additional months beyond years of experience (total experience is exactly 3 years with 0 extra months). (cached)",
+          "timestamp": "2026-10-27T14:50:36.854Z"
+        },
+        {
+          "question": "Example https//www.linkedin.com/in/your-name",
+          "answer": "https://www.linkedin.com/in/saikrishnag150",
+          "inputType": "text",
+          "source": "🤖 Gemini AI: The field is asking for the candidate's LinkedIn profile URL as indicated by the example format.",
+          "timestamp": "2026-10-27T14:50:48.390Z"
+        }
+      ],
+      "evaluation": {
+        "score": 70,
+        "isRecommended": true,
+        "matchedSkills": [
+          "Agentic AI Dev (Antigravity, Copilot)"
+        ],
+        "missingSkills": [],
+        "reasoning": "Strong profile synergy! Matched core competencies: Agentic AI Dev (Antigravity, Copilot).",
+        "aiPowered": false
+      },
+      "scenario": "Angular Developer"
+    },
+    {
+      "id": "cs-1793112599033",
+      "platform": "Career Website",
+      "title": "Angular Developer Jobs In Hyderabad Secunderabad",
+      "company": "naukri",
+      "location": "India",
+      "url": "https://www.naukri.com/angular-developer-jobs-in-hyderabad-secunderabad?freshness=1",
+      "matchScore": 90,
+      "status": "ready_for_review",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:49:59.033Z",
+      "timestamp": "2026-10-27T14:49:59.033Z",
+      "questionsAnswered": [
+        {
+          "question": "Current Title",
+          "answer": "Full Stack Developer",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:49:57.434Z"
+        },
+        {
+          "question": "City / Location",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:49:57.434Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "cs-1793111404953",
+      "platform": "Career Website",
+      "title": "Angular Developer",
+      "company": "laddusystems",
+      "location": "India",
+      "url": "https://laddusystems.com/jobs/angular-developer/",
+      "matchScore": 90,
+      "status": "applied (career website)",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T14:30:04.953Z",
+      "timestamp": "2026-10-27T14:30:04.953Z",
+      "questionsAnswered": [
+        {
+          "question": "Full Name",
+          "answer": "Sai Krishna G",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:29:58.610Z"
+        },
+        {
+          "question": "Email",
+          "answer": "gsaikrishna150@gmail.com",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:29:58.632Z"
+        },
+        {
+          "question": "Mobile Phone",
+          "answer": "8688373517",
+          "inputType": "text",
+          "source": "Profile Knowledge Base",
+          "timestamp": "2026-10-27T14:29:58.632Z"
+        },
+        {
+          "question": "Resume / CV Attachment",
+          "answer": "resume.pdf",
+          "inputType": "file",
+          "source": "Verified Candidate Resume",
+          "timestamp": "2026-10-27T14:29:59.005Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "app-prev-008",
+      "platform": "Naukri",
+      "title": "UI Engineer",
+      "company": "Wipro Technologies",
+      "location": "Bengaluru",
+      "url": "https://naukri.com/jobs",
+      "matchScore": 80,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-09-22T05:45:00.000Z",
+      "timestamp": "2026-09-22T05:45:00.000Z",
+      "questionsAnswered": [],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "app-prev-007",
+      "platform": "LinkedIn",
+      "title": "React.js Developer",
+      "company": "Infosys",
+      "location": "Hyderabad",
+      "url": "https://linkedin.com/jobs",
+      "matchScore": 85,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-09-15T09:00:00.000Z",
+      "timestamp": "2026-09-15T09:00:00.000Z",
+      "questionsAnswered": [
+        {
+          "question": "Primary skills",
+          "answer": "React, JavaScript, TypeScript",
+          "inputType": "text",
+          "source": "Profile Rule",
+          "timestamp": "2026-09-15T09:00:00.000Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "app-foundit-006",
+      "platform": "Foundit",
+      "title": "Senior JavaScript Developer",
+      "company": "HCL Technologies",
+      "location": "Hyderabad",
+      "url": "https://foundit.in/jobs",
+      "matchScore": 82,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-17T11:37:04.649Z",
+      "timestamp": "2026-10-17T11:37:04.649Z",
+      "questionsAnswered": [
+        {
+          "question": "Notice period in days?",
+          "answer": "30",
+          "inputType": "number",
+          "source": "Profile Rule",
+          "timestamp": "2026-10-17T11:37:04.649Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "app-postman-005",
+      "platform": "LinkedIn",
+      "title": "Staff Software Engineer - Web Platform",
+      "company": "Postman",
+      "location": "Remote, India",
+      "url": "https://linkedin.com/jobs",
+      "matchScore": 90,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-22T11:37:04.649Z",
+      "timestamp": "2026-10-22T11:37:04.649Z",
+      "questionsAnswered": [
+        {
+          "question": "Why are you interested in this role?",
+          "answer": "Excited about developer tools and web performance.",
+          "inputType": "text",
+          "source": "AI Reasoning",
+          "timestamp": "2026-10-22T11:37:04.649Z"
+        },
+        {
+          "question": "Do you require visa sponsorship?",
+          "answer": "No",
+          "inputType": "radio",
+          "source": "Profile Rule",
+          "timestamp": "2026-10-22T11:37:04.649Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "app-swiggy-004",
+      "platform": "LinkedIn",
+      "title": "Frontend Engineer (React/TypeScript)",
+      "company": "Swiggy",
+      "location": "Bengaluru (Hybrid)",
+      "url": "https://www.linkedin.com/jobs",
+      "matchScore": 86,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-26T05:37:04.649Z",
+      "timestamp": "2026-10-26T05:37:04.649Z",
+      "questionsAnswered": [
+        {
+          "question": "Are you willing to work in hybrid model?",
+          "answer": "Yes",
+          "inputType": "radio",
+          "source": "Profile Rule",
+          "timestamp": "2026-10-26T05:37:04.649Z"
+        },
+        {
+          "question": "Total years of software engineering experience?",
+          "answer": "3",
+          "inputType": "number",
+          "source": "Profile Rule",
+          "timestamp": "2026-10-26T05:37:04.649Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "app-razorpay-003",
+      "platform": "Naukri",
+      "title": "Full Stack Developer (Node.js & React)",
+      "company": "Razorpay",
+      "location": "Bengaluru / Remote",
+      "url": "https://naukri.com/jobs",
+      "matchScore": 94,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-26T09:37:04.649Z",
+      "timestamp": "2026-10-26T09:37:04.649Z",
+      "questionsAnswered": [
+        {
+          "question": "What is your expected CTC?",
+          "answer": "12 LPA",
+          "inputType": "text",
+          "source": "Profile Rule",
+          "timestamp": "2026-10-26T09:37:04.649Z"
+        },
+        {
+          "question": "How many years of experience do you have with Node.js?",
+          "answer": "3",
+          "inputType": "number",
+          "source": "AI Reasoning",
+          "timestamp": "2026-10-26T09:37:04.649Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "app-tech-002",
+      "platform": "LinkedIn",
+      "title": "Full Stack Engineer",
+      "company": "Tech Services",
+      "location": "Hyderabad (Hybrid)",
+      "url": "https://www.linkedin.com/jobs",
+      "matchScore": 92,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T07:37:04.649Z",
+      "timestamp": "2026-10-27T07:37:04.649Z",
+      "questionsAnswered": [
+        {
+          "question": "Expected CTC (in LPA)",
+          "answer": "10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (expected.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-27T07:37:04.649Z"
+        },
+        {
+          "question": "What is you Notice period? (In Days)",
+          "answer": "30",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time)",
+          "timestamp": "2026-10-27T07:37:04.649Z"
+        },
+        {
+          "question": "Phone country code",
+          "answer": "India",
+          "inputType": "text",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcountry\\b|country of residence|current country|citizenship|nationality)",
+          "timestamp": "2026-10-27T07:37:04.649Z"
+        },
+        {
+          "question": "City",
+          "answer": "Hyderabad",
+          "inputType": "text",
+          "source": "Semantic Engine — Profile Memory Rule (\\bcity\\b|current city|city of residence|location preference)",
+          "timestamp": "2026-10-27T07:37:04.649Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    },
+    {
+      "id": "app-unplus-001",
+      "platform": "LinkedIn",
+      "title": "Software Developer",
+      "company": "UNPlus Solutions",
+      "location": "Hyderabad, Telangana, India",
+      "url": "https://www.linkedin.com/jobs/view/4481842898/",
+      "matchScore": 88,
+      "status": "applied",
+      "skipReason": null,
+      "appliedAt": "2026-10-27T09:37:04.649Z",
+      "timestamp": "2026-10-27T09:37:04.649Z",
+      "questionsAnswered": [
+        {
+          "question": "What is you Notice period? (In Days)",
+          "answer": "30",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (notice\\s*period|how\\s*soon.*join|days\\s*to\\s*join|joining\\s*time)",
+          "timestamp": "2026-10-27T09:37:04.649Z"
+        },
+        {
+          "question": "How many years of work experience do you have with Gen AI Projects?",
+          "answer": "0",
+          "inputType": "number",
+          "source": "Semantic Engine — Unlisted skill \"genaiprojects\" auto-answered as 0 yrs",
+          "timestamp": "2026-10-27T09:37:04.649Z"
+        },
+        {
+          "question": "What is your expected compensation? (in LPA)",
+          "answer": "10",
+          "inputType": "number",
+          "source": "Semantic Engine — Profile Memory Rule (expected.*(?:ctc|salary|package|compensation))",
+          "timestamp": "2026-10-27T09:37:04.649Z"
+        },
+        {
+          "question": "How many years of work experience do you have with Dot Net?",
+          "answer": "0",
+          "inputType": "number",
+          "source": "Semantic Engine — Unlisted skill \"dotnet\" auto-answered as 0 yrs",
+          "timestamp": "2026-10-27T09:37:04.649Z"
+        },
+        {
+          "question": "How many years of work experience do you have with C#?",
+          "answer": "0",
+          "inputType": "number",
+          "source": "Semantic Engine — Unlisted skill \"c#\" auto-answered as 0 yrs",
+          "timestamp": "2026-10-27T09:37:04.649Z"
+        }
+      ],
+      "evaluation": null,
+      "scenario": null
+    }
+  ]
+}

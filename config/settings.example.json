@@ -1,0 +1,48 @@
+{
+  "platforms": {
+    "linkedin": true,
+    "naukri": true,
+    "foundit": true
+  },
+  "search": {
+    "keywords": "Full Stack Developer, Java Spring Boot Developer, Angular Developer",
+    "scenarios": [
+      "Angular Developer",
+      "Java Developer",
+      "Angular Java Developer",
+      "Full Stack Developer",
+      "Java Spring Boot Developer",
+      "Full Stack Java Developer"
+    ],
+    "locations": "Hyderabad, Bengaluru, Remote",
+    "experienceLevel": "Mid-Senior level (1-4 years)",
+    "datePosted": "past_24h"
+  },
+  "automation": {
+    "mode": "auto",
+    "simulationMode": false,
+    "reviewBeforeSubmit": false,
+    "autoSubmitCareerSites": true,
+    "closeCareerTabAfterSubmit": true,
+    "minMatchScore": 65,
+    "maxApplicationsPerSession": 100,
+    "maxPagesPerScenario": 6,
+    "humanDelayMinMs": 1800,
+    "humanDelayMaxMs": 3500,
+    "skipAlreadyApplied": true,
+    "requireResumeUpload": false
+  },
+  "chrome": {
+    "port": 9222,
+    "host": "127.0.0.1",
+    "executablePath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "userDataDir": "C:\\Users\\91868\\AppData\\Local\\Google\\Chrome\\User Data"
+  },
+  "ai": {
+    "provider": "gemini",
+    "model": "gemini-2.5-flash",
+    "apiKey": "YOUR_GEMINI_API_KEY_HERE",
+    "apiKeys": [],
+    "customInstructions": "Answer screening questions honestly from the candidate profile. Use local pattern matching for known answers (CTC, notice period, experience years). Escalate complex/unknown questions to Gemini AI."
+  }
+}

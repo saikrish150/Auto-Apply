@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoApply AI - Local Job Automation & Screening Agent</title>
+  <meta name="description" content="Local autonomous AI job application agent for LinkedIn and Naukri. Operates locally through your Chrome browser with AI screening reasoning.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- Background Glow Accents -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <div class="app-layout">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>AutoApply <span class="gradient-text">AI Agent</span></h1>
+          <span class="brand-badge">Local Edition • v1.0</span>
+        </div>
+      </div>
+
+      <div class="header-status-group">
+        <!-- Chrome CDP Status -->
+        <div class="status-pill" id="chrome-status-pill" title="Chrome Remote Debugging & Background Execution Status">
+          <span class="status-dot dot-disconnected" id="chrome-status-dot"></span>
+          <span id="chrome-status-text">Chrome Disconnected</span>
+          <button class="btn-micro" id="btn-launch-chrome" title="Launch Chrome with background flags">Launch</button>
+          <button class="btn-micro" id="btn-relaunch-chrome" style="display:none;" title="Restart Chrome with full background execution flags">Relaunch Background</button>
+        </div>
+
+        <!-- Bot Run Status -->
+        <div class="status-pill" id="bot-status-pill">
+          <span class="status-dot dot-idle" id="bot-status-dot"></span>
+          <span id="bot-status-text">Agent Idle</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- KPI Metric Cards -->
+    <section class="stats-grid">
+      <div class="stat-card" id="card-applied">
+        <div class="stat-icon-wrapper icon-applied">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Applications Submitted</span>
+          <div class="stat-value-group">
+            <span class="stat-number" id="stat-applied">0</span>
+            <span class="stat-sub">/ <span id="stat-target-cap">20</span> target cap</span>
+          </div>
+        </div>
+        <div class="stat-progress-bar">
+          <div class="progress-fill" id="stat-progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="stat-card" id="card-matches">
+        <div class="stat-icon-wrapper icon-matches">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Jobs Evaluated</span>
+          <div class="stat-value-group">
+            <span class="stat-number" id="stat-matches">0</span>
+            <span class="stat-sub" id="stat-platform-split">LinkedIn & Naukri</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card" id="card-score">
+        <div class="stat-icon-wrapper icon-score">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Avg. ATS Synergy</span>
+          <div class="stat-value-group">
+            <span class="stat-number" id="stat-score">0%</span>
+            <span class="stat-sub">AI Match Quality</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card" id="card-manual-queue-kpi">
+        <div class="stat-icon-wrapper icon-manual">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="M9 14l2 2 4-4"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Manual Apply Queue</span>
+          <div class="stat-value-group">
+            <span class="stat-number" id="stat-manual-queue">0</span>
+            <span class="stat-sub">High-Fit Opportunities</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card" id="card-mode">
+        <div class="stat-icon-wrapper icon-mode">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Safety & Human Mode</span>
+          <div class="stat-value-group">
+            <span class="stat-number stat-badge" id="stat-mode-badge">Full-Auto</span>
+            <span class="stat-sub" id="stat-sim-sub">Live Mode</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Master Control Bar -->
+    <section class="control-panel glass-card">
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="btn-start-bot">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Start AutoApply
+        </button>
+
+        <button class="btn btn-secondary" id="btn-pause-bot" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+          Pause
+        </button>
+
+        <button class="btn btn-danger" id="btn-stop-bot" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="5" y="5" width="14" height="14"></rect>
+          </svg>
+          Stop
+        </button>
+
+        <button class="btn btn-accent" id="btn-career-autofill" title="Autofill active career page tab with your candidate profile details and resume PDF">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="12" y1="18" x2="12" y2="12"></line>
+            <line x1="9" y1="15" x2="15" y2="15"></line>
+          </svg>
+          Autofill Career Tab
+        </button>
+      </div>
+
+      <div class="quick-options">
+        <div class="toggle-group" title="Dry run without submitting applications">
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-sim-mode">
+            <span class="slider"></span>
+          </label>
+          <span class="toggle-label">Simulation Mode</span>
+        </div>
+
+        <div class="toggle-group" title="Review before final submission">
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-semi-auto">
+            <span class="slider"></span>
+          </label>
+          <span class="toggle-label">Review Before Submit</span>
+        </div>
+
+        <div class="platform-toggles">
+          <button class="platform-chip active" id="chip-linkedin">
+            <span class="platform-dot dot-linkedin"></span> LinkedIn
+          </button>
+          <button class="platform-chip active" id="chip-naukri">
+            <span class="platform-dot dot-naukri"></span> Naukri
+          </button>
+          <button class="platform-chip active" id="chip-foundit">
+            <span class="platform-dot dot-foundit"></span> Foundit
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="main-tabs" role="tablist">
+      <button class="tab-btn active" id="tab-btn-monitor" role="tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        Live Monitor & Console
+      </button>
+
+      <button class="tab-btn" id="tab-btn-manual-queue" role="tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+          <path d="M9 14l2 2 4-4"></path>
+        </svg>
+        Manual Apply Queue (<span id="manual-queue-badge-count">0</span>)
+      </button>
+
+      <button class="tab-btn" id="tab-btn-history" role="tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        Application History (<span id="history-badge-count">0</span>)
+      </button>
+
+      <button class="tab-btn" id="tab-btn-qa-audit" role="tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <path d="M9 10h.01"></path>
+          <path d="M12 10h.01"></path>
+          <path d="M15 10h.01"></path>
+        </svg>
+        Q&A Audit & Learning (<span id="qa-badge-count">0</span>)
+      </button>
+
+      <button class="tab-btn tab-btn-alert" id="tab-btn-unfilled" role="tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        Missing Fields (<span id="unfilled-badge-count">0</span>)
+      </button>
+
+      <button class="tab-btn" id="tab-btn-profile" role="tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        AI Knowledge Base & Profile
+      </button>
+
+      <button class="tab-btn" id="tab-btn-settings" role="tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Automation Settings
+      </button>
+
+      <button class="tab-btn" id="tab-btn-architecture" role="tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        How It Works
+      </button>
+    </nav>
+
+    <!-- Tab Contents -->
+    <main class="tab-content-area">
+      <!-- 1. LIVE MONITOR TAB -->
+      <section class="tab-pane active" id="pane-monitor">
+        <!-- Live Alert Banner for Missing Fields -->
+        <div id="unfilled-alert-banner" class="unfilled-alert-banner" style="display: none;">
+          <div class="unfilled-alert-content">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <div>
+              <strong>Action Needed:</strong> <span id="unfilled-banner-text">Application questions require manual input.</span>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-accent" id="btn-banner-go-unfilled">Review & Input Answers</button>
+        </div>
+
+        <!-- Live Gemini API Telemetry & Inspector Card -->
+        <div class="gemini-telemetry-card glass-card" id="gemini-telemetry-card">
+          <div class="telemetry-header">
+            <div class="telemetry-title-group">
+              <div class="ai-sparkle-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+              </div>
+              <div>
+                <div class="telemetry-main-title">
+                  <h3>Gemini API Live Telemetry & Inspector</h3>
+                  <span class="model-badge" id="ai-model-badge">gemini-3.5-flash</span>
+                  <span class="key-pool-badge" id="ai-key-badge" title="Active Key Pool">Key 1/4</span>
+                </div>
+                <p class="telemetry-subtitle">Real-time API trigger status, input screening prompt inspector, raw response data, and quota monitoring</p>
+              </div>
+            </div>
+
+            <div class="telemetry-actions">
+              <div class="api-live-pill" id="ai-status-pill">
+                <span class="status-dot dot-idle" id="ai-status-dot"></span>
+                <span id="ai-status-text">Ready / Idle</span>
+              </div>
+              <button class="btn btn-sm btn-accent" id="btn-test-gemini-api" title="Send a live test screening question to Gemini">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                Test Gemini API
+              </button>
+              <button class="btn btn-sm btn-secondary" id="btn-reset-cooldown" style="display: none;" title="Instantly clear rate-limit cooldown and retry">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                  <path d="M21 3v5h-5"></path>
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                  <path d="M3 21v-5h5"></path>
+                </svg>
+                Reset Cooldown
+              </button>
+            </div>
+          </div>
+
+          <!-- Throttle / Error Alert Banner (visible when 429 or error occurs) -->
+          <div class="telemetry-alert-banner" id="ai-error-banner" style="display: none;">
+            <div class="alert-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div class="alert-details">
+              <strong id="ai-error-title">API Quota / Rate-Limit Triggered (429)</strong>
+              <p id="ai-error-message">Gemini is cooling down. Retrying in <span id="ai-cooldown-timer">0</span>s. Local pattern matching is active as fallback.</p>
+            </div>
+          </div>
+
+          <!-- Quick Metrics Ribbon -->
+          <div class="telemetry-metrics-ribbon">
+            <div class="telemetry-metric">
+              <span class="m-label">Total API Calls</span>
+              <span class="m-val" id="telemetry-total-calls">0</span>
+            </div>
+            <div class="telemetry-metric">
+              <span class="m-label">Successful</span>
+              <span class="m-val text-success" id="telemetry-success-calls">0</span>
+            </div>
+            <div class="telemetry-metric">
+              <span class="m-label">Throttled / Failed</span>
+              <span class="m-val text-warning" id="telemetry-failed-calls">0</span>
+            </div>
+            <div class="telemetry-metric">
+              <span class="m-label">Last Call Latency</span>
+              <span class="m-val" id="telemetry-latency">-- ms</span>
+            </div>
+            <div class="telemetry-metric">
+              <span class="m-label">Active Key</span>
+              <span class="m-val text-mono" id="telemetry-key-snippet">--</span>
+            </div>
+          </div>
+
+          <!-- Telemetry Live Inspector: Split Screen Request & Response -->
+          <div class="telemetry-inspector">
+            <div class="inspector-box req-box">
+              <div class="inspector-box-header">
+                <span class="box-badge badge-req">INPUT / PROMPT SENT TO GEMINI</span>
+                <span class="box-time" id="telemetry-req-time">No calls yet</span>
+              </div>
+              <div class="inspector-content">
+                <div class="qa-field-row">
+                  <span class="field-title">Screening Question:</span>
+                  <div class="field-content-highlight" id="telemetry-last-question">Waiting for application screening question...</div>
+                </div>
+                <div class="qa-field-row">
+                  <span class="field-title">Field Type & Context:</span>
+                  <div class="field-content-sub" id="telemetry-last-meta">Platform: -- • Company: -- • Type: text</div>
+                </div>
+                <details class="prompt-details">
+                  <summary>View Complete Prompt Sent to API</summary>
+                  <pre class="prompt-pre" id="telemetry-full-prompt">Prompt will appear here when an API call is triggered.</pre>
+                </details>
+              </div>
+            </div>
+
+            <div class="inspector-box res-box">
+              <div class="inspector-box-header">
+                <span class="box-badge badge-res">GEMINI RESPONSE & PARSED ANSWER</span>
+                <span class="box-time" id="telemetry-res-status">Awaiting trigger</span>
+              </div>
+              <div class="inspector-content">
+                <div class="qa-field-row">
+                  <span class="field-title">Autofilled Answer:</span>
+                  <div class="field-content-answer" id="telemetry-parsed-answer">--</div>
+                </div>
+                <div class="qa-field-row">
+                  <span class="field-title">AI Reasoning:</span>
+                  <div class="field-content-reasoning" id="telemetry-ai-reasoning">AI reasoning explanation will appear here.</div>
+                </div>
+                <details class="prompt-details">
+                  <summary>View Raw JSON Response</summary>
+                  <pre class="prompt-pre" id="telemetry-raw-response">Raw response will appear here when API responds.</pre>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="monitor-grid">
+          <!-- Active Job Card -->
+          <div class="active-job-card glass-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="live-indicator">LIVE TARGET</span>
+                <h3 id="current-job-title">Waiting for session start...</h3>
+                <span class="company-sub" id="current-job-company">Target company will appear here</span>
+              </div>
+              <div class="match-score-badge" id="current-job-score-badge">
+                <span class="score-val" id="current-job-score">--</span>
+                <span class="score-tag">ATS Match</span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="meta-row">
+                <span class="meta-item" id="current-job-platform">
+                  <span class="platform-dot dot-linkedin"></span> Ready
+                </span>
+                <span class="meta-item" id="current-job-location">
+                  📍 Local Machine
+                </span>
+              </div>
+
+              <div class="job-reasoning-box" id="current-job-reasoning">
+                Click <strong>"Start AutoApply"</strong> to launch the automated search and screening reasoning pipeline.
+              </div>
+
+              <div class="skills-chips" id="current-job-skills">
+                <!-- Chips will render here -->
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <span class="status-chip chip-waiting" id="current-job-status">Idle</span>
+              <a href="#" target="_blank" class="link-btn" id="current-job-link" style="display: none;">View Job Page ↗</a>
+            </div>
+          </div>
+
+          <!-- Real-Time Terminal Logs -->
+          <div class="terminal-card glass-card">
+            <div class="terminal-header">
+              <div class="terminal-title">
+                <span class="terminal-dot dot-red"></span>
+                <span class="terminal-dot dot-yellow"></span>
+                <span class="terminal-dot dot-green"></span>
+                <span class="terminal-name">Agent Activity Console</span>
+              </div>
+
+              <div class="terminal-actions">
+                <button class="btn-micro" id="btn-clear-logs" title="Clear console">Clear</button>
+                <label class="autoscroll-toggle" title="Auto scroll to bottom">
+                  <input type="checkbox" id="toggle-autoscroll" checked>
+                  Auto-scroll
+                </label>
+              </div>
+            </div>
+
+            <div class="terminal-filter-bar">
+              <button class="filter-pill active" data-filter="all">All</button>
+              <button class="filter-pill" data-filter="action">Actions</button>
+              <button class="filter-pill" data-filter="success">Success</button>
+              <button class="filter-pill" data-filter="warning">Warnings</button>
+              <button class="filter-pill" data-filter="error">Errors</button>
+            </div>
+
+            <div class="terminal-logs" id="terminal-logs-container">
+              <div class="log-entry log-info">
+                <span class="log-time">System</span>
+                <span class="log-tag tag-system">Core</span>
+                <span class="log-msg">AutoApply Agent system initialized. Ready to automate LinkedIn and Naukri applications.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MANUAL APPLY QUEUE TAB (PHASE 5) -->
+      <section class="tab-pane" id="pane-manual-queue">
+        <div class="glass-card full-card">
+          <!-- Header Bar -->
+          <div class="table-header-bar">
+            <div>
+              <div class="header-with-badge">
+                <h3>High-Match Manual Application Queue</h3>
+                <span class="data-file-badge" title="Data is permanently stored in data/manual_queue.json">
+                  📁 data/manual_queue.json
+                </span>
+                <span class="badge badge-accent" id="mq-pending-badge">0 Pending</span>
+              </div>
+              <p class="section-desc">
+                High-synergy jobs requiring manual submission (external employer career portals, Workday login walls, complex multi-step forms, or manual uploads). Every worthwhile opportunity is preserved here with direct application links.
+              </p>
+            </div>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-refresh-manual-queue" title="Refresh queue">
+                🔄 Refresh
+              </button>
+              <button class="btn btn-accent btn-sm" id="btn-add-manual-job" title="Manually add a job to the queue">
+                ➕ Add Opportunity
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="table-filter-bar mq-toolbar">
+            <div class="filter-group">
+              <label for="mq-filter-fit">Min Overall Fit:</label>
+              <select id="mq-filter-fit" class="filter-select">
+                <option value="0">All Scores</option>
+                <option value="85" selected>🔥 High Fit (≥85%)</option>
+                <option value="75">⭐ Good Fit (≥75%)</option>
+                <option value="65">👍 Potential (≥65%)</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="mq-filter-platform">Platform:</label>
+              <select id="mq-filter-platform" class="filter-select">
+                <option value="all">All Platforms</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="naukri">Naukri</option>
+                <option value="foundit">Foundit</option>
+                <option value="career website">Career Portals</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="mq-filter-status">Status:</label>
+              <select id="mq-filter-status" class="filter-select">
+                <option value="all">All Statuses</option>
+                <option value="pending" selected>Pending Action</option>
+                <option value="applied">Completed (Applied)</option>
+                <option value="not_interested">Not Interested</option>
+                <option value="expired">Expired / Closed</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="mq-sort-by">Sort By:</label>
+              <select id="mq-sort-by" class="filter-select">
+                <option value="highest_fit" selected>Highest Overall Fit</option>
+                <option value="highest_tech">Highest Tech Score</option>
+                <option value="newest">Most Recently Discovered</option>
+                <option value="oldest_pending">Oldest Pending Action</option>
+              </select>
+            </div>
+
+            <div class="search-box">
+              <input type="text" id="mq-search-input" class="search-input" placeholder="Search role, company, or skills...">
+            </div>
+          </div>
+
+          <!-- Queue List Container -->
+          <div id="mq-items-container" class="mq-cards-grid">
+            <!-- Dynamic cards rendered by JS -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="mq-empty-state" class="empty-state" style="display: none;">
+            <div class="empty-icon">📋</div>
+            <h4>No Opportunities in Manual Queue</h4>
+            <p>When high-match jobs on external career sites or Workday portals are found that cannot be submitted automatically, they will appear here with direct application links.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. APPLICATION HISTORY TAB -->
+      <section class="tab-pane" id="pane-history">
+        <div class="glass-card full-card">
+          <!-- Header Bar -->
+          <div class="table-header-bar">
+            <div>
+              <div class="header-with-badge">
+                <h3>Application Records & History</h3>
+                <span class="data-file-badge" title="Data is permanently stored in data/applications.json">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                  data/applications.json
+                </span>
+              </div>
+              <p class="subtitle">Complete persistent history of jobs applied, screening questions answered, and time-based metrics.</p>
+            </div>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-refresh-history" title="Reload from data/applications.json">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Refresh Data
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btn-clear-history">Clear History</button>
+            </div>
+          </div>
+
+          <!-- Time Analytics Cards (Today, Yesterday, This Month, Previous Month, All Time) -->
+          <div class="time-metrics-grid">
+            <div class="time-metric-card" data-period="today" id="card-period-today">
+              <div class="time-metric-icon icon-today">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div class="time-metric-content">
+                <span class="time-metric-num" id="time-stat-today">0</span>
+                <span class="time-metric-label">Today</span>
+              </div>
+              <span class="time-metric-sub">Current Day Submissions</span>
+            </div>
+
+            <div class="time-metric-card" data-period="yesterday" id="card-period-yesterday">
+              <div class="time-metric-icon icon-yesterday">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg>
+              </div>
+              <div class="time-metric-content">
+                <span class="time-metric-num" id="time-stat-yesterday">0</span>
+                <span class="time-metric-label">Yesterday</span>
+              </div>
+              <span class="time-metric-sub">Previous Day Submissions</span>
+            </div>
+
+            <div class="time-metric-card" data-period="this_month" id="card-period-this-month">
+              <div class="time-metric-icon icon-this-month">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              </div>
+              <div class="time-metric-content">
+                <span class="time-metric-num" id="time-stat-this-month">0</span>
+                <span class="time-metric-label">This Month</span>
+              </div>
+              <span class="time-metric-sub">Current Month Total</span>
+            </div>
+
+            <div class="time-metric-card" data-period="prev_month" id="card-period-prev-month">
+              <div class="time-metric-icon icon-prev-month">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              </div>
+              <div class="time-metric-content">
+                <span class="time-metric-num" id="time-stat-prev-month">0</span>
+                <span class="time-metric-label">Previous Month</span>
+              </div>
+              <span class="time-metric-sub">Last Month Submissions</span>
+            </div>
+
+            <div class="time-metric-card" data-period="all" id="card-period-all">
+              <div class="time-metric-icon icon-all-time">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+              </div>
+              <div class="time-metric-content">
+                <span class="time-metric-num" id="time-stat-all-time">0</span>
+                <span class="time-metric-label">All-Time Total</span>
+              </div>
+              <span class="time-metric-sub">Total Lifetime Applied</span>
+            </div>
+          </div>
+
+          <!-- Filter Toolbar with Period Pills & Selects -->
+          <div class="history-toolbar">
+            <div class="period-pills-group">
+              <span class="toolbar-label">Period:</span>
+              <button class="history-period-pill active" data-period="all">All Time</button>
+              <button class="history-period-pill" data-period="today">Today</button>
+              <button class="history-period-pill" data-period="yesterday">Yesterday</button>
+              <button class="history-period-pill" data-period="this_month">This Month</button>
+              <button class="history-period-pill" data-period="prev_month">Previous Month</button>
+            </div>
+
+            <div class="history-filter-selects">
+              <div class="history-search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" class="input-search" id="input-history-search" placeholder="Search role, company, or questions...">
+              </div>
+
+              <select id="history-filter-platform" class="qa-select-filter">
+                <option value="all">All Platforms</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Naukri">Naukri</option>
+                <option value="Foundit">Foundit</option>
+                <option value="Career Website">Career Website</option>
+              </select>
+
+              <select id="history-filter-status" class="qa-select-filter">
+                <option value="all">All Statuses</option>
+                <option value="applied">Applied</option>
+                <option value="skipped">Skipped</option>
+                <option value="failed">Failed / Review</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Applications Table -->
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Application / Job Title</th>
+                  <th>Company & Location</th>
+                  <th>Platform</th>
+                  <th>Screening Q&A</th>
+                  <th>ATS Match</th>
+                  <th>Status</th>
+                  <th>Applied Time</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <tr class="empty-row">
+                  <td colspan="8">No applications recorded yet. Start a session to see history.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. SCREENING Q&A AUDIT & ACTIVE LEARNING TAB -->
+      <section class="tab-pane" id="pane-qa-audit">
+        <div class="glass-card qa-audit-card">
+          <div class="qa-audit-header">
+            <div>
+              <h3>Screening Q&A Audit & Memory Learning</h3>
+              <p class="subtitle">Complete audit trail of every screening question answered by Gemini AI or Local Memory. Review, correct, and save answers as permanent memory rules with 1-click.</p>
+            </div>
+            <div class="qa-audit-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-qa-export" title="Export audit trail to JSON">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Export JSON
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btn-qa-clear" title="Clear audit history">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Clear Log
+              </button>
+            </div>
+          </div>
+
+          <!-- Q&A Stat Metrics -->
+          <div class="qa-metrics-grid">
+            <div class="qa-metric-card">
+              <span class="qa-metric-num" id="qa-stat-total">0</span>
+              <span class="qa-metric-label">Total Questions Logged</span>
+            </div>
+            <div class="qa-metric-card qa-metric-gemini">
+              <span class="qa-metric-num" id="qa-stat-gemini">0</span>
+              <span class="qa-metric-label">🤖 Gemini AI Answered</span>
+            </div>
+            <div class="qa-metric-card qa-metric-local">
+              <span class="qa-metric-num" id="qa-stat-local">0</span>
+              <span class="qa-metric-label">⚡ Local Memory Matches</span>
+            </div>
+            <div class="qa-metric-card qa-metric-rules">
+              <span class="qa-metric-num" id="qa-stat-rules">0</span>
+              <span class="qa-metric-label">⭐ Permanent Memory Rules</span>
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="qa-filter-toolbar">
+            <div class="qa-search-box">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="qa-search-input" placeholder="Search questions, answers, companies...">
+            </div>
+            <div class="qa-filter-selects">
+              <select id="qa-filter-platform" class="qa-select-filter">
+                <option value="all">All Platforms</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Naukri">Naukri</option>
+                <option value="Foundit">Foundit</option>
+                <option value="Career Website">Career Website</option>
+                <option value="Dashboard Tester">Dashboard Tester</option>
+              </select>
+              <select id="qa-filter-engine" class="qa-select-filter">
+                <option value="all">All Engines</option>
+                <option value="Gemini AI">🤖 Gemini AI</option>
+                <option value="Local Rule">⚡ Local Rule</option>
+                <option value="Verified Memory Rule">⭐ Verified Rule</option>
+              </select>
+              <select id="qa-filter-status" class="qa-select-filter">
+                <option value="all">All Status</option>
+                <option value="auto">Needs Review (Auto)</option>
+                <option value="saved_as_rule">Verified (Saved Rule)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Interactive Test Runner Playground -->
+          <div class="qa-test-box">
+            <div class="qa-test-header">
+              <span class="qa-test-title">🧪 Test Question Answering Real-time</span>
+              <span class="qa-test-sub">Type any question asked by recruiters to see how Gemini / Local rules answer it and inspect the logged result</span>
+            </div>
+            <div class="qa-test-input-row">
+              <input type="text" id="qa-quick-question-input" class="form-input" placeholder="e.g. How many years of experience do you have with Spring Boot microservices?">
+              <button class="btn btn-accent" id="btn-qa-quick-test">
+                <span>Ask AI Agent</span>
+              </button>
+            </div>
+            <div id="qa-quick-result" class="qa-quick-result-box" style="display: none;"></div>
+          </div>
+
+          <!-- Q&A Table / Cards Container -->
+          <div class="qa-items-container" id="qa-items-container">
+            <!-- Dynamically rendered -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. MISSING & UNFILLED FIELDS TAB (MANUAL INPUT & LEARNING) -->
+      <section class="tab-pane" id="pane-unfilled">
+        <div class="glass-card unfilled-card">
+          <div class="unfilled-header">
+            <div>
+              <h3>⚠️ Missing & Unfilled Fields (Manual Input & Rule Learning)</h3>
+              <p class="subtitle">Whenever an application field is skipped, unrecognized, or requires manual answer (e.g. custom address, country dropdowns, specialized questions), it appears here in real-time. Type your answer and click <strong>"Save & Remember Forever"</strong> so the agent auto-fills it next time!</p>
+            </div>
+            <div class="unfilled-header-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-unfilled-refresh" title="Refresh missing fields list">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Refresh
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btn-unfilled-clear" title="Clear all missing fields">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Clear All
+              </button>
+            </div>
+          </div>
+
+          <!-- Unfilled Stat Metrics -->
+          <div class="unfilled-metrics-grid">
+            <div class="qa-metric-card qa-metric-unfilled-pending">
+              <span class="qa-metric-num" id="unfilled-stat-pending">0</span>
+              <span class="qa-metric-label">⚠️ Pending Manual Input</span>
+            </div>
+            <div class="qa-metric-card qa-metric-rules">
+              <span class="qa-metric-num" id="unfilled-stat-rules">0</span>
+              <span class="qa-metric-label">⭐ Learned Rules in Profile</span>
+            </div>
+            <div class="qa-metric-card qa-metric-local">
+              <span class="qa-metric-num" id="unfilled-stat-total-qa">0</span>
+              <span class="qa-metric-label">📋 Total Questions In Audit</span>
+            </div>
+          </div>
+
+          <!-- Proactive Manual Add Form -->
+          <div class="unfilled-add-box">
+            <div class="unfilled-add-header">
+              <span class="unfilled-add-title">➕ Proactively Add Missing Question & Answer</span>
+              <span class="unfilled-add-sub">Notice a field that was missed or want to prepare for future applications? Add it here to create a permanent rule in memory.</span>
+            </div>
+            <div class="unfilled-add-grid">
+              <div class="form-group">
+                <label for="input-manual-question">Question / Field Label</label>
+                <input type="text" id="input-manual-question" class="form-input" placeholder="e.g. Current street address, Notice period in days, Willingness to work in night shifts">
+              </div>
+              <div class="form-group">
+                <label for="input-manual-answer">Your Verified Answer</label>
+                <input type="text" id="input-manual-answer" class="form-input" placeholder="e.g. Madhapur, HITEC City, Hyderabad">
+              </div>
+              <div class="form-group">
+                <label for="select-manual-type">Field Data Type</label>
+                <select id="select-manual-type" class="form-select">
+                  <option value="text">Text (General string)</option>
+                  <option value="number">Number (Digits / Decimal only)</option>
+                  <option value="select">Dropdown Choice</option>
+                  <option value="radio">Radio Button (Yes / No)</option>
+                </select>
+              </div>
+              <div class="form-group unfilled-btn-cell">
+                <button class="btn btn-primary" id="btn-manual-add-rule">
+                  <span>💾 Save & Remember in Memory</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Missing Fields Container -->
+          <div class="unfilled-items-container" id="unfilled-items-container">
+            <!-- Dynamically populated or empty state -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. AI KNOWLEDGE BASE & PROFILE TAB -->
+      <section class="tab-pane" id="pane-profile">
+        <div class="profile-layout">
+          <!-- Profile Form -->
+          <div class="glass-card profile-card">
+            <div class="section-title-bar">
+              <div>
+                <h3>Candidate Profile</h3>
+                <p class="subtitle">Used by the agent to answer screening questions, fill forms, and compute ATS synergy.</p>
+              </div>
+              <button class="btn btn-primary" id="btn-save-profile">Save Profile</button>
+            </div>
+
+            <form id="form-profile" class="profile-form">
+              <div class="form-section">
+                <h4>Personal & Contact Information</h4>
+                <div class="form-row three-col">
+                  <div class="form-group">
+                    <label for="prof-fullName">Full Name</label>
+                    <input type="text" id="prof-fullName" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-firstName">First Name</label>
+                    <input type="text" id="prof-firstName" class="form-input" placeholder="e.g. Sai Krishna">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-lastName">Last Name</label>
+                    <input type="text" id="prof-lastName" class="form-input" placeholder="e.g. G">
+                  </div>
+                </div>
+
+                <div class="form-row three-col">
+                  <div class="form-group">
+                    <label for="prof-email">Email Address</label>
+                    <input type="email" id="prof-email" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-phone">Phone Number</label>
+                    <input type="text" id="prof-phone" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-phoneCountryCode">Phone Country Code</label>
+                    <input type="text" id="prof-phoneCountryCode" class="form-input" placeholder="e.g. India (+91)">
+                  </div>
+                </div>
+
+                <div class="form-row three-col">
+                  <div class="form-group">
+                    <label for="prof-city">City</label>
+                    <input type="text" id="prof-city" class="form-input" placeholder="e.g. Hyderabad">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-state">State / Province</label>
+                    <input type="text" id="prof-state" class="form-input" placeholder="e.g. Telangana">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-country">Country</label>
+                    <input type="text" id="prof-country" class="form-input" placeholder="e.g. India">
+                  </div>
+                </div>
+
+                <div class="form-row three-col">
+                  <div class="form-group">
+                    <label for="prof-postalCode">Postal / PIN Code</label>
+                    <input type="text" id="prof-postalCode" class="form-input" placeholder="e.g. 500081">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-streetAddress">Street Address</label>
+                    <input type="text" id="prof-streetAddress" class="form-input" placeholder="e.g. Madhapur, HITEC City">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-gender">Gender</label>
+                    <input type="text" id="prof-gender" class="form-input" placeholder="e.g. Male">
+                  </div>
+                </div>
+
+                <div class="form-row three-col">
+                  <div class="form-group">
+                    <label for="prof-location">Full Location</label>
+                    <input type="text" id="prof-location" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-linkedin">LinkedIn URL</label>
+                    <input type="url" id="prof-linkedin" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-github">GitHub / Portfolio URL</label>
+                    <input type="url" id="prof-github" class="form-input">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4>Career & Compensation</h4>
+                <div class="form-row two-col">
+                  <div class="form-group">
+                    <label for="prof-primaryRole">Primary Job Title</label>
+                    <input type="text" id="prof-primaryRole" class="form-input">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-totalExp">Total Years Experience</label>
+                    <input type="number" id="prof-totalExp" class="form-input">
+                  </div>
+                </div>
+
+                <div class="form-row three-col">
+                  <div class="form-group">
+                    <label for="prof-currentSalary">Current CTC</label>
+                    <input type="text" id="prof-currentSalary" class="form-input" placeholder="e.g. 18 LPA">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-expectedSalary">Expected CTC</label>
+                    <input type="text" id="prof-expectedSalary" class="form-input" placeholder="e.g. 26 LPA">
+                  </div>
+                  <div class="form-group">
+                    <label for="prof-noticePeriod">Notice Period (Days)</label>
+                    <input type="number" id="prof-noticePeriod" class="form-input" placeholder="e.g. 30">
+                  </div>
+                </div>
+
+                <div class="form-row two-col">
+                  <div class="checkbox-group">
+                    <label>
+                      <input type="checkbox" id="prof-relocate">
+                      Willing to Relocate
+                    </label>
+                  </div>
+                  <div class="checkbox-group">
+                    <label>
+                      <input type="checkbox" id="prof-visa">
+                      Requires Visa Sponsorship
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4>Skills & Competency Experience</h4>
+                <div class="skills-list-manager" id="skills-list-container">
+                  <!-- Skill rows populated dynamically -->
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-add-skill">+ Add Skill</button>
+              </div>
+
+              <div class="form-section">
+                <h4>Tailored Cover Statement / Pitch</h4>
+                <div class="form-group">
+                  <textarea id="prof-coverIntro" class="form-textarea" rows="3" placeholder="Intro statement used for portals that ask for custom messages or cover statements..."></textarea>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- AI Q&A Memory & Interactive Playground -->
+          <div class="ai-memory-sidebar">
+            <div class="glass-card playground-card">
+              <h3>🤖 AI Screening Tester <span class="ai-status-badge" id="ai-tester-badge">Local Only</span></h3>
+              <p class="subtitle">Test the hybrid AI engine: <strong>⚡ Local</strong> for known questions (instant) → <strong>🤖 Gemini AI</strong> for complex/unknown questions.</p>
+              
+              <div class="form-group">
+                <label for="test-question-input">Screening Question</label>
+                <input type="text" id="test-question-input" class="form-input" value="How many years of experience do you have with React?">
+              </div>
+
+              <div class="quick-sample-chips">
+                <span class="sample-chip" data-q="What is your current notice period?">⚡ Notice period</span>
+                <span class="sample-chip" data-q="What is your expected salary?">⚡ Expected salary</span>
+                <span class="sample-chip" data-q="Do you require visa sponsorship?">⚡ Sponsorship</span>
+                <span class="sample-chip" data-q="Why do you want to join our company?">🤖 Why join</span>
+                <span class="sample-chip" data-q="Describe a challenging project you worked on and how you solved it.">🤖 Complex Q</span>
+                <span class="sample-chip" data-q="What is your approach to building scalable microservices?">🤖 Technical Q</span>
+                <span class="sample-chip" data-q="Are you comfortable with on-call rotations?">🤖 Unknown Q</span>
+              </div>
+
+              <button class="btn btn-secondary full-width" id="btn-test-ai-answer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Test AI Answer Engine
+              </button>
+
+              <div class="test-result-box" id="test-result-display">
+                <div class="result-header">Agent Answer Output:</div>
+                <div class="result-answer" id="test-answer-text">Click "Test AI Answer Engine" above</div>
+                <div class="result-source" id="test-answer-source">Source: Waiting for query...</div>
+                <div class="result-engine" id="test-answer-engine"></div>
+              </div>
+            </div>
+
+            <!-- Pre-configured screening Q&A Rules -->
+            <div class="glass-card rules-card">
+              <h3>Active Screening Rules</h3>
+              <p class="subtitle">Deterministic answers stored in candidate memory:</p>
+              <ul class="rules-list" id="active-rules-list">
+                <!-- Dynamically rendered -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. AUTOMATION SETTINGS TAB -->
+      <section class="tab-pane" id="pane-settings">
+        <div class="glass-card settings-card">
+          <div class="section-title-bar">
+            <div>
+              <h3>Automation & Browser Configuration</h3>
+              <p class="subtitle">Customize job search keywords, location filters, rate limits, and Chrome connection details.</p>
+            </div>
+            <button class="btn btn-primary" id="btn-save-settings">Save Settings</button>
+          </div>
+
+          <form id="form-settings" class="settings-form">
+            <div class="form-section">
+              <h4>Job Search Filters</h4>
+              <div class="form-row two-col">
+                <div class="form-group">
+                  <label for="sett-keywords">Search Keywords (Summary)</label>
+                  <input type="text" id="sett-keywords" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label for="sett-locations">Locations (Comma separated)</label>
+                  <input type="text" id="sett-locations" class="form-input">
+                </div>
+              </div>
+
+              <div class="form-row two-col">
+                <div class="form-group">
+                  <label for="sett-datePosted">Freshness / Date Posted Filter</label>
+                  <select id="sett-datePosted" class="form-input">
+                    <option value="past_24h" selected>⚡ Past 24 Hours (Fresh Postings)</option>
+                    <option value="past_48h">⏳ Past 48 Hours (Last 2 Days)</option>
+                    <option value="past_week">📅 Past Week (Last 7 Days)</option>
+                    <option value="all">🌐 Any Time</option>
+                  </select>
+                  <p class="field-hint">Human-like filtering for newest jobs with 'Sort by Most Recent' applied.</p>
+                </div>
+                <div class="form-group">
+                  <label for="sett-maxPages">Max Pages per Scenario</label>
+                  <input type="number" id="sett-maxPages" class="form-input" min="1" max="10" value="2">
+                  <p class="field-hint">How many result pages to navigate per role scenario.</p>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="sett-scenarios">Role Scenarios Matrix (Each scenario is searched & applied sequentially)</label>
+                <textarea id="sett-scenarios" class="form-textarea" rows="3" placeholder="Angular Developer, Java Developer, Angular Java Developer, Full Stack Developer, Java Spring Boot Developer"></textarea>
+                <p class="field-hint">The bot applies like a human: iterates through each role scenario with 24h filter + sort by recent.</p>
+              </div>
+
+              <div class="form-row two-col">
+                <div class="form-group">
+                  <label for="sett-minScore">Minimum ATS Match Score (% threshold to apply)</label>
+                  <div class="range-group">
+                    <input type="range" id="sett-minScore" class="form-range" min="30" max="95" step="5">
+                    <span class="range-val" id="sett-minScore-val">65%</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="sett-maxApps">Maximum Applications per Session</label>
+                  <input type="number" id="sett-maxApps" class="form-input" min="1" max="100">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h4>Safety & Human Simulation</h4>
+              <div class="form-row two-col">
+                <div class="form-group">
+                  <label for="sett-delayMin">Minimum Action Delay (ms)</label>
+                  <input type="number" id="sett-delayMin" class="form-input" min="500" step="100">
+                </div>
+                <div class="form-group">
+                  <label for="sett-delayMax">Maximum Action Delay (ms)</label>
+                  <input type="number" id="sett-delayMax" class="form-input" min="1000" step="100">
+                </div>
+              </div>
+              <p class="field-hint">Natural randomized pauses (1.5s - 3.5s) mimic human typing and scrolling, preventing rate limits and anti-bot flags.</p>
+            </div>
+
+            <div class="form-section">
+              <h4>Chrome Connection (Remote Debugging Protocol)</h4>
+              <div class="form-row two-col">
+                <div class="form-group">
+                  <label for="sett-chromePort">Chrome Remote Debugging Port</label>
+                  <input type="number" id="sett-chromePort" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label for="sett-chromePath">Chrome Executable Path</label>
+                  <input type="text" id="sett-chromePath" class="form-input">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section ai-config-section">
+              <h4>
+                🤖 Gemini AI Configuration
+                <span class="ai-status-badge" id="ai-status-badge">Not Connected</span>
+              </h4>
+              <p class="field-hint">The hybrid AI engine uses <strong>⚡ local pattern matching</strong> for known questions (CTC, notice period, experience) and <strong>🤖 Google Gemini AI</strong> for complex/unknown questions. Enter your free API key below to activate Gemini.</p>
+              
+              <div class="form-row two-col">
+                <div class="form-group">
+                  <label for="sett-gemini-key">Gemini API Key</label>
+                  <div class="input-with-action">
+                    <input type="password" id="sett-gemini-key" class="form-input" placeholder="AIza...your-gemini-api-key">
+                    <button type="button" class="btn btn-sm btn-accent" id="btn-save-ai-key">Save & Activate</button>
+                  </div>
+                  <p class="field-hint">Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color: var(--accent)">aistudio.google.com/apikey</a></p>
+                </div>
+                <div class="form-group">
+                  <label>AI Engine Status</label>
+                  <div class="ai-engine-status-box" id="ai-engine-status-box">
+                    <div class="ai-status-row">
+                      <span class="ai-status-label">Provider:</span>
+                      <span class="ai-status-value" id="ai-stat-provider">Google Gemini</span>
+                    </div>
+                    <div class="ai-status-row">
+                      <span class="ai-status-label">Model:</span>
+                      <span class="ai-status-value" id="ai-stat-model">gemini-2.5-flash</span>
+                    </div>
+                    <div class="ai-status-row">
+                      <span class="ai-status-label">Status:</span>
+                      <span class="ai-status-value" id="ai-stat-status">⏳ Waiting for API key</span>
+                    </div>
+                    <div class="ai-status-row">
+                      <span class="ai-status-label">Strategy:</span>
+                      <span class="ai-status-value">⚡ Local-first → 🤖 AI escalation</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- 5. HOW IT WORKS TAB -->
+      <section class="tab-pane" id="pane-architecture">
+        <div class="glass-card architecture-card">
+          <h3>System Architecture & How It Works Locally</h3>
+          <p class="subtitle">Complete technical blueprint of your local AI Job Application system.</p>
+
+          <div class="architecture-grid">
+            <div class="arch-step">
+              <div class="arch-number">1</div>
+              <h4>Local Chrome Integration</h4>
+              <p>The agent connects directly to your installed Google Chrome browser on your local machine using Chrome's native <strong>Remote Debugging Protocol (CDP port 9222)</strong>. Because it runs on your real machine with your real browser session, your existing logins, cookies, and 2FA for LinkedIn and Naukri are preserved seamlessly with zero passwords stored in code.</p>
+            </div>
+
+            <div class="arch-step">
+              <div class="arch-number">2</div>
+              <h4>Search & Filtering</h4>
+              <p>The orchestrator navigates to LinkedIn (Easy Apply filter) and Naukri. It extracts job postings, descriptions, required qualifications, and salary disclosures directly from the DOM.</p>
+            </div>
+
+            <div class="arch-step">
+              <div class="arch-number">3</div>
+              <h4>AI ATS Synergy Evaluation</h4>
+              <p>The AI Agent analyzes the job description against your candidate profile in real time. It computes a match score (0-100%). If the job does not meet your threshold (e.g. 65%), it skips it to protect your application history from irrelevant roles.</p>
+            </div>
+
+            <div class="arch-step">
+              <div class="arch-number">4</div>
+              <h4>Hybrid AI Screening Q&A</h4>
+              <p>Uses a <strong>two-tier intelligence system</strong>: <strong>⚡ Local pattern matching</strong> answers known questions instantly (CTC, notice period, experience years, yes/no) with zero API calls. For complex or unknown questions, it <strong>🤖 escalates to Google Gemini AI</strong> which has your full profile context loaded and generates intelligent, contextual answers in real time.</p>
+            </div>
+
+            <div class="arch-step">
+              <div class="arch-number">5</div>
+              <h4>Safety & Human-in-the-Loop</h4>
+              <p>With <strong>Review Before Submit (Semi-Auto)</strong>, you can inspect the filled application on your screen before clicking send. If a CAPTCHA appears, you can solve it directly in your Chrome window!</p>
+            </div>
+
+            <div class="arch-step">
+              <div class="arch-number">6</div>
+              <h4>Local Privacy Guarantee</h4>
+              <p>Everything runs strictly on <code>http://localhost:3000</code>. No candidate data is sent to third-party databases. You have 100% ownership and control over your session.</p>
+            </div>
+          </div>
+
+          <div class="quick-launch-guide">
+            <h4>Quick Launch Instructions</h4>
+            <div class="code-block">
+              <code># 1. Start the AutoApply server from your IDE terminal:
+npm start
+
+# 2. Or simply double-click the included start.bat script!
+# 3. Your dashboard opens at http://localhost:3000</code>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Screening Q&A Details Modal -->
+    <div class="modal-backdrop" id="qa-details-modal" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge-platform" id="modal-qa-platform">LinkedIn</span>
+            <h3 id="modal-qa-title">Software Developer</h3>
+            <span class="modal-subtitle" id="modal-qa-company">UNPlus Solutions • Hyderabad</span>
+          </div>
+          <button class="btn-close-modal" id="btn-close-qa-modal" title="Close Modal">&times;</button>
+        </div>
+
+        <div class="modal-meta-bar">
+          <div class="modal-meta-item">
+            <span class="meta-label">Status:</span>
+            <span class="status-chip chip-applied" id="modal-qa-status">applied</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="meta-label">ATS Score:</span>
+            <span class="score-pill" id="modal-qa-score" style="font-weight: 700; color: #34d399;">88%</span>
+          </div>
+          <div class="modal-meta-item">
+            <span class="meta-label">Submitted:</span>
+            <span id="modal-qa-time" style="color: var(--text-muted); font-size: 0.85rem;">Today, 11:27 AM</span>
+          </div>
+          <div class="modal-meta-item" id="modal-qa-link-container">
+            <a href="#" target="_blank" class="link-btn" id="modal-qa-link">View Job ↗</a>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-qa-heading">
+            <h4>Screening Questions & Automated Answers</h4>
+            <span class="modal-qa-count" id="modal-qa-count">4 Questions</span>
+          </div>
+          <div class="modal-qa-list" id="modal-qa-list">
+            <!-- Dynamically populated Q&A items -->
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <span class="modal-storage-info">💾 Saved in <code>data/applications.json</code></span>
+          <button class="btn btn-secondary btn-sm" id="btn-close-qa-modal-footer">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. Mark Applied Interactive Modal -->
+    <div id="mq-applied-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h3>Record Manual Application Completion</h3>
+            <p class="modal-subtitle" id="mq-modal-job-title">Software Developer</p>
+          </div>
+          <button class="modal-close-btn" id="btn-close-mq-applied-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="mq-modal-conf-id">Application Confirmation ID / Reference # (Optional):</label>
+            <input type="text" id="mq-modal-conf-id" class="form-input" placeholder="e.g. APP-94821 or Workday Ref">
+          </div>
+          <div class="form-group">
+            <label for="mq-modal-applied-date">Date Applied:</label>
+            <input type="date" id="mq-modal-applied-date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="mq-modal-notes">Application Notes (Optional):</label>
+            <textarea id="mq-modal-notes" class="form-input" rows="3" placeholder="e.g. Uploaded resume, completed custom screening questionnaire on portal"></textarea>
+          </div>
+          <div class="form-checkbox-row">
+            <input type="checkbox" id="mq-modal-verified-check" checked>
+            <label for="mq-modal-verified-check">I verified and submitted this application directly on the employer's portal</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-cancel-mq-applied-modal">Cancel</button>
+          <button class="btn btn-primary" id="btn-confirm-mq-applied">Confirm Application</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Add Opportunity Modal -->
+    <div id="mq-add-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h3>Add Job Opportunity to Manual Queue</h3>
+            <p class="modal-subtitle">Preserve external portals, recruiter links, or direct company openings</p>
+          </div>
+          <button class="modal-close-btn" id="btn-close-mq-add-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="mq-add-title">Job Title *:</label>
+            <input type="text" id="mq-add-title" class="form-input" placeholder="e.g. Angular Java Developer" required>
+          </div>
+          <div class="form-group">
+            <label for="mq-add-company">Company Name *:</label>
+            <input type="text" id="mq-add-company" class="form-input" placeholder="e.g. Google, Amazon, Enterprise Corp" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mq-add-location">Location:</label>
+              <input type="text" id="mq-add-location" class="form-input" placeholder="e.g. Hyderabad / Remote" value="Hyderabad">
+            </div>
+            <div class="form-group">
+              <label for="mq-add-platform">Source Platform:</label>
+              <select id="mq-add-platform" class="form-input">
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Naukri">Naukri</option>
+                <option value="Career Website" selected>Career Website</option>
+                <option value="Foundit">Foundit</option>
+                <option value="Recruiter Outreach">Recruiter Outreach</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mq-add-listing-url">Job Listing / Career Page URL *:</label>
+            <input type="url" id="mq-add-listing-url" class="form-input" placeholder="https://..." required>
+          </div>
+          <div class="form-group">
+            <label for="mq-add-direct-url">Direct Application URL (Optional):</label>
+            <input type="url" id="mq-add-direct-url" class="form-input" placeholder="https://myworkdayjobs.com/...">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mq-add-fit-score">Estimated Overall Fit (%):</label>
+              <input type="number" id="mq-add-fit-score" class="form-input" min="0" max="100" value="88">
+            </div>
+            <div class="form-group">
+              <label for="mq-add-tech-score">Technical Match (%):</label>
+              <input type="number" id="mq-add-tech-score" class="form-input" min="0" max="100" value="85">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mq-add-notes">Notes / Instructions:</label>
+            <textarea id="mq-add-notes" class="form-input" rows="2" placeholder="e.g. Workday account login needed"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-cancel-mq-add-modal">Cancel</button>
+          <button class="btn btn-primary" id="btn-confirm-mq-add">Save to Queue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Notes Modal -->
+    <div id="mq-notes-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h3>Job Application Notes</h3>
+            <p class="modal-subtitle" id="mq-notes-job-title">Opportunity Notes</p>
+          </div>
+          <button class="modal-close-btn" id="btn-close-mq-notes-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="mq-edit-notes-input">Candidate Notes:</label>
+            <textarea id="mq-edit-notes-input" class="form-input" rows="5" placeholder="Add follow-up notes, application progress, or interview schedules..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-cancel-mq-notes-modal">Cancel</button>
+          <button class="btn btn-primary" id="btn-confirm-mq-notes">Save Notes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
