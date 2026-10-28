@@ -1550,13 +1550,16 @@ Respond in this JSON format only:
     }
 
     // Pick top 3-4 significant words
-    const stopWords = new Set(['what', 'is', 'your', 'are', 'you', 'the', 'a', 'an', 'in', 'on', 'for', 'to', 'of', 'and', 'do', 'have', 'please', 'can', 'any', 'enter']);
+    const stopWords = new Set(['what', 'is', 'your', 'are', 'you', 'the', 'a', 'an', 'in', 'on', 'for', 'to', 'of', 'and', 'do', 'have', 'please', 'can', 'any', 'enter', 'yes', 'no', 'if', 'not']);
     const words = norm.split(' ').filter(w => w.length > 2 && !stopWords.has(w));
     if (words.length > 0) {
+      if (words.length === 1 && words[0].length <= 6) {
+        return `^\\s*${words[0]}\\s*$`;
+      }
       return words.slice(0, 4).join('.*');
     }
 
-    return norm.slice(0, 40);
+    return `^\\s*${norm.slice(0, 40)}\\s*$`;
   }
 
   saveRuleToMemory({ id, question, pattern, answer, answerType = 'fixed' }) {

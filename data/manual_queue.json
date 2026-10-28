@@ -1,0 +1,55 @@
+{
+  "lastUpdated": "2026-10-28T17:18:20.927Z",
+  "totalItems": 1,
+  "items": [
+    {
+      "id": "nk-1793207890135-0-32",
+      "priority": "MEDIUM",
+      "overallFitScore": 74,
+      "overallScore": 74,
+      "technicalScore": 74,
+      "matchScore": 74,
+      "title": "Custom Software Engineer",
+      "company": "Accenture",
+      "location": "Hyderabad",
+      "workMode": "Hybrid / Office",
+      "requiredExperience": "1-4 years",
+      "experienceCompatibility": "meets_required",
+      "matchedSkills": [
+        "Java",
+        "Spring Boot",
+        "JavaScript",
+        "PostgreSQL & SQL"
+      ],
+      "missingRequiredSkills": [],
+      "missingPreferredSkills": [],
+      "sourcePlatform": "Naukri",
+      "jobListingUrl": "https://www.naukri.com/job-listings-custom-software-engineer-accenture-solutions-pvt-ltd-hyderabad-5-to-10-years-261026921354",
+      "normalizedListingUrl": "https://www.naukri.com/job-listings-custom-software-engineer-accenture-solutions-pvt-ltd-hyderabad-5-to-10-years-261026921354",
+      "directApplicationUrl": "https://www.accenture.com/in-en/careers/jobdetails?id=ATCI-5440246-S1980084_en&title=Custom+Software+Engineer&SRC=RECNau",
+      "directApplyUrl": "https://www.accenture.com/in-en/careers/jobdetails?id=ATCI-5440246-S1980084_en&title=Custom+Software+Engineer&SRC=RECNau",
+      "hasDirectApplicationUrl": true,
+      "applicationMethod": "career_site_form",
+      "reason": "External career portal or manual action required",
+      "status": "MANUAL_ACTION_REQUIRED",
+      "discoveryTimestamp": "2026-10-28T17:18:20.926Z",
+      "lastVerifiedTimestamp": "2026-10-28T17:18:20.926Z",
+      "reminderTimestamp": null,
+      "notes": "",
+      "auditTrail": [
+        {
+          "transitionId": "tr-1793207900926-xoydv5",
+          "timestamp": "2026-10-28T17:18:20.926Z",
+          "fromState": "DISCOVERED",
+          "from": "DISCOVERED",
+          "toState": "MANUAL_ACTION_REQUIRED",
+          "to": "MANUAL_ACTION_REQUIRED",
+          "isLegal": true,
+          "actor": "bot",
+          "reason": "External career portal or manual action required",
+          "evidence": null
+        }
+      ]
+    }
+  ]
+}

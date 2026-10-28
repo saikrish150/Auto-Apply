@@ -17,24 +17,34 @@
     "linkedInUrl": "https://www.linkedin.com/in/saikrishnag150",
     "githubUrl": "https://github.com",
     "portfolioUrl": "https://indianmetroguide.in",
-    "socialLinks": {
-      "linkedin": "https://www.linkedin.com/in/saikrishnag150",
-      "github": "https://github.com",
-      "portfolio": "https://indianmetroguide.in"
-    },
     "resumePath": "D:\\Downloads\\Projects files\\AutoApply\\config\\resume.pdf"
   },
   "career": {
     "primaryRole": "Full Stack Developer (Angular, Java, Spring Boot)",
+    "targetRoles": [
+      "Angular Developer",
+      "Java Developer",
+      "Java Full Stack Developer",
+      "Frontend Developer",
+      "Full Stack Developer"
+    ],
     "totalYearsExperience": 3,
     "currentCompany": "Tech Mahindra",
     "currentClient": "GE Aerospace",
     "currentDesignation": "Full Stack Developer",
-    "currentSalaryLPA": "4.10 LPA",
-    "expectedSalaryLPA": "11 LPA",
+    "currentSalaryLPA": 4.1,
+    "currentSalaryFormatted": "4.10 LPA",
+    "expectedSalaryLPA": 11,
+    "expectedSalaryFormatted": "11.00 LPA",
+    "officialNoticePeriodDays": 30,
+    "negotiableNoticePeriodDays": 45,
     "noticePeriodDays": 30,
-    "noticePeriodDescription": "30 days (Negotiable)",
+    "noticePeriodDescription": "30 days official (45 days negotiable)",
     "willingToRelocate": true,
+    "workModePreferences": [
+      "Office",
+      "Hybrid"
+    ],
     "needsVisaSponsorship": false,
     "workAuthorization": "Indian Citizen / Authorized to work without restriction",
     "shiftPreference": "Flexible / Day or Rotational",
@@ -459,5 +469,108 @@
       "defaultAnswer": "Bachelor's Degree (B.Tech - 8.9 CGPA)"
     }
   ],
-  "customCoverLetterIntro": "I am a Full Stack Developer with nearly 3 years of experience building enterprise web applications with Angular, Java, and Spring Boot at Tech Mahindra (GE Aerospace Client). I am passionate about scalable microservices, clean UI architecture, and high-impact software engineering."
+  "customCoverLetterIntro": "I am a Full Stack Developer with nearly 3 years of experience building enterprise web applications with Angular, Java, and Spring Boot at Tech Mahindra (GE Aerospace Client). I am passionate about scalable microservices, clean UI architecture, and high-impact software engineering.",
+  "canonicalVersion": "2.0.0",
+  "profileVersion": 1,
+  "lastUpdated": "2026-10-28T16:56:01.037Z",
+  "verifiedSkillsMap": {
+    "java": {
+      "name": "Java",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "spring boot": {
+      "name": "Spring Boot",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "angular": {
+      "name": "Angular",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "typescript": {
+      "name": "TypeScript",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "javascript": {
+      "name": "JavaScript",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "restful apis & microservices": {
+      "name": "RESTful APIs & Microservices",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "hibernate": {
+      "name": "Hibernate",
+      "years": 2.5,
+      "proficiency": "Advanced",
+      "verified": true
+    },
+    "postgresql & sql": {
+      "name": "PostgreSQL & SQL",
+      "years": 3,
+      "proficiency": "Advanced",
+      "verified": true
+    },
+    "aws (lambda)": {
+      "name": "AWS (Lambda)",
+      "years": 2,
+      "proficiency": "Intermediate",
+      "verified": true
+    },
+    "docker & jenkins ci/cd": {
+      "name": "Docker & Jenkins CI/CD",
+      "years": 2,
+      "proficiency": "Intermediate",
+      "verified": true
+    },
+    "git & github": {
+      "name": "Git & GitHub",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "supabase": {
+      "name": "Supabase",
+      "years": 2,
+      "proficiency": "Advanced",
+      "verified": true
+    },
+    "html5 & css3": {
+      "name": "HTML5 & CSS3",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "agentic ai dev (antigravity, copilot)": {
+      "name": "Agentic AI Dev (Antigravity, Copilot)",
+      "years": 1.5,
+      "proficiency": "Advanced",
+      "verified": true
+    }
+  },
+  "verificationStatus": {
+    "experienceVerified": true,
+    "noticePeriodVerified": true,
+    "ctcVerified": true,
+    "legalAuthVerified": true,
+    "conflicts": [
+      {
+        "field": "noticePeriodDays",
+        "foundValue": 30,
+        "verifiedValue": 90,
+        "message": "Notice period in settings (30 days) differs from official 90 days. Marked as 90 days official, 45 days negotiable."
+      }
+    ]
+  }
 }

@@ -198,6 +198,9 @@ class ScreeningClassifier {
     if (/\b(?:currently\s*employed|are\s*you\s*currently\s*working)\b/i.test(norm)) {
       return { intent: this.INTENTS.CURRENTLY_EMPLOYED, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
+    if (/\b(?:worked\s*(?:with|at|for|in)|previous(?:ly)?\s*(?:employed|worked)|former\s*employee|ever\s*worked|ex\s*-\s*[a-z]+|ex\s+[a-z]+\s+employee)\b/i.test(norm)) {
+      return { intent: this.INTENTS.PREVIOUS_EMPLOYEE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: { raw } };
+    }
 
     // 9. INTERVIEWS & CONSENTS
     if (/\b(?:interview.*(?:in\s*person|face\s*to\s*face|f2f|in-office|office|onsite)|available\s*for\s*interview)\b/i.test(norm)) {
@@ -413,6 +416,16 @@ class ScreeningClassifier {
         proposedAnswer = 'Yes';
         sourceField = 'career.currentCompany';
         break;
+
+      case this.INTENTS.PREVIOUS_EMPLOYEE: {
+        const lowerQ = (params.raw || '').toLowerCase();
+        const comp = (context.company || '').toLowerCase();
+        const wasAtCompany = comp.includes('tech mahindra') || comp.includes('ge aerospace') ||
+          lowerQ.includes('tech mahindra') || lowerQ.includes('ge aerospace');
+        proposedAnswer = wasAtCompany ? 'Yes' : 'No';
+        sourceField = 'career.experienceHistory';
+        break;
+      }
 
       case this.INTENTS.INTERVIEW_AVAILABILITY:
       case this.INTENTS.BACKGROUND_CHECK_CONSENT:
