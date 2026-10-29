@@ -2453,6 +2453,16 @@ class AutoApplyApp {
     }
   }
 
+  escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   renderManualQueueCards(items) {
     if (!this.mqItemsContainer) return;
 
@@ -2482,9 +2492,9 @@ class AutoApplyApp {
       const isCompleted = job.status === 'APPLIED_CONFIRMED' || job.status === 'applied';
       const isNotInterested = job.status === 'NOT_INTERESTED';
 
-      const appUrl = job.directApplicationUrl || job.jobListingUrl || '#';
-      const hasDirectUrl = !!job.directApplicationUrl;
-      const listingUrl = job.jobListingUrl || appUrl;
+      const appUrl = job.directApplicationUrl || job.directApplyUrl || job.jobListingUrl || job.url || '#';
+      const hasDirectUrl = !!(job.directApplicationUrl || job.directApplyUrl);
+      const listingUrl = job.jobListingUrl || job.url || appUrl;
 
       const matchedSkillsHtml = (job.matchedSkills || []).slice(0, 6)
         .map(s => `<span class="skill-tag match-tag">✓ ${this.escapeHtml(s)}</span>`).join('');
@@ -2497,7 +2507,7 @@ class AutoApplyApp {
             <div class="mq-badge-group">
               <span class="mq-priority-badge ${priorityClass}">${priorityLabel}</span>
               <span class="mq-exp-badge" title="Experience alignment category">🎓 ${expCategory} (${this.escapeHtml(job.requiredExperience || '1-4 yrs')})</span>
-              <span class="mq-platform-badge">🌐 ${this.escapeHtml(job.sourcePlatform)}</span>
+              <span class="mq-platform-badge">🌐 ${this.escapeHtml(job.sourcePlatform || 'Job Portal')}</span>
             </div>
             <div class="mq-score-dial">
               <div class="mq-score-val">${fitScore}%</div>
@@ -2506,11 +2516,30 @@ class AutoApplyApp {
           </div>
 
           <div class="mq-card-body">
-            <h4 class="mq-job-title">${this.escapeHtml(job.title)}</h4>
+            <h4 class="mq-job-title">
+              <a href="${this.escapeHtml(appUrl)}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;" title="Open application link in new tab">
+                ${this.escapeHtml(job.title)} <span style="font-size: 0.8em; color: #38bdf8;">↗</span>
+              </a>
+            </h4>
             <div class="mq-company-meta">
               <span class="mq-company">🏢 ${this.escapeHtml(job.company)}</span>
               <span class="mq-location">📍 ${this.escapeHtml(job.location || 'India')}</span>
               <span class="mq-workmode">💻 ${this.escapeHtml(job.workMode || 'Hybrid')}</span>
+            </div>
+
+            <!-- Direct URL Link Display on Screen -->
+            <div class="mq-direct-url-box" style="margin: 10px 0 12px 0; padding: 10px 14px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                <span style="font-size: 0.75rem; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">
+                  🔗 DIRECT APPLICATION LINK:
+                </span>
+                <button class="btn btn-secondary btn-xs btn-copy-mq-link" data-url="${this.escapeHtml(appUrl)}" style="padding: 2px 8px; font-size: 0.75rem; cursor: pointer;">
+                  📋 Copy Link
+                </button>
+              </div>
+              <a href="${this.escapeHtml(appUrl)}" target="_blank" rel="noopener noreferrer" style="color: #67e8f9; font-size: 0.88rem; font-weight: 500; text-decoration: underline; word-break: break-all; display: block; line-height: 1.4;">
+                ${this.escapeHtml(appUrl)} ↗
+              </a>
             </div>
 
             <div class="mq-reason-callout">
@@ -2541,19 +2570,13 @@ class AutoApplyApp {
           </div>
 
           <div class="mq-card-footer">
-            <div class="mq-links-group">
-              ${hasDirectUrl ? `
-                <a href="${appUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-accent btn-sm mq-apply-btn" title="Open confirmed employer application portal">
-                  🚀 Apply on Company Website
-                </a>
-              ` : `
-                <a href="${listingUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-accent btn-sm mq-apply-btn" title="Open verified job listing">
-                  🌐 Open Job Listing
-                </a>
-              `}
-              ${hasDirectUrl && listingUrl !== appUrl ? `
-                <a href="${listingUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View original listing page">
-                  View Listing
+            <div class="mq-links-group" style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <a href="${this.escapeHtml(appUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-accent btn-sm mq-apply-btn" style="font-weight: 600; padding: 7px 16px; background: #2563eb; color: #ffffff; box-shadow: 0 0 14px rgba(37, 99, 235, 0.45); display: inline-flex; align-items: center; gap: 6px;" title="Open application page in a new browser tab">
+                🚀 Open & Apply Online Now
+              </a>
+              ${hasDirectUrl && listingUrl && listingUrl !== appUrl ? `
+                <a href="${this.escapeHtml(listingUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View original listing page">
+                  🌐 View Job Posting
                 </a>
               ` : ''}
             </div>
@@ -2579,6 +2602,21 @@ class AutoApplyApp {
         </div>
       `;
     }).join('');
+
+    // Bind copy link buttons
+    this.mqItemsContainer.querySelectorAll('.btn-copy-mq-link').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = e.currentTarget.getAttribute('data-url');
+        if (url) {
+          navigator.clipboard.writeText(url).then(() => {
+            const originalText = e.currentTarget.innerText;
+            e.currentTarget.innerText = '✓ Copied!';
+            setTimeout(() => { e.currentTarget.innerText = originalText; }, 1500);
+          });
+        }
+      });
+    });
 
     // Bind item action buttons
     this.mqItemsContainer.querySelectorAll('.btn-mq-mark-applied').forEach(btn => {
