@@ -255,6 +255,15 @@ class AutoApplyApp {
       });
     });
 
+    // KPI Card click: navigate directly to Manual Apply Queue tab
+    const kpiManualCard = document.getElementById('card-manual-queue-kpi');
+    if (kpiManualCard) {
+      kpiManualCard.addEventListener('click', () => {
+        const tabBtn = document.getElementById('tab-btn-manual-queue');
+        if (tabBtn) tabBtn.click();
+      });
+    }
+
     // Manual Queue Toolbar & Modal Events
     if (this.btnRefreshManualQueue) {
       this.btnRefreshManualQueue.addEventListener('click', () => this.loadManualQueue());
@@ -547,6 +556,7 @@ class AutoApplyApp {
         if (data.snapshot) {
           this.updateFromSnapshot(data.snapshot);
         }
+        this.loadManualQueue();
         break;
 
       case 'log':
@@ -1388,6 +1398,11 @@ class AutoApplyApp {
       this.inputGeminiKey.value = s.ai?.apiKey || '';
     }
 
+    const chkShortlist = document.getElementById('sett-shortlistNonEasyApply');
+    if (chkShortlist) {
+      chkShortlist.checked = s.automation?.shortlistNonEasyApplyJobs !== false;
+    }
+
     this.updateModeDisplay();
   }
 
@@ -1412,6 +1427,7 @@ class AutoApplyApp {
       },
       automation: {
         ...this.settings.automation,
+        shortlistNonEasyApplyJobs: document.getElementById('sett-shortlistNonEasyApply') ? document.getElementById('sett-shortlistNonEasyApply').checked : true,
         minMatchScore: parseInt(this.rangeMinScore.value, 10),
         maxApplicationsPerSession: parseInt(document.getElementById('sett-maxApps').value, 10),
         maxPagesPerScenario: this.inputMaxPages ? (parseInt(this.inputMaxPages.value, 10) || 2) : 2,

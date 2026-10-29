@@ -8,7 +8,7 @@ class DataStore {
     this.dataDir = options.dataDir || path.join(__dirname, '..', 'data');
     this.primaryFilePath = path.join(this.dataDir, 'applications.json');
     this.aliasFilePath = path.join(this.dataDir, 'data.json');
-    this.rootDataFilePath = path.join(__dirname, '..', 'data.json');
+    this.rootDataFilePath = options.rootDataFilePath || (options.dataDir ? path.join(this.dataDir, 'root_data.json') : path.join(__dirname, '..', 'data.json'));
 
     this.manualQueue = options.manualQueueService || new ManualQueueService({ dataDir: this.dataDir });
 
@@ -260,16 +260,20 @@ class DataStore {
       this.applications.unshift(normalizedRecord);
     }
 
-    // Auto-enqueue into Manual Apply Queue if job requires manual intervention
+    // Auto-enqueue into Manual Apply Queue if job requires manual intervention or was shortlisted
     if (
       normalizedStatus === ApplicationStates.MANUAL_ACTION_REQUIRED ||
+      jobRecord.status === 'MANUAL_ACTION_REQUIRED' ||
       jobRecord.status === 'already_applied_or_external' ||
+      jobRecord.status === 'needs_manual_review' ||
       jobRecord.actionRequired ||
+      jobRecord.applicationMethod === 'manual_shortlist' ||
       jobRecord.applicationMethod === 'login_walled_portal'
     ) {
       if (this.manualQueue) {
         this.manualQueue.enqueue({
           ...normalizedRecord,
+          directApplyUrl: jobRecord.directApplicationUrl || jobRecord.directApplyUrl || normalizedRecord.directApplicationUrl || normalizedRecord.url,
           reason: jobRecord.skipReason || jobRecord.reason || 'External career portal or manual action required'
         });
       }
@@ -346,6 +350,36 @@ class DataStore {
   getTimeStats() {
     this.recalculateSummary();
     return this.summary;
+  }
+
+  // Returns a Set of normalized keys (URLs, job IDs, title|company) to prevent re-processing
+  getProcessedKeys() {
+    const keys = new Set();
+    for (const app of (this.applications || [])) {
+      if (app.url) {
+        const norm = ManualQueueService.normalizeJobUrl(app.url);
+        if (norm) keys.add(norm);
+        const match = norm.match(/\/jobs\/view\/(\d+)/);
+        if (match) keys.add(match[1]);
+      }
+      if (app.title && app.company) {
+        keys.add(`${(app.title).toLowerCase().trim()}|${(app.company).toLowerCase().trim()}`);
+      }
+    }
+    if (this.manualQueue && Array.isArray(this.manualQueue.items)) {
+      for (const item of this.manualQueue.items) {
+        const u = item.normalizedListingUrl || item.jobListingUrl || item.url;
+        if (u) {
+          keys.add(u);
+          const match = u.match(/\/jobs\/view\/(\d+)/);
+          if (match) keys.add(match[1]);
+        }
+        if (item.title && item.company) {
+          keys.add(`${(item.title).toLowerCase().trim()}|${(item.company).toLowerCase().trim()}`);
+        }
+      }
+    }
+    return keys;
   }
 
   getApplicationById(id) {

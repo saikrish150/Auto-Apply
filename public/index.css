@@ -3077,6 +3077,21 @@ input:checked + .slider:before {
   box-shadow: 0 0 16px rgba(99, 102, 241, 0.25);
 }
 
+#card-manual-queue-kpi {
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+#card-manual-queue-kpi:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.22);
+}
+
+#card-manual-queue-kpi:active {
+  transform: translateY(0);
+}
+
 .mq-toolbar {
   display: flex;
   flex-wrap: wrap;

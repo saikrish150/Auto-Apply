@@ -1,12 +1,14 @@
 const CareerSiteBot = require('./career-site-bot');
 
 class NaukriBot {
-  constructor(chromeManager, aiAgent, settings, logger) {
+  constructor(chromeManager, aiAgent, settings, logger, dataStore = null) {
     this.chrome = chromeManager;
     this.ai = aiAgent;
     this.settings = settings;
     this.logger = logger;
+    this.dataStore = dataStore;
     this.shouldStop = false;
+    this.seenJobKeys = new Set();
     this.careerSiteBot = new CareerSiteBot(chromeManager, aiAgent, settings, logger);
   }
 
@@ -34,19 +36,21 @@ class NaukriBot {
     }
   }
 
-  // Get freshness query parameter for Naukri (1 = 24h, 2 = 48h, 7 = 7 days)
+  // Get freshness query parameter for Naukri (freshness=1: 24h, freshness=2: 48h, freshness=7: 7 days) + sort by date
   getDateFilterParam(datePosted) {
     switch (datePosted) {
+      case 'past_1h':
+      case 'past_2h':
       case 'past_24h':
-        return 'freshness=1';
+        return 'freshness=1&sortBy=date';
       case 'past_48h':
-        return 'freshness=2';
+        return 'freshness=2&sortBy=date';
       case 'past_week':
-        return 'freshness=7';
+        return 'freshness=7&sortBy=date';
       case 'all':
-        return '';
+        return 'sortBy=date';
       default:
-        return 'freshness=1';
+        return 'freshness=1&sortBy=date';
     }
   }
 
@@ -76,6 +80,13 @@ class NaukriBot {
       const maxApps = this.settings.automation?.maxApplicationsPerSession || 25;
       const maxPages = this.settings.automation?.maxPagesPerScenario || 2;
       let totalProcessedCount = 0;
+
+      // Load historical seen keys to avoid re-processing or re-checking duplicates
+      if (this.dataStore && typeof this.dataStore.getProcessedKeys === 'function') {
+        const historicalKeys = this.dataStore.getProcessedKeys();
+        historicalKeys.forEach(k => this.seenJobKeys.add(k));
+        this.logger('info', 'Naukri', `Loaded ${historicalKeys.size} historical job records to prevent duplicate applications.`);
+      }
 
       this.logger('info', 'Naukri', `Naukri bot initialized with ${scenarios.length} scenarios in ${locSlug}. Freshness: ${this.settings.search?.datePosted || 'past_24h'}.`);
 
@@ -158,6 +169,9 @@ class NaukriBot {
                 };
               });
 
+              const titleKey = `${(jobMeta.title || '').toLowerCase().trim()}|${(jobMeta.company || '').toLowerCase().trim()}`;
+              const normUrl = jobMeta.url ? jobMeta.url.split('?')[0].trim() : '';
+
               const jobRecord = {
                 id: `nk-${Date.now()}-${sIdx}-${i}`,
                 platform: 'Naukri',
@@ -166,30 +180,48 @@ class NaukriBot {
                 company: jobMeta.company,
                 location: jobMeta.location,
                 url: jobMeta.url,
+                directApplicationUrl: jobMeta.url,
                 status: 'evaluating',
                 timestamp: new Date().toISOString()
               };
 
+              // 1. Skip if card marked as applied
               if (jobMeta.alreadyApplied) {
-                this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" - already applied.`);
+                this.logger('info', 'Naukri', `[Pre-check] Skipping "${jobMeta.title}" at ${jobMeta.company} - already marked as applied.`);
+                if (titleKey) this.seenJobKeys.add(titleKey);
+                if (normUrl) this.seenJobKeys.add(normUrl);
                 jobRecord.status = 'already_applied';
                 if (onJobProcessed) onJobProcessed(jobRecord);
                 continue;
               }
 
-              // Evaluate with AI Agent
+              // 2. Skip if already seen in current session or historical applications
+              if ((titleKey && this.seenJobKeys.has(titleKey)) || (normUrl && this.seenJobKeys.has(normUrl))) {
+                this.logger('info', 'Naukri', `[Pre-check] Skipping "${jobMeta.title}" at ${jobMeta.company} - already processed.`);
+                continue;
+              }
+
+              // Evaluate with AI Agent before opening new tab
               const descCombined = `${jobMeta.title} Skills: ${jobMeta.tags.join(', ')} Experience: ${jobMeta.experience}`;
               const evaluation = this.ai.evaluateJobMatch(jobMeta.title, descCombined, jobMeta.company);
               jobRecord.matchScore = evaluation.score;
+              jobRecord.overallFitScore = evaluation.score;
+              jobRecord.technicalScore = evaluation.score;
               jobRecord.evaluation = evaluation;
 
               if (!evaluation.isRecommended) {
-                this.logger('warning', 'Naukri', `Skipping "${jobMeta.title}" (${evaluation.score}% < threshold ${this.settings.automation?.minMatchScore}%).`);
+                this.logger('warning', 'Naukri', `Skipping "${jobMeta.title}" (${evaluation.score}% < threshold ${this.settings.automation?.minMatchScore || 65}%).`);
                 jobRecord.status = 'skipped';
                 jobRecord.skipReason = `ATS score ${evaluation.score}% < threshold`;
+                if (titleKey) this.seenJobKeys.add(titleKey);
+                if (normUrl) this.seenJobKeys.add(normUrl);
                 if (onJobProcessed) onJobProcessed(jobRecord);
                 continue;
               }
+
+              // Record in seenJobKeys before opening so we don't repeat
+              if (titleKey) this.seenJobKeys.add(titleKey);
+              if (normUrl) this.seenJobKeys.add(normUrl);
 
               this.logger('action', 'Naukri', `[${currentScenario}] Selected "${jobMeta.title}" at ${jobMeta.company} (Score: ${evaluation.score}%)...`);
 
@@ -278,8 +310,11 @@ class NaukriBot {
                       });
 
                       if (isRealLoginPrompt && !isLoggedIn && !isTabLoggedIn) {
-                        this.logger('warning', 'Naukri', `Naukri requires login to complete application for "${jobMeta.title}".`);
-                        jobRecord.status = 'login_required';
+                        this.logger('warning', 'Naukri', `Naukri requires login to complete application for "${jobMeta.title}". Added to Manual Apply Queue.`);
+                        jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                        jobRecord.actionRequired = true;
+                        jobRecord.directApplicationUrl = jobTab.url() || jobMeta.url;
+                        jobRecord.reason = 'Naukri account login required to complete application';
                       } else {
                         // Check if questionnaire chatbot or modal appeared
                         const answeredQuestions = await this.handleNaukriChatbot(jobTab, jobMeta);
@@ -291,8 +326,18 @@ class NaukriBot {
                       }
                     }
                   } else {
-                    this.logger('info', 'Naukri', `No 1-Click apply button found for "${jobMeta.title}".`);
-                    jobRecord.status = 'already_applied_or_closed';
+                    const isHighMatch = (evaluation.score || 0) >= (this.settings.automation?.minMatchScore || 65);
+                    if (isHighMatch) {
+                      this.logger('info', 'Naukri', `[Manual Shortlist] High-fit job "${jobMeta.title}" (${evaluation.score}%) requires manual application on detail page. Adding to Manual Apply Queue...`);
+                      jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                      jobRecord.actionRequired = true;
+                      jobRecord.directApplicationUrl = jobTab.url() || jobMeta.url;
+                      jobRecord.applicationMethod = 'naukri_manual_detail';
+                      jobRecord.reason = `High match (${evaluation.score}%) on Naukri - requires manual application or external employer redirect`;
+                    } else {
+                      this.logger('info', 'Naukri', `No 1-Click apply button found for "${jobMeta.title}".`);
+                      jobRecord.status = 'already_applied_or_closed';
+                    }
                   }
                 }
               }

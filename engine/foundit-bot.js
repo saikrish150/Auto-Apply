@@ -19,6 +19,8 @@ class FounditBot {
   // Freshness query parameter for Foundit (1 day = 24h, 2 days = 48h, 7 days = 1 week)
   getDateFilterParam(datePosted) {
     switch (datePosted) {
+      case 'past_1h':
+      case 'past_2h':
       case 'past_24h':
         return 'postedWithin=1';
       case 'past_48h':

@@ -150,7 +150,8 @@ class BotOrchestrator extends EventEmitter {
         this.chromeManager,
         this.aiAgent,
         this.settings,
-        (lvl, tag, msg) => this.log(lvl, tag, msg)
+        (lvl, tag, msg) => this.log(lvl, tag, msg),
+        this.dataStore
       );
 
       await this.linkedInBot.run((job) => this.handleJobProcessed(job));
@@ -163,7 +164,8 @@ class BotOrchestrator extends EventEmitter {
         this.chromeManager,
         this.aiAgent,
         this.settings,
-        (lvl, tag, msg) => this.log(lvl, tag, msg)
+        (lvl, tag, msg) => this.log(lvl, tag, msg),
+        this.dataStore
       );
 
       await this.naukriBot.run((job) => this.handleJobProcessed(job));
@@ -176,7 +178,8 @@ class BotOrchestrator extends EventEmitter {
         this.chromeManager,
         this.aiAgent,
         this.settings,
-        (lvl, tag, msg) => this.log(lvl, tag, msg)
+        (lvl, tag, msg) => this.log(lvl, tag, msg),
+        this.dataStore
       );
 
       await this.founditBot.run((job) => this.handleJobProcessed(job));

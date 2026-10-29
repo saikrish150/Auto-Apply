@@ -161,6 +161,7 @@ orchestrator.aiAgent.onTelemetryCallback = (telemetry) => {
 if (orchestrator.manualQueue) {
   orchestrator.manualQueue.onQueueChanged = (stats) => {
     broadcast('manual_queue_stats', stats);
+    broadcast('manual_queue_updated', stats);
   };
 }
 
