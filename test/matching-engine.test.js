@@ -105,4 +105,19 @@ test('MatchingEngine - Multi-Dimensional Job Matching & Experience Compatibility
     assert.ok('experience' in result.breakdown);
     assert.ok('role' in result.breakdown);
   });
+
+  await t.test('Correctly ignores company legacy/establishment years and extracts candidate required experience', () => {
+    const jobWithCompanyAge = {
+      title: 'Full Stack Java & Angular Engineer',
+      description: 'Globex Software has 20 years of excellence in banking solutions. We are hiring a Full Stack Developer with minimum 2 to 4 years of experience in Java and Angular.',
+      company: 'Globex',
+      location: 'Hyderabad',
+      profile
+    };
+
+    const result = MatchingEngine.evaluate(jobWithCompanyAge);
+    // Should NOT be penalized as requiring 20 years
+    assert.equal(result.experienceCompatibility, MatchingEngine.EXPERIENCE_CATEGORIES.MEETS_REQUIRED);
+    assert.ok(result.overallScore >= 75, `Expected score >= 75, got ${result.overallScore}`);
+  });
 });

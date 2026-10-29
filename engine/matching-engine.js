@@ -187,9 +187,26 @@ class MatchingEngine {
     const isSeniorTitle = /\b(?:senior|lead|principal|staff|architect|manager|director|vp|head)\b/i.test(title);
     const isJuniorTitle = /\b(?:junior|entry|trainee|associate|intern)\b/i.test(title);
 
-    // Extract experience years range from text: "X to Y years", "X-Y years", "X+ years", "minimum X years"
-    const rangeMatch = text.match(/(\d+)\s*(?:-|to|\+)\s*(\d+)?\s*(?:years?|yrs?)/i) ||
-                       text.match(/(?:minimum|min|at least)\s*(\d+)\s*(?:years?|yrs?)/i);
+    // Filter out company age / establishment text like "15 years of industry excellence", "20 years in FinTech"
+    // Clean company track record text before matching candidate required experience
+    const textCleaned = text.replace(/\b\d+\s*(?:years?|yrs?)\s*(?:of\s+)?(?:excellence|legacy|delivering|experience\s+delivering|track\s+record|history|in\s+business|industry\s+presence|operating)\b/gi, ' ');
+
+    // Extract experience years range from text with priority to explicit candidate requirements
+    const expRegexes = [
+      /(?:experience|exp|relevant\s+experience|total\s+experience|work\s+experience)[:\s]*(\d+(?:\.\d+)?)\s*(?:-|to|\+)\s*(\d+(?:\.\d+)?)?\s*(?:years?|yrs?)/i,
+      /(?:minimum|min|at\s+least|requires?)\s*(\d+(?:\.\d+)?)\s*(?:-|to|\+)?\s*(\d+(?:\.\d+)?)?\s*(?:years?|yrs?)\s*(?:of\s+)?(?:experience|exp)?/i,
+      /(\d+(?:\.\d+)?)\s*(?:-|to|\+)\s*(\d+(?:\.\d+)?)?\s*(?:years?|yrs?)\s*(?:of\s+)?(?:experience|exp|relevant)/i,
+      /(\d+(?:\.\d+)?)\s*(?:-|to|\+)\s*(\d+(?:\.\d+)?)?\s*(?:years?|yrs?)/i
+    ];
+
+    let rangeMatch = null;
+    for (const rx of expRegexes) {
+      const m = textCleaned.match(rx);
+      if (m) {
+        rangeMatch = m;
+        break;
+      }
+    }
 
     let minYears = null;
     let maxYears = null;

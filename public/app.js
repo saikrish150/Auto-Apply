@@ -90,6 +90,7 @@ class AutoApplyApp {
     this.historyPeriodPills = document.querySelectorAll('.history-period-pill');
     this.historyFilterPlatform = document.getElementById('history-filter-platform');
     this.historyFilterStatus = document.getElementById('history-filter-status');
+    this.historySortBy = document.getElementById('history-sort-by');
 
     // Screening Q&A Details Modal
     this.qaDetailsModal = document.getElementById('qa-details-modal');
@@ -123,6 +124,7 @@ class AutoApplyApp {
     this.rangeMinScore = document.getElementById('sett-minScore');
     this.rangeMinScoreVal = document.getElementById('sett-minScore-val');
     this.selectDatePosted = document.getElementById('sett-datePosted');
+    this.selectExperienceLevel = document.getElementById('sett-experienceLevel');
     this.inputMaxPages = document.getElementById('sett-maxPages');
     this.inputScenarios = document.getElementById('sett-scenarios');
 
@@ -437,6 +439,12 @@ class AutoApplyApp {
     if (this.historyFilterStatus) {
       this.historyFilterStatus.addEventListener('change', () => {
         this.selectedStatus = this.historyFilterStatus.value;
+        this.renderHistoryTable();
+      });
+    }
+
+    if (this.historySortBy) {
+      this.historySortBy.addEventListener('change', () => {
         this.renderHistoryTable();
       });
     }
@@ -932,27 +940,54 @@ class AutoApplyApp {
     const timestamp = time || new Date().toLocaleTimeString();
     const entry = { level, tag, message, timestamp };
     this.logs.push(entry);
-
-    const logEl = document.createElement('div');
-    logEl.className = `log-entry log-${level}`;
-    logEl.setAttribute('data-level', level);
-
-    const tagClass = `tag-${tag?.toLowerCase().replace(/[^a-z]/g, '') || 'system'}`;
-
-    logEl.innerHTML = `
-      <span class="log-time">${timestamp}</span>
-      <span class="log-tag ${tagClass}">${tag || 'LOG'}</span>
-      <span class="log-msg">${this.escapeHTML(message)}</span>
-    `;
-
-    // Filter check
-    if (this.activeFilter !== 'all' && this.activeFilter !== level) {
-      logEl.style.display = 'none';
+    if (this.logs.length > 1000) {
+      this.logs.splice(0, this.logs.length - 1000);
     }
 
-    this.terminalLogs.appendChild(logEl);
+    if (!this._logQueue) this._logQueue = [];
+    this._logQueue.push(entry);
 
-    if (this.toggleAutoscroll.checked) {
+    if (!this._logRafPending) {
+      this._logRafPending = true;
+      requestAnimationFrame(() => this._flushLogQueue());
+    }
+  }
+
+  _flushLogQueue() {
+    this._logRafPending = false;
+    if (!this.terminalLogs || !this._logQueue || this._logQueue.length === 0) return;
+
+    const queue = this._logQueue;
+    this._logQueue = [];
+
+    const fragment = document.createDocumentFragment();
+    for (const item of queue) {
+      const logEl = document.createElement('div');
+      logEl.className = `log-entry log-${item.level}`;
+      logEl.setAttribute('data-level', item.level);
+
+      const tagClass = `tag-${item.tag?.toLowerCase().replace(/[^a-z]/g, '') || 'system'}`;
+      logEl.innerHTML = `
+        <span class="log-time">${item.timestamp}</span>
+        <span class="log-tag ${tagClass}">${item.tag || 'LOG'}</span>
+        <span class="log-msg">${this.escapeHTML(item.message)}</span>
+      `;
+
+      if (this.activeFilter !== 'all' && this.activeFilter !== item.level) {
+        logEl.style.display = 'none';
+      }
+      fragment.appendChild(logEl);
+    }
+
+    this.terminalLogs.appendChild(fragment);
+
+    // Prune old DOM nodes to keep terminal performant and prevent browser lag
+    const maxDomLogs = 350;
+    while (this.terminalLogs.children.length > maxDomLogs) {
+      this.terminalLogs.removeChild(this.terminalLogs.firstElementChild);
+    }
+
+    if (this.toggleAutoscroll && this.toggleAutoscroll.checked) {
       this.terminalLogs.scrollTop = this.terminalLogs.scrollHeight;
     }
   }
@@ -1179,7 +1214,26 @@ class AutoApplyApp {
       return;
     }
 
-    this.historyTableBody.innerHTML = filtered.map(job => {
+    // Sorting
+    const sortBy = this.historySortBy ? this.historySortBy.value : 'newest';
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.appliedAt || a.timestamp || 0).getTime();
+      const dateB = new Date(b.appliedAt || b.timestamp || 0).getTime();
+      const scoreA = a.matchScore || a.overallFitScore || 0;
+      const scoreB = b.matchScore || b.overallFitScore || 0;
+
+      if (sortBy === 'newest') return dateB - dateA;
+      if (sortBy === 'oldest') return dateA - dateB;
+      if (sortBy === 'highest_score') return scoreB - scoreA;
+      if (sortBy === 'lowest_score') return scoreA - scoreB;
+      if (sortBy === 'company_asc') return (a.company || '').localeCompare(b.company || '');
+      return dateB - dateA;
+    });
+
+    const maxRows = this._showAllHistory ? filtered.length : 100;
+    const displayList = filtered.slice(0, maxRows);
+
+    let html = displayList.map(job => {
       const appDate = job.appliedAt || job.timestamp;
       const dateObj = appDate ? new Date(appDate) : null;
       const timeStr = dateObj ? dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--';
@@ -1222,6 +1276,29 @@ class AutoApplyApp {
         </tr>
       `;
     }).join('');
+
+    if (filtered.length > 100 && !this._showAllHistory) {
+      html += `
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 14px; background: rgba(30, 41, 59, 0.45); color: var(--text-muted); font-size: 0.88rem;">
+            Showing first 100 of ${filtered.length} application records.
+            <button class="btn btn-secondary btn-xs" id="btn-show-all-history" style="margin-left: 10px; cursor: pointer; padding: 3px 10px;">
+              Show All (${filtered.length})
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+
+    this.historyTableBody.innerHTML = html;
+
+    const btnShowAll = this.historyTableBody.querySelector('#btn-show-all-history');
+    if (btnShowAll) {
+      btnShowAll.addEventListener('click', () => {
+        this._showAllHistory = true;
+        this.renderHistoryTable();
+      });
+    }
   }
 
   populateProfileForm() {
@@ -1385,6 +1462,9 @@ class AutoApplyApp {
     if (this.selectDatePosted) {
       this.selectDatePosted.value = s.search?.datePosted || 'past_24h';
     }
+    if (this.selectExperienceLevel) {
+      this.selectExperienceLevel.value = s.search?.experienceLevel || 'Mid-Senior level (1-4 years)';
+    }
     if (this.inputMaxPages) {
       this.inputMaxPages.value = s.automation?.maxPagesPerScenario || 2;
     }
@@ -1422,7 +1502,7 @@ class AutoApplyApp {
         keywords: document.getElementById('sett-keywords').value.trim(),
         scenarios,
         locations: document.getElementById('sett-locations').value.trim(),
-        experienceLevel: this.settings.search?.experienceLevel || 'Mid-Senior level',
+        experienceLevel: this.selectExperienceLevel ? this.selectExperienceLevel.value : (this.settings.search?.experienceLevel || 'Mid-Senior level (1-4 years)'),
         datePosted: this.selectDatePosted ? this.selectDatePosted.value : 'past_24h'
       },
       automation: {

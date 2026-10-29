@@ -565,9 +565,11 @@
               <label for="mq-sort-by">Sort By:</label>
               <select id="mq-sort-by" class="filter-select">
                 <option value="highest_fit" selected>Highest Overall Fit</option>
+                <option value="highest_priority">🔥 Priority (High to Low)</option>
                 <option value="highest_tech">Highest Tech Score</option>
                 <option value="newest">Most Recently Discovered</option>
                 <option value="oldest_pending">Oldest Pending Action</option>
+                <option value="company_asc">🏢 Company (A-Z)</option>
               </select>
             </div>
 
@@ -688,6 +690,14 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" class="input-search" id="input-history-search" placeholder="Search role, company, or questions...">
               </div>
+
+              <select id="history-sort-by" class="qa-select-filter" title="Sort application records">
+                <option value="newest" selected>🕒 Newest First</option>
+                <option value="oldest">🕒 Oldest First</option>
+                <option value="highest_score">🎯 Highest ATS Match</option>
+                <option value="lowest_score">🎯 Lowest ATS Match</option>
+                <option value="company_asc">🏢 Company (A-Z)</option>
+              </select>
 
               <select id="history-filter-platform" class="qa-select-filter">
                 <option value="all">All Platforms</option>
@@ -1121,7 +1131,7 @@
                 </div>
               </div>
 
-              <div class="form-row two-col">
+              <div class="form-row three-col">
                 <div class="form-group">
                   <label for="sett-datePosted">Freshness / Date Posted Filter</label>
                   <select id="sett-datePosted" class="form-input">
@@ -1135,9 +1145,19 @@
                   <p class="field-hint">Filters for newest jobs with 'Sort by Most Recent' applied.</p>
                 </div>
                 <div class="form-group">
+                  <label for="sett-experienceLevel">Target Experience Level</label>
+                  <select id="sett-experienceLevel" class="form-input">
+                    <option value="Mid-Senior level (1-4 years)" selected>🎓 Entry & Associate (1-4 Years) [Optimal]</option>
+                    <option value="entry">🌱 Entry Level / Junior (0-2 Years)</option>
+                    <option value="associate">⭐ Associate / Mid (2-4 Years)</option>
+                    <option value="all">🌐 All Experience Levels</option>
+                  </select>
+                  <p class="field-hint">Passes exact experience filters to LinkedIn (f_E=2,3) & Naukri (experience=2).</p>
+                </div>
+                <div class="form-group">
                   <label for="sett-maxPages">Max Pages per Scenario</label>
                   <input type="number" id="sett-maxPages" class="form-input" min="1" max="10" value="2">
-                  <p class="field-hint">How many result pages to navigate per role scenario.</p>
+                  <p class="field-hint">Result pages per role scenario.</p>
                 </div>
               </div>
 

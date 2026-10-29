@@ -187,30 +187,37 @@ class ManualQueueService {
     } = filters;
 
     let filtered = this.items.filter(item => {
-      if (item.overallFitScore < minFitScore) return false;
-      if (item.technicalScore < minTechScore) return false;
+      const itemFit = item.overallFitScore || item.overallScore || item.matchScore || 0;
+      const itemTech = item.technicalScore || itemFit;
 
-      if (platform !== 'all' && item.sourcePlatform.toLowerCase() !== platform.toLowerCase()) {
-        return false;
+      if (itemFit < minFitScore) return false;
+      if (itemTech < minTechScore) return false;
+
+      if (platform !== 'all') {
+        const itemPlatform = (item.sourcePlatform || item.platform || '').toLowerCase();
+        if (itemPlatform !== platform.toLowerCase()) return false;
       }
 
       if (status !== 'all') {
-        if (status === 'pending' && item.status !== ApplicationStates.MANUAL_ACTION_REQUIRED) return false;
-        if (status === 'applied' && item.status !== ApplicationStates.APPLIED_CONFIRMED) return false;
-        if (status === 'not_interested' && item.status !== 'NOT_INTERESTED') return false;
-        if (status === 'expired' && item.status !== ApplicationStates.CLOSED_OR_EXPIRED) return false;
+        const itemStatus = (item.status || '').toUpperCase();
+        if (status === 'pending' && itemStatus !== ApplicationStates.MANUAL_ACTION_REQUIRED) return false;
+        if (status === 'applied' && itemStatus !== ApplicationStates.APPLIED_CONFIRMED && itemStatus !== 'APPLIED') return false;
+        if (status === 'not_interested' && itemStatus !== 'NOT_INTERESTED') return false;
+        if (status === 'expired' && itemStatus !== ApplicationStates.CLOSED_OR_EXPIRED) return false;
       }
 
-      if (method !== 'all' && item.applicationMethod.toLowerCase() !== method.toLowerCase()) {
-        return false;
+      if (method !== 'all') {
+        const itemMethod = (item.applicationMethod || '').toLowerCase();
+        if (itemMethod !== method.toLowerCase()) return false;
       }
 
       if (search) {
         const q = search.toLowerCase();
-        const inTitle = item.title.toLowerCase().includes(q);
-        const inCompany = item.company.toLowerCase().includes(q);
-        const inSkills = item.matchedSkills.some(s => s.toLowerCase().includes(q));
-        if (!inTitle && !inCompany && !inSkills) return false;
+        const inTitle = (item.title || '').toLowerCase().includes(q);
+        const inCompany = (item.company || '').toLowerCase().includes(q);
+        const inSkills = Array.isArray(item.matchedSkills) && item.matchedSkills.some(s => s && String(s).toLowerCase().includes(q));
+        const inLocation = (item.location || '').toLowerCase().includes(q);
+        if (!inTitle && !inCompany && !inSkills && !inLocation) return false;
       }
 
       return true;
@@ -218,19 +225,39 @@ class ManualQueueService {
 
     // Sorting
     filtered.sort((a, b) => {
+      const fitA = a.overallFitScore || a.overallScore || a.matchScore || 0;
+      const fitB = b.overallFitScore || b.overallScore || b.matchScore || 0;
+      const techA = a.technicalScore || fitA;
+      const techB = b.technicalScore || fitB;
+      const timeA = new Date(a.discoveryTimestamp || 0).getTime();
+      const timeB = new Date(b.discoveryTimestamp || 0).getTime();
+
       if (sort === 'highest_fit') {
-        return b.overallFitScore - a.overallFitScore;
+        return fitB - fitA;
+      }
+      if (sort === 'lowest_fit') {
+        return fitA - fitB;
+      }
+      if (sort === 'highest_priority') {
+        const pOrder = { HIGH: 3, high: 3, MEDIUM: 2, medium: 2, NORMAL: 1, normal: 1 };
+        const pA = pOrder[a.priority] || 1;
+        const pB = pOrder[b.priority] || 1;
+        if (pA !== pB) return pB - pA;
+        return fitB - fitA;
       }
       if (sort === 'highest_tech') {
-        return b.technicalScore - a.technicalScore;
+        return techB - techA;
       }
       if (sort === 'newest') {
-        return new Date(b.discoveryTimestamp) - new Date(a.discoveryTimestamp);
+        return timeB - timeA;
       }
       if (sort === 'oldest_pending') {
-        return new Date(a.discoveryTimestamp) - new Date(b.discoveryTimestamp);
+        return timeA - timeB;
       }
-      return 0;
+      if (sort === 'company_asc') {
+        return (a.company || '').localeCompare(b.company || '');
+      }
+      return fitB - fitA;
     });
 
     return filtered.slice(0, limit);

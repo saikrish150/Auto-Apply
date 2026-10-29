@@ -27,6 +27,12 @@ test('Manual Shortlisting, Deduplication & Ultra-Fresh Time Filters', async (t) 
     assert.equal(bot.getDateFilterParam('past_48h'), 'f_TPR=r172800&sortBy=DD');
     assert.equal(bot.getDateFilterParam('past_week'), 'f_TPR=r604800&sortBy=DD');
     assert.equal(bot.getDateFilterParam('all'), 'sortBy=DD');
+
+    // Experience filters
+    assert.equal(bot.getExperienceFilterParam('entry'), 'f_E=2');
+    assert.equal(bot.getExperienceFilterParam('associate'), 'f_E=3');
+    assert.equal(bot.getExperienceFilterParam('Mid-Senior level (1-4 years)'), 'f_E=2,3');
+    assert.equal(bot.getExperienceFilterParam('all'), '');
   });
 
   await t.test('NaukriBot supports ultra-fresh past_1h and past_2h with freshness and date sort', () => {
@@ -36,6 +42,12 @@ test('Manual Shortlisting, Deduplication & Ultra-Fresh Time Filters', async (t) 
     assert.equal(bot.getDateFilterParam('past_24h'), 'freshness=1&sortBy=date');
     assert.equal(bot.getDateFilterParam('past_48h'), 'freshness=2&sortBy=date');
     assert.equal(bot.getDateFilterParam('all'), 'sortBy=date');
+
+    // Experience filters
+    assert.equal(bot.getExperienceParam('1-4 years'), 'experience=1');
+    assert.equal(bot.getExperienceParam('2-4 years'), 'experience=2');
+    assert.equal(bot.getExperienceParam(''), 'experience=2');
+    assert.equal(bot.getExperienceParam('all'), '');
   });
 
   await t.test('FounditBot supports ultra-fresh past_1h and past_2h filters', () => {

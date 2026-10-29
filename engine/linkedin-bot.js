@@ -42,6 +42,26 @@ class LinkedInBot {
     }
   }
 
+  // Get experience level filter for LinkedIn (1: Internship, 2: Entry level, 3: Associate, 4: Mid-Senior)
+  getExperienceFilterParam(expSetting) {
+    const raw = String(expSetting || '').toLowerCase();
+    if (raw === 'all') return '';
+    if (raw.includes('1-4') || raw.includes('1 to 4') || (raw.includes('entry') && raw.includes('associate'))) {
+      return 'f_E=2,3';
+    }
+    if (raw.includes('entry') && !raw.includes('mid')) {
+      return 'f_E=2';
+    }
+    if (raw.includes('associate')) {
+      return 'f_E=3';
+    }
+    if (raw.includes('mid') && !raw.includes('entry')) {
+      return 'f_E=4';
+    }
+    // Default optimal for 1-4 years candidate profile: Entry level (2) & Associate (3)
+    return 'f_E=2,3';
+  }
+
   // Get active scenario list from settings
   getScenarios() {
     if (this.settings.search?.scenarios && Array.isArray(this.settings.search.scenarios) && this.settings.search.scenarios.length > 0) {
@@ -63,6 +83,8 @@ class LinkedInBot {
       const rawLocations = this.settings.search?.locations || 'Hyderabad';
       const activeLocation = rawLocations.split(',')[0].trim() || 'India';
       const dateFilter = this.getDateFilterParam(this.settings.search?.datePosted);
+      const expFilter = this.getExperienceFilterParam(this.settings.search?.experienceLevel);
+      const expParam = expFilter ? `${expFilter}&` : '';
       const maxApps = this.settings.automation?.maxApplicationsPerSession || 25;
       const maxPages = this.settings.automation?.maxPagesPerScenario || 2;
       let totalProcessedCount = 0;
@@ -82,7 +104,7 @@ class LinkedInBot {
         phases.push({ name: 'Normal Jobs Discovery', easyApplyOnly: false });
       }
 
-      this.logger('info', 'LinkedIn', `LinkedIn bot initialized with ${scenarios.length} scenarios in ${activeLocation}. Freshness: ${this.settings.search?.datePosted || 'past_24h'}. Dual-Phase: ${shortlistNonEasyApply ? 'Easy Apply + Normal Shortlisting' : 'Easy Apply Only'}.`);
+      this.logger('info', 'LinkedIn', `LinkedIn bot initialized with ${scenarios.length} scenarios in ${activeLocation}. Freshness: ${this.settings.search?.datePosted || 'past_24h'}. Exp Filter: ${expFilter || 'All'}. Dual-Phase: ${shortlistNonEasyApply ? 'Easy Apply + Normal Shortlisting' : 'Easy Apply Only'}.`);
 
       for (let sIdx = 0; sIdx < scenarios.length; sIdx++) {
         if (this.shouldStop || totalProcessedCount >= maxApps) break;
@@ -100,7 +122,7 @@ class LinkedInBot {
 
             const startParam = pageNum > 0 ? `&start=${pageNum * 25}` : '';
             const easyApplyParam = phase.easyApplyOnly ? 'f_AL=true&' : '';
-            const searchUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(currentScenario)}&location=${encodeURIComponent(activeLocation)}&${easyApplyParam}${dateFilter}${startParam}`;
+            const searchUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(currentScenario)}&location=${encodeURIComponent(activeLocation)}&${easyApplyParam}${expParam}${dateFilter}${startParam}`;
 
             this.logger('info', 'LinkedIn', `[${phase.name} | Page ${pageNum + 1}] Searching: "${currentScenario}" in ${activeLocation} (Freshness: ${this.settings.search?.datePosted || 'past_24h'})...`);
             

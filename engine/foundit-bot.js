@@ -64,7 +64,8 @@ class FounditBot {
 
         const currentScenario = scenarios[sIdx];
         const dateFilter = dateParam ? `&${dateParam}` : '';
-        const searchUrl = `https://www.foundit.in/srp/results?query=${encodeURIComponent(currentScenario)}&locations=${encodeURIComponent(locationRaw)}${dateFilter}`;
+        const expFilter = '&experienceRanges=1~4';
+        const searchUrl = `https://www.foundit.in/srp/results?query=${encodeURIComponent(currentScenario)}&locations=${encodeURIComponent(locationRaw)}${expFilter}${dateFilter}`;
 
         this.logger('action', 'Foundit', `[Scenario ${sIdx + 1}/${scenarios.length}] Searching: "${currentScenario}" in ${locationRaw} (Fresh jobs: ${this.settings.search?.datePosted || '24h'})...`);
         

@@ -54,6 +54,18 @@ class NaukriBot {
     }
   }
 
+  // Get experience filter for Naukri query string (e.g. experience=2)
+  getExperienceParam(expSetting) {
+    const raw = String(expSetting || '').toLowerCase();
+    if (raw === 'all') return '';
+    const match = raw.match(/(\d+)/);
+    if (match) {
+      return `experience=${match[1]}`;
+    }
+    // Default 2 years for 1-4 years candidate profile
+    return 'experience=2';
+  }
+
   // Get active scenarios list from settings
   getScenarios() {
     if (this.settings.search?.scenarios && Array.isArray(this.settings.search.scenarios) && this.settings.search.scenarios.length > 0) {
@@ -76,7 +88,9 @@ class NaukriBot {
       const locationRaw = (this.settings.search?.locations || 'Hyderabad').split(',')[0].trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const locSlug = locationRaw === 'hyderabad' ? 'hyderabad-secunderabad' : locationRaw;
       const dateParam = this.getDateFilterParam(this.settings.search?.datePosted);
-      const freshnessQuery = dateParam ? `?${dateParam}` : '';
+      const expParam = this.getExperienceParam(this.settings.search?.experienceLevel);
+      const queryParts = [expParam, dateParam].filter(Boolean);
+      const searchQueryParams = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
       const maxApps = this.settings.automation?.maxApplicationsPerSession || 25;
       const maxPages = this.settings.automation?.maxPagesPerScenario || 2;
       let totalProcessedCount = 0;
@@ -88,7 +102,7 @@ class NaukriBot {
         this.logger('info', 'Naukri', `Loaded ${historicalKeys.size} historical job records to prevent duplicate applications.`);
       }
 
-      this.logger('info', 'Naukri', `Naukri bot initialized with ${scenarios.length} scenarios in ${locSlug}. Freshness: ${this.settings.search?.datePosted || 'past_24h'}.`);
+      this.logger('info', 'Naukri', `Naukri bot initialized with ${scenarios.length} scenarios in ${locSlug}. Freshness: ${this.settings.search?.datePosted || 'past_24h'}. Exp Filter: ${expParam || 'None'}.`);
 
       for (let sIdx = 0; sIdx < scenarios.length; sIdx++) {
         if (this.shouldStop || totalProcessedCount >= maxApps) break;
@@ -100,7 +114,7 @@ class NaukriBot {
           if (this.shouldStop || totalProcessedCount >= maxApps) break;
 
           const pageSlug = pageNum > 1 ? `-${pageNum}` : '';
-          const searchUrl = `https://www.naukri.com/${scenarioSlug}-jobs-in-${locSlug}${pageSlug}${freshnessQuery}`;
+          const searchUrl = `https://www.naukri.com/${scenarioSlug}-jobs-in-${locSlug}${pageSlug}${searchQueryParams}`;
 
           this.logger('action', 'Naukri', `[Scenario ${sIdx + 1}/${scenarios.length} | Page ${pageNum}] Navigating to: ${searchUrl}...`);
           await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
