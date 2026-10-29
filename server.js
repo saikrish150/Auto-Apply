@@ -179,7 +179,36 @@ app.get('/api/status', async (req, res) => {
 
 // 2. Profile Management
 app.get('/api/profile', (req, res) => {
+  const disk = readJSON(PROFILE_PATH);
+  if (disk && Object.keys(disk).length > 0) {
+    profileData = ProfileManager.normalizeProfile(disk);
+    orchestrator.updateConfig(profileData, null);
+  }
   res.json(profileData);
+});
+
+app.get('/api/candidate-knowledge-base', (req, res) => {
+  const kbPath = path.join(__dirname, 'config', 'CANDIDATE_KNOWLEDGE_BASE.md');
+  if (fs.existsSync(kbPath)) {
+    res.type('text/markdown').send(fs.readFileSync(kbPath, 'utf8'));
+  } else {
+    res.status(404).json({ error: 'Candidate knowledge base markdown not found' });
+  }
+});
+
+app.post('/api/candidate-knowledge-base', (req, res) => {
+  try {
+    const kbPath = path.join(__dirname, 'config', 'CANDIDATE_KNOWLEDGE_BASE.md');
+    const content = typeof req.body === 'string' ? req.body : req.body.content;
+    if (!content || typeof content !== 'string') {
+      return res.status(400).json({ success: false, error: 'Knowledge base content must be non-empty string' });
+    }
+    fs.writeFileSync(kbPath, content, 'utf8');
+    orchestrator.updateConfig(profileData, null);
+    res.json({ success: true, message: 'Candidate knowledge base updated successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 app.post('/api/profile', (req, res) => {
