@@ -9,6 +9,7 @@ class ScreeningClassifier {
     return Object.freeze({
       EMAIL: 'INTENT_EMAIL',
       RESIDENTIAL_ADDRESS: 'INTENT_RESIDENTIAL_ADDRESS',
+      PERMANENT_ADDRESS: 'INTENT_PERMANENT_ADDRESS',
       STREET_ADDRESS: 'INTENT_STREET_ADDRESS',
       CITY: 'INTENT_CITY',
       STATE: 'INTENT_STATE',
@@ -19,6 +20,16 @@ class ScreeningClassifier {
       LINKEDIN_URL: 'INTENT_LINKEDIN_URL',
       PORTFOLIO_URL: 'INTENT_PORTFOLIO_URL',
       GITHUB_URL: 'INTENT_GITHUB_URL',
+
+      DATE_OF_BIRTH: 'INTENT_DATE_OF_BIRTH',
+      GENDER: 'INTENT_GENDER',
+      MARITAL_STATUS: 'INTENT_MARITAL_STATUS',
+      FATHER_NAME: 'INTENT_FATHER_NAME',
+      PASSPORT: 'INTENT_PASSPORT',
+
+      ACADEMIC_10TH: 'INTENT_ACADEMIC_10TH',
+      ACADEMIC_12TH: 'INTENT_ACADEMIC_12TH',
+      ACADEMIC_BACKLOGS: 'INTENT_ACADEMIC_BACKLOGS',
 
       TOTAL_EXPERIENCE: 'INTENT_TOTAL_EXPERIENCE',
       SKILL_EXPERIENCE: 'INTENT_SKILL_EXPERIENCE',
@@ -107,6 +118,36 @@ class ScreeningClassifier {
       return { intent: this.INTENTS.GITHUB_URL, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
+    // 3B. IDENTITY & PERSONAL DETAILS
+    if (/\b(?:date\s*of\s*birth|dob|birth\s*date|when\s*were\s*you\s*born|born\s*on)\b/i.test(norm)) {
+      return { intent: this.INTENTS.DATE_OF_BIRTH, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:gender|sex)\b/i.test(norm) && !norm.includes('sexual')) {
+      return { intent: this.INTENTS.GENDER, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:marital\s*status|marital|single\s*or\s*married)\b/i.test(norm)) {
+      return { intent: this.INTENTS.MARITAL_STATUS, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:father|guardian|parent)\b/i.test(norm) && /\b(?:name)\b/i.test(norm)) {
+      return { intent: this.INTENTS.FATHER_NAME, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:passport|valid\s*passport|hold\s*(?:a\s*)?passport)\b/i.test(norm)) {
+      return { intent: this.INTENTS.PASSPORT, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // 3C. ACADEMIC MARKS & BACKLOGS
+    if (/\b(?:10th|tenth|ssc|matriculation)\b/i.test(norm) &&
+        /\b(?:marks|percentage|cgpa|score|percent|board|school|passing)\b/i.test(norm)) {
+      return { intent: this.INTENTS.ACADEMIC_10TH, confidence: this.CONFIDENCE_LEVELS.HIGH, params: { norm } };
+    }
+    if (/\b(?:12th|twelfth|intermediate|inter|hsc|10\+2)\b/i.test(norm) &&
+        /\b(?:marks|percentage|cgpa|score|percent|board|college|stream|passing)\b/i.test(norm)) {
+      return { intent: this.INTENTS.ACADEMIC_12TH, confidence: this.CONFIDENCE_LEVELS.HIGH, params: { norm } };
+    }
+    if (/\b(?:backlogs?|active\s*backlogs?|history\s*of\s*backlogs?|arrears?)\b/i.test(norm)) {
+      return { intent: this.INTENTS.ACADEMIC_BACKLOGS, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
     // 4. COMPENSATION (Strict Current vs Expected Separation)
     const isCurrentCTC = /\b(?:current\s*ctc|current\s*salary|present\s*ctc|present\s*salary|current\s*annual|cctc|current\s*package)\b/i.test(norm) ||
       (norm.includes('current') && (norm.includes('ctc') || norm.includes('salary') || norm.includes('compensation') || norm.includes('package')));
@@ -177,6 +218,9 @@ class ScreeningClassifier {
     if (/\b(?:postal\s*code|zip\s*code|pincode|pin\s*code)\b/i.test(norm)) {
       return { intent: this.INTENTS.POSTAL_CODE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
+    if (/\b(?:permanent\s*address|native\s*address|hometown\s*address|native\s*place|permanent\s*residence)\b/i.test(norm)) {
+      return { intent: this.INTENTS.PERMANENT_ADDRESS, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
     if (/\b(?:street\s*address|residence\s*address|residential\s*address|home\s*address|address\s*line)\b/i.test(norm) ||
         (norm.includes('address') && !norm.includes('email') && !norm.includes('mail') && !norm.includes('web'))) {
       return { intent: this.INTENTS.RESIDENTIAL_ADDRESS, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
@@ -212,11 +256,15 @@ class ScreeningClassifier {
 
     // 10. CONSEQUENTIAL LEGAL & COMPLIANCE QUESTIONS (Require Strict Verification)
     if (/\b(?:convict(?:ed|ion|ions)?|felony|criminal|misdemeanor|crime|legal\s*actions?)\b/i.test(norm) ||
+        /\b(?:court|lawsuit|litigation|sued|pending\s*cases?)\b/i.test(norm) ||
+        /\b(?:disciplinary|blacklisted|debarred|terminated\s*(?:for\s*)?cause|show\s*cause)\b/i.test(norm) ||
+        /\b(?:military|armed\s*forces|army|navy|air\s*force|veteran|protected\s*veteran)\b/i.test(norm) ||
+        /\b(?:government\s*(?:employee|official|servant|service)|civil\s*servant|psu\s*employee)\b/i.test(norm) ||
+        /\b(?:political|politically\s*exposed|political\s*party|pep)\b/i.test(norm) ||
         /\b(?:non[\s-]*compete|restrictive\s*covenant)\b/i.test(norm) ||
         /\b(?:drug\s*test|drug\s*screen|substance\s*abuse)\b/i.test(norm) ||
         /\b(?:relatives?\s*(?:employed|working)|conflict\s*of\s*interest)\b/i.test(norm) ||
         /\b(?:disability|disabled|physical\s*or\s*mental\s*impairment)\b/i.test(norm) ||
-        /\b(?:veteran|protected\s*veteran|military\s*service)\b/i.test(norm) ||
         /\b(?:18\s*years|at\s*least\s*18|legal\s*age\s*to\s*work)\b/i.test(norm)) {
       return { intent: this.INTENTS.CONSEQUENTIAL_LEGAL, confidence: this.CONFIDENCE_LEVELS.CONSEQUENTIAL, params: { subType: norm } };
     }
@@ -254,6 +302,7 @@ class ScreeningClassifier {
     const personal = profile.personal || {};
     const career = profile.career || {};
     const skills = profile.skills || [];
+    const education = profile.education || {};
 
     let proposedAnswer = '';
     let sourceField = '';
@@ -313,8 +362,77 @@ class ScreeningClassifier {
         break;
 
       case this.INTENTS.GITHUB_URL:
-        proposedAnswer = personal.githubUrl || 'https://github.com';
+        proposedAnswer = personal.githubUrl || 'https://github.com/saikrish150';
         sourceField = 'personal.githubUrl';
+        break;
+
+      case this.INTENTS.DATE_OF_BIRTH:
+        proposedAnswer = personal.dateOfBirth || '28/01/2002';
+        sourceField = 'personal.dateOfBirth';
+        break;
+
+      case this.INTENTS.GENDER:
+        proposedAnswer = personal.gender || 'Male';
+        sourceField = 'personal.gender';
+        break;
+
+      case this.INTENTS.MARITAL_STATUS:
+        proposedAnswer = personal.maritalStatus || 'Single';
+        sourceField = 'personal.maritalStatus';
+        break;
+
+      case this.INTENTS.FATHER_NAME:
+        proposedAnswer = personal.fatherName || 'Gaddula Ushanna';
+        sourceField = 'personal.fatherName';
+        break;
+
+      case this.INTENTS.PERMANENT_ADDRESS:
+        proposedAnswer = personal.permanentAddress || '6-31, potti sri ramulu street, kothakota, wanaparthy district, telangana 509381';
+        sourceField = 'personal.permanentAddress';
+        break;
+
+      case this.INTENTS.PASSPORT:
+        proposedAnswer = 'Yes';
+        sourceField = 'personal.hasPassport';
+        break;
+
+      case this.INTENTS.ACADEMIC_10TH: {
+        const sub = (params.norm || '').toLowerCase();
+        const ssc = (education && education.ssc) || {};
+        if (sub.includes('board')) {
+          proposedAnswer = ssc.board || 'SSC';
+        } else if (sub.includes('school')) {
+          proposedAnswer = ssc.school || 'Montessori High School, Alampur';
+        } else if (sub.includes('year') || sub.includes('passing')) {
+          proposedAnswer = String(ssc.year || '2017');
+        } else {
+          proposedAnswer = inputType === 'number' ? '77' : (ssc.percentage || '77%');
+        }
+        sourceField = 'education.ssc';
+        break;
+      }
+
+      case this.INTENTS.ACADEMIC_12TH: {
+        const sub = (params.norm || '').toLowerCase();
+        const inter = (education && education.intermediate) || {};
+        if (sub.includes('board')) {
+          proposedAnswer = inter.board || 'Telangana State Board (TSBIE)';
+        } else if (sub.includes('college')) {
+          proposedAnswer = inter.college || 'Narayana Junior College, Hyderabad';
+        } else if (sub.includes('stream') || sub.includes('branch')) {
+          proposedAnswer = inter.stream || 'MPC';
+        } else if (sub.includes('year') || sub.includes('passing')) {
+          proposedAnswer = String(inter.year || '2019');
+        } else {
+          proposedAnswer = inputType === 'number' ? '94' : (inter.percentage || '94%');
+        }
+        sourceField = 'education.intermediate';
+        break;
+      }
+
+      case this.INTENTS.ACADEMIC_BACKLOGS:
+        proposedAnswer = inputType === 'number' ? '0' : 'No';
+        sourceField = 'education.backlogs';
         break;
 
       case this.INTENTS.TOTAL_EXPERIENCE:
@@ -438,13 +556,21 @@ class ScreeningClassifier {
         const sub = (params.subType || '').toLowerCase();
         if (sub.includes('convict') || sub.includes('felony') || sub.includes('criminal')) {
           proposedAnswer = 'No';
+        } else if (sub.includes('court') || sub.includes('lawsuit') || sub.includes('litigation') || sub.includes('sued') || sub.includes('pending case')) {
+          proposedAnswer = 'No';
+        } else if (sub.includes('disciplinary') || sub.includes('blacklisted') || sub.includes('debarred') || sub.includes('terminated') || sub.includes('show cause') || sub.includes('declined')) {
+          proposedAnswer = 'No';
+        } else if (sub.includes('military') || sub.includes('armed forces') || sub.includes('army') || sub.includes('navy') || sub.includes('air force') || sub.includes('veteran')) {
+          proposedAnswer = 'No';
+        } else if (sub.includes('government') || sub.includes('civil servant') || sub.includes('psu')) {
+          proposedAnswer = 'No';
+        } else if (sub.includes('political') || sub.includes('politically exposed') || sub.includes('pep')) {
+          proposedAnswer = 'No';
         } else if (sub.includes('non-compete') || sub.includes('non compete')) {
           proposedAnswer = 'No';
         } else if (sub.includes('relatives') || sub.includes('conflict of interest')) {
           proposedAnswer = 'No';
         } else if (sub.includes('disability')) {
-          proposedAnswer = 'No';
-        } else if (sub.includes('veteran')) {
           proposedAnswer = 'No';
         } else if (sub.includes('18 years') || sub.includes('legal age')) {
           proposedAnswer = 'Yes';

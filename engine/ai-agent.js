@@ -20,6 +20,7 @@ class AIAgent {
     this.auditLogPath = path.join(__dirname, '..', 'config', 'qa_audit_log.json');
     this.unfilledQuestionsPath = path.join(__dirname, '..', 'config', 'unfilled_questions.json');
     this.profilePath = path.join(__dirname, '..', 'config', 'profile.json');
+    this.knowledgeBasePath = path.join(__dirname, '..', 'config', 'CANDIDATE_KNOWLEDGE_BASE.md');
     this.auditLog = this.loadAuditLog();
     this.unfilledQuestions = this.loadUnfilledQuestions();
     this.onAuditCallback = null; // Callback for real-time WebSocket broadcast
@@ -222,8 +223,20 @@ class AIAgent {
     this.chatSession = null;
   }
 
+  loadCandidateKnowledgeBase() {
+    try {
+      if (fs.existsSync(this.knowledgeBasePath)) {
+        return fs.readFileSync(this.knowledgeBasePath, 'utf8');
+      }
+    } catch (e) {
+      console.warn('[AIAgent] Failed to read CANDIDATE_KNOWLEDGE_BASE.md:', e.message);
+    }
+    return '';
+  }
+
   // Build a comprehensive system prompt with the candidate's full profile context
   _buildSystemPrompt() {
+    const candidateKb = this.loadCandidateKnowledgeBase();
     const p = this.profile || {};
     const personal = p.personal || {};
     const career = p.career || {};
@@ -235,7 +248,13 @@ class AIAgent {
 
     return `You are an AI assistant helping a job candidate automatically fill out job application forms and screening questionnaires on platforms like LinkedIn and Naukri.com.
 
-YOUR CANDIDATE'S FULL PROFILE:
+================================================================================
+CANDIDATE MASTER KNOWLEDGE BASE (STRICT SINGLE SOURCE OF TRUTH):
+================================================================================
+${candidateKb}
+================================================================================
+
+YOUR CANDIDATE'S STRUCTURED SUMMARY:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 PERSONAL DETAILS:
@@ -405,7 +424,15 @@ Always respond in this exact JSON format only, no markdown, no extra text:
     } else if (this.isInitialized && Date.now() >= this.aiUnavailableUntil) {
       // 4. Low-confidence or unknown question → Escalate to Gemini AI
       const callStart = Date.now();
-      let prompt = `SCREENING QUESTION: "${q}"`;
+      const candidateKb = this.loadCandidateKnowledgeBase();
+      let prompt = `You are answering an application screening question on behalf of candidate Sai Krishna G.\n` +
+        `Below is the candidate's complete, verified Markdown Knowledge Base. Use this as your ABSOLUTE SINGLE SOURCE OF TRUTH for all facts, dates, academic marks, companies, projects, declarations, and preferences:\n\n` +
+        `================================================================================\n` +
+        `CANDIDATE MASTER KNOWLEDGE BASE (STRICT SINGLE SOURCE OF TRUTH):\n` +
+        `================================================================================\n` +
+        `${candidateKb}\n` +
+        `================================================================================\n\n` +
+        `SCREENING QUESTION: "${q}"`;
       if (context.company && context.company !== 'N/A') {
         prompt += `\nTARGET COMPANY: "${context.company}" (Candidate current/past company: Tech Mahindra / GE Aerospace)`;
       }

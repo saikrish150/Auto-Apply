@@ -7,16 +7,23 @@
     "phone": "+91 8688373517",
     "phoneCountryCode": "India (+91)",
     "phoneDigits": "8688373517",
+    "dateOfBirth": "28/01/2002",
+    "gender": "Male",
+    "maritalStatus": "Single",
+    "fatherName": "Gaddula Ushanna",
+    "nationality": "Indian",
+    "hasPassport": true,
     "location": "Hyderabad, Telangana, India",
     "city": "Hyderabad",
     "state": "Telangana",
     "country": "India",
-    "postalCode": "500081",
-    "streetAddress": "Hyderabad, Telangana",
-    "address": "Hyderabad, Telangana, India - 500081",
+    "postalCode": "500032",
+    "streetAddress": "Anjaiah nagar, Gachibowli, Hyderabad, Telangana",
+    "address": "Anjaiah nagar, Gachibowli, Hyderabad, Telangana - 500032",
+    "permanentAddress": "6-31, potti sri ramulu street, kothakota, wanaparthy district, telangana 509381",
     "linkedInUrl": "https://www.linkedin.com/in/saikrishnag150",
-    "githubUrl": "https://github.com",
-    "portfolioUrl": "https://indianmetroguide.in",
+    "githubUrl": "https://github.com/saikrish150",
+    "portfolioUrl": "https://gsaikrishna-portfolio.netlify.app/",
     "resumePath": "D:\\Downloads\\Projects files\\AutoApply\\config\\resume.pdf"
   },
   "career": {
@@ -34,21 +41,33 @@
     "currentDesignation": "Full Stack Developer",
     "currentSalaryLPA": 4.1,
     "currentSalaryFormatted": "4.10 LPA",
-    "expectedSalaryLPA": 11,
-    "expectedSalaryFormatted": "11.00 LPA",
+    "expectedSalaryLPA": 10.0,
+    "expectedSalaryFormatted": "10.00 LPA - 11.00 LPA",
+    "minimumSalaryLPA": 9.0,
+    "monthlyInHandExpectation": 80000,
     "officialNoticePeriodDays": 30,
-    "negotiableNoticePeriodDays": 45,
+    "negotiableNoticePeriodDays": 30,
     "noticePeriodDays": 30,
-    "noticePeriodDescription": "30 days official (45 days negotiable)",
+    "currentlyServingNotice": true,
+    "noticePeriodDescription": "30 days official notice (Currently serving notice)",
     "willingToRelocate": true,
+    "preferredLocations": [
+      "Hyderabad",
+      "Bengaluru",
+      "Pune",
+      "Chennai",
+      "Remote"
+    ],
     "workModePreferences": [
       "Office",
-      "Hybrid"
+      "Hybrid",
+      "Remote"
     ],
     "needsVisaSponsorship": false,
     "workAuthorization": "Indian Citizen / Authorized to work without restriction",
-    "shiftPreference": "Flexible / Day or Rotational",
-    "offersInHand": "None (Actively interviewing)"
+    "shiftPreference": "Flexible / Day, Rotational or US Overlap / Night Shifts",
+    "offersInHand": "None (Actively interviewing)",
+    "interviewAvailability": "Available for both Virtual and In-Person interviews on any dates immediately"
   },
   "skills": [
     {
@@ -148,7 +167,22 @@
     "degree": "B.Tech in Electronics and Communication Engineering",
     "institution": "SRM Institute of Science and Technology, Ramapuram Campus",
     "graduationYear": 2023,
-    "cgpa": "8.9 / 10"
+    "cgpa": "8.9 / 10",
+    "percentage": "85%",
+    "backlogs": 0,
+    "ssc": {
+      "school": "Montessori High School, Alampur",
+      "board": "SSC",
+      "year": 2017,
+      "percentage": "77%"
+    },
+    "intermediate": {
+      "college": "Narayana Junior College, Hyderabad",
+      "board": "Telangana State Board (TSBIE)",
+      "stream": "MPC",
+      "year": 2019,
+      "percentage": "94%"
+    }
   },
   "achievements": [
     "Formally recognized by management with Pat on the Back award for outstanding performance and project contributions at Tech Mahindra (GE Aerospace Client).",

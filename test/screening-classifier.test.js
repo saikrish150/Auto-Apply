@@ -102,4 +102,80 @@ test('ScreeningClassifier - Typed Question Classification & Answer Engine', asyn
     const matchedNo = ScreeningClassifier.matchOption('no', yesNoOptions);
     assert.equal(matchedNo, 'No, not willing');
   });
+
+  await t.test('Answers Personal Identity & Background questions accurately', () => {
+    const dobResult = ScreeningClassifier.classifyAndAnswer('What is your Date of Birth (DOB)?', profile);
+    assert.equal(dobResult.intent, ScreeningClassifier.INTENTS.DATE_OF_BIRTH);
+    assert.equal(dobResult.answer, '28/01/2002');
+
+    const genderResult = ScreeningClassifier.classifyAndAnswer('Please select your gender', profile);
+    assert.equal(genderResult.intent, ScreeningClassifier.INTENTS.GENDER);
+    assert.equal(genderResult.answer, 'Male');
+
+    const fatherResult = ScreeningClassifier.classifyAndAnswer("What is your father's name?", profile);
+    assert.equal(fatherResult.intent, ScreeningClassifier.INTENTS.FATHER_NAME);
+    assert.equal(fatherResult.answer, 'Gaddula Ushanna');
+
+    const passportResult = ScreeningClassifier.classifyAndAnswer('Do you hold a valid passport?', profile);
+    assert.equal(passportResult.intent, ScreeningClassifier.INTENTS.PASSPORT);
+    assert.equal(passportResult.answer, 'Yes');
+
+    const permAddrResult = ScreeningClassifier.classifyAndAnswer('What is your permanent address / native place?', profile);
+    assert.equal(permAddrResult.intent, ScreeningClassifier.INTENTS.PERMANENT_ADDRESS);
+    assert.ok(permAddrResult.answer.includes('kothakota') || permAddrResult.answer.includes('6-31'));
+  });
+
+  await t.test('Answers Academic details: 10th, 12th marks and backlogs accurately', () => {
+    const tenthMarks = ScreeningClassifier.classifyAndAnswer('What was your 10th percentage / marks?', profile);
+    assert.equal(tenthMarks.intent, ScreeningClassifier.INTENTS.ACADEMIC_10TH);
+    assert.ok(tenthMarks.answer.includes('77'));
+
+    const tenthNumeric = ScreeningClassifier.classifyAndAnswer('10th percentage (number only)', profile, [], 'number');
+    assert.equal(tenthNumeric.answer, '77');
+
+    const interMarks = ScreeningClassifier.classifyAndAnswer('What was your 12th / intermediate percentage?', profile);
+    assert.equal(interMarks.intent, ScreeningClassifier.INTENTS.ACADEMIC_12TH);
+    assert.ok(interMarks.answer.includes('94'));
+
+    const backlogs = ScreeningClassifier.classifyAndAnswer('Do you have any active or history of backlogs?', profile);
+    assert.equal(backlogs.intent, ScreeningClassifier.INTENTS.ACADEMIC_BACKLOGS);
+    assert.equal(backlogs.answer, 'No');
+  });
+
+  await t.test('Strictly declares No for court cases, disciplinary actions, military, government, and politics', () => {
+    const courtResult = ScreeningClassifier.classifyAndAnswer('Have you ever gone to court or faced lawsuits from previous employers?', profile);
+    assert.equal(courtResult.intent, ScreeningClassifier.INTENTS.CONSEQUENTIAL_LEGAL);
+    assert.equal(courtResult.answer, 'No');
+
+    const discResult = ScreeningClassifier.classifyAndAnswer('Have you ever faced disciplinary action or termination for cause?', profile);
+    assert.equal(discResult.intent, ScreeningClassifier.INTENTS.CONSEQUENTIAL_LEGAL);
+    assert.equal(discResult.answer, 'No');
+
+    const militaryResult = ScreeningClassifier.classifyAndAnswer('Are you currently or have you ever served in the military / armed forces?', profile);
+    assert.equal(militaryResult.intent, ScreeningClassifier.INTENTS.CONSEQUENTIAL_LEGAL);
+    assert.equal(militaryResult.answer, 'No');
+
+    const govResult = ScreeningClassifier.classifyAndAnswer('Are you currently or have you ever been a government employee / civil servant?', profile);
+    assert.equal(govResult.intent, ScreeningClassifier.INTENTS.CONSEQUENTIAL_LEGAL);
+    assert.equal(govResult.answer, 'No');
+
+    const politicalResult = ScreeningClassifier.classifyAndAnswer('Are you a politically exposed person (PEP) or connected to any political party?', profile);
+    assert.equal(politicalResult.intent, ScreeningClassifier.INTENTS.CONSEQUENTIAL_LEGAL);
+    assert.equal(politicalResult.answer, 'No');
+  });
+
+  await t.test('AIAgent correctly reads CANDIDATE_KNOWLEDGE_BASE.md', () => {
+    const AIAgent = require('../engine/ai-agent');
+    const agent = new AIAgent(profile, {});
+    const kb = agent.loadCandidateKnowledgeBase();
+    assert.ok(kb.length > 500);
+    assert.ok(kb.includes('Sai Krishna G'));
+    assert.ok(kb.includes('28/01/2002'));
+    assert.ok(kb.includes('Montessori High School'));
+    assert.ok(kb.includes('Narayana Junior College'));
+    assert.ok(kb.includes('Tech Mahindra'));
+    assert.ok(kb.includes('GE Aerospace'));
+    assert.ok(kb.includes('Gaddula Ushanna'));
+    assert.ok(kb.toLowerCase().includes('committed any crime'));
+  });
 });
