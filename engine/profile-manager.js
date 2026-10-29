@@ -105,6 +105,7 @@ class ProfileManager {
       profileVersion: raw.profileVersion || 1,
       lastUpdated: raw.lastUpdated || new Date().toISOString(),
       personal: {
+        ...personal,
         fullName: personal.fullName || 'Sai Krishna G',
         firstName: personal.firstName || 'Sai Krishna',
         lastName: personal.lastName || 'G',
@@ -112,19 +113,27 @@ class ProfileManager {
         phone: personal.phone || '+91 8688373517',
         phoneCountryCode: personal.phoneCountryCode || 'India (+91)',
         phoneDigits: personal.phoneDigits || '8688373517',
+        dateOfBirth: personal.dateOfBirth || '28/01/2002',
+        gender: personal.gender || 'Male',
+        maritalStatus: personal.maritalStatus || 'Single',
+        fatherName: personal.fatherName || 'Gaddula Ushanna',
+        nationality: personal.nationality || 'Indian',
+        hasPassport: personal.hasPassport !== false,
         location: personal.location || 'Hyderabad, Telangana, India',
         city: personal.city || 'Hyderabad',
         state: personal.state || 'Telangana',
         country: personal.country || 'India',
-        postalCode: personal.postalCode || '500081',
-        streetAddress: personal.streetAddress || 'Flat 402, High-Tech Residency, Madhapur, Hyderabad, Telangana',
-        address: personal.address || 'Flat 402, High-Tech Residency, Madhapur, Hyderabad, Telangana - 500081',
+        postalCode: personal.postalCode || '500032',
+        streetAddress: personal.streetAddress || 'Anjaiah nagar, Gachibowli, Hyderabad, Telangana',
+        address: personal.address || 'Anjaiah nagar, Gachibowli, Hyderabad, Telangana - 500032',
+        permanentAddress: personal.permanentAddress || '6-31, potti sri ramulu street, kothakota, wanaparthy district, telangana 509381',
         linkedInUrl: personal.linkedInUrl || 'https://www.linkedin.com/in/saikrishnag150',
-        githubUrl: personal.githubUrl || 'https://github.com',
-        portfolioUrl: personal.portfolioUrl || 'https://indianmetroguide.in',
+        githubUrl: personal.githubUrl || 'https://github.com/saikrish150',
+        portfolioUrl: personal.portfolioUrl || 'https://gsaikrishna-portfolio.netlify.app/',
         resumePath: personal.resumePath || path.join(__dirname, '..', 'config', 'resume.pdf')
       },
       career: {
+        ...career,
         primaryRole: career.primaryRole || 'Full Stack Developer (Angular, Java, Spring Boot)',
         targetRoles: Array.isArray(career.targetRoles) && career.targetRoles.length > 0
           ? career.targetRoles
@@ -156,7 +165,28 @@ class ProfileManager {
       verifiedSkillsMap,
       experience,
       projects,
-      education,
+      education: {
+        ...education,
+        degree: education.degree || 'B.Tech in Electronics and Communication Engineering',
+        institution: education.institution || 'SRM Institute of Science and Technology, Ramapuram Campus',
+        graduationYear: education.graduationYear || 2023,
+        cgpa: education.cgpa || '8.9 / 10',
+        percentage: education.percentage || '85%',
+        backlogs: education.backlogs !== undefined ? education.backlogs : 0,
+        ssc: education.ssc || {
+          school: 'Montessori High School, Alampur',
+          board: 'SSC',
+          year: 2017,
+          percentage: '77%'
+        },
+        intermediate: education.intermediate || {
+          college: 'Narayana Junior College, Hyderabad',
+          board: 'Telangana State Board (TSBIE)',
+          stream: 'MPC',
+          year: 2019,
+          percentage: '94%'
+        }
+      },
       achievements,
       certifications,
       screeningQA,
