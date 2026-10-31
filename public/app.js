@@ -235,6 +235,47 @@ class AutoApplyApp {
     this.mqNotesJobTitle = document.getElementById('mq-notes-job-title');
     this.mqEditNotesInput = document.getElementById('mq-edit-notes-input');
 
+    // Recruiter Outreach Elements
+    this.recruiterEmails = [];
+    this.emailsBadge = document.getElementById('emails-badge-count');
+    this.statRecruiterEmails = document.getElementById('stat-recruiter-emails');
+    this.emailsTableBody = document.getElementById('recruiter-emails-table-body');
+    this.emailKpiTotal = document.getElementById('email-kpi-total');
+    this.emailKpiNew = document.getElementById('email-kpi-new');
+    this.emailKpiContacted = document.getElementById('email-kpi-contacted');
+    this.emailKpiReplied = document.getElementById('email-kpi-replied');
+    this.emailFilterStatus = document.getElementById('email-filter-status');
+    this.emailFilterPlatform = document.getElementById('email-filter-platform');
+    this.emailSearchInput = document.getElementById('email-search-input');
+    this.btnRefreshEmails = document.getElementById('btn-refresh-emails');
+    this.btnAddRecruiterEmail = document.getElementById('btn-add-recruiter-email');
+
+    // Email Outreach Modal
+    this.emailOutreachModal = document.getElementById('email-outreach-modal');
+    this.btnCloseEmailModal = document.getElementById('btn-close-email-modal');
+    this.emailModalRecipient = document.getElementById('email-modal-recipient');
+    this.emailModalSubject = document.getElementById('email-modal-subject');
+    this.emailModalBody = document.getElementById('email-modal-body');
+    this.btnCopyRecipient = document.getElementById('btn-copy-recipient');
+    this.btnCopySubject = document.getElementById('btn-copy-subject');
+    this.btnCopyFullPitch = document.getElementById('btn-copy-full-pitch');
+    this.btnOpenMailto = document.getElementById('btn-open-mailto');
+    this.btnMarkContactedFromModal = document.getElementById('btn-mark-contacted-from-modal');
+    this.activeOutreachEmailId = null;
+
+    // Manual Add Email Modal
+    this.emailAddModal = document.getElementById('email-add-modal');
+    this.btnCloseEmailAddModal = document.getElementById('btn-close-email-add-modal');
+    this.btnCancelEmailAddModal = document.getElementById('btn-cancel-email-add-modal');
+    this.btnConfirmEmailAdd = document.getElementById('btn-confirm-email-add');
+    this.emailAddInput = document.getElementById('email-add-input');
+    this.emailAddName = document.getElementById('email-add-name');
+    this.emailAddCompany = document.getElementById('email-add-company');
+    this.emailAddJobTitle = document.getElementById('email-add-job-title');
+    this.emailAddPlatform = document.getElementById('email-add-platform');
+    this.emailAddUrl = document.getElementById('email-add-url');
+    this.emailAddContext = document.getElementById('email-add-context');
+
     // Toast
     this.toastContainer = document.getElementById('toast-container');
   }
@@ -254,6 +295,9 @@ class AutoApplyApp {
         if (btn.id === 'tab-btn-manual-queue') {
           this.loadManualQueue();
         }
+        if (btn.id === 'tab-btn-emails') {
+          this.loadRecruiterEmails();
+        }
       });
     });
 
@@ -262,6 +306,15 @@ class AutoApplyApp {
     if (kpiManualCard) {
       kpiManualCard.addEventListener('click', () => {
         const tabBtn = document.getElementById('tab-btn-manual-queue');
+        if (tabBtn) tabBtn.click();
+      });
+    }
+
+    // KPI Card click: navigate directly to Recruiter Outreach tab
+    const kpiEmailCard = document.getElementById('card-recruiter-emails');
+    if (kpiEmailCard) {
+      kpiEmailCard.addEventListener('click', () => {
+        const tabBtn = document.getElementById('tab-btn-emails');
         if (tabBtn) tabBtn.click();
       });
     }
@@ -295,6 +348,65 @@ class AutoApplyApp {
     if (this.btnCloseMqNotes) this.btnCloseMqNotes.addEventListener('click', () => this.closeMqModals());
     if (this.btnCancelMqNotes) this.btnCancelMqNotes.addEventListener('click', () => this.closeMqModals());
     if (this.btnConfirmMqNotes) this.btnConfirmMqNotes.addEventListener('click', () => this.submitSaveNotes());
+
+    // Close modals on clicking backdrop background
+    [this.mqAppliedModal, this.mqAddModal, this.mqNotesModal].forEach(modal => {
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) this.closeMqModals();
+        });
+      }
+    });
+
+    // Recruiter Outreach Toolbar & Modal Events
+    if (this.btnRefreshEmails) {
+      this.btnRefreshEmails.addEventListener('click', () => this.loadRecruiterEmails());
+    }
+    if (this.btnAddRecruiterEmail) {
+      this.btnAddRecruiterEmail.addEventListener('click', () => this.openAddRecruiterEmailModal());
+    }
+    if (this.emailFilterStatus) {
+      this.emailFilterStatus.addEventListener('change', () => this.loadRecruiterEmails());
+    }
+    if (this.emailFilterPlatform) {
+      this.emailFilterPlatform.addEventListener('change', () => this.loadRecruiterEmails());
+    }
+    if (this.emailSearchInput) {
+      this.emailSearchInput.addEventListener('input', () => {
+        clearTimeout(this._emailSearchTimer);
+        this._emailSearchTimer = setTimeout(() => this.loadRecruiterEmails(), 250);
+      });
+    }
+
+    if (this.btnCloseEmailModal) this.btnCloseEmailModal.addEventListener('click', () => this.closeEmailModals());
+    if (this.btnCopyRecipient) {
+      this.btnCopyRecipient.addEventListener('click', () => {
+        this.copyToClipboard(this.emailModalRecipient.value, 'Recruiter email copied to clipboard!');
+      });
+    }
+    if (this.btnCopySubject) {
+      this.btnCopySubject.addEventListener('click', () => {
+        this.copyToClipboard(this.emailModalSubject.value, 'Subject line copied to clipboard!');
+      });
+    }
+    if (this.btnCopyFullPitch) {
+      this.btnCopyFullPitch.addEventListener('click', () => {
+        const full = `Subject: ${this.emailModalSubject.value}\n\n${this.emailModalBody.value}`;
+        this.copyToClipboard(full, 'Full cold outreach pitch copied to clipboard!');
+      });
+    }
+    if (this.btnMarkContactedFromModal) {
+      this.btnMarkContactedFromModal.addEventListener('click', () => {
+        if (this.activeOutreachEmailId) {
+          this.updateEmailStatus(this.activeOutreachEmailId, 'contacted');
+          this.closeEmailModals();
+        }
+      });
+    }
+
+    if (this.btnCloseEmailAddModal) this.btnCloseEmailAddModal.addEventListener('click', () => this.closeEmailModals());
+    if (this.btnCancelEmailAddModal) this.btnCancelEmailAddModal.addEventListener('click', () => this.closeEmailModals());
+    if (this.btnConfirmEmailAdd) this.btnConfirmEmailAdd.addEventListener('click', () => this.submitAddRecruiterEmail());
 
     // Bot Controls
     this.btnStart.addEventListener('click', () => this.startBot());
@@ -590,6 +702,16 @@ class AutoApplyApp {
         this.updateStats(data.stats, data.timeStats);
         break;
 
+      case 'recruiter_email_found':
+        this.showToast(`📧 New recruiter email found: ${data.email} (${data.company})`, 'success');
+        this.loadRecruiterEmails();
+        break;
+
+      case 'recruiter_email_updated':
+      case 'recruiter_email_deleted':
+        this.loadRecruiterEmails();
+        break;
+
       case 'history_cleared':
         this.historyJobs = [];
         this.renderTimeMetrics({ today: 0, yesterday: 0, thisMonth: 0, previousMonth: 0, allTime: 0 });
@@ -719,6 +841,7 @@ class AutoApplyApp {
       if (resStatus?.orchestrator) {
         this.updateFromSnapshot(resStatus.orchestrator);
       }
+      this.loadRecruiterEmails();
       if (resStatus?.chrome) {
         this.renderChromeStatus(resStatus.chrome);
       }
@@ -870,6 +993,10 @@ class AutoApplyApp {
     if (this.badgeManualQueue) this.badgeManualQueue.textContent = mqCount;
     if (this.mqPendingBadge) this.mqPendingBadge.textContent = `${mqCount} Pending`;
     if (this.statManualQueue) this.statManualQueue.textContent = mqCount;
+
+    const emailCount = stats.recruiterEmailsCount !== undefined ? stats.recruiterEmailsCount : (timeStats?.recruiterEmails?.totalEmails || 0);
+    if (this.emailsBadge) this.emailsBadge.textContent = emailCount;
+    if (this.statRecruiterEmails) this.statRecruiterEmails.textContent = emailCount;
 
     const cap = this.settings?.automation?.maxApplicationsPerSession || 20;
     this.statTargetCap.textContent = cap;
@@ -2667,13 +2794,13 @@ class AutoApplyApp {
               ` : isNotInterested ? `
                 <span class="mq-status-dismissed">Archived (Not Interested)</span>
               ` : `
-                <button class="btn btn-primary btn-sm btn-mq-mark-applied" data-id="${job.id}">
-                  ✓ Mark Applied
+                <button class="btn btn-primary btn-sm btn-mq-mark-applied" data-id="${job.id}" title="Mark application as completed/submitted">
+                  ✓ Mark Completed
                 </button>
                 <button class="btn btn-secondary btn-sm btn-mq-notes" data-id="${job.id}" title="Add/Edit Notes">
                   📝 Notes
                 </button>
-                <button class="btn btn-danger-soft btn-sm btn-mq-dismiss" data-id="${job.id}" title="Mark as not interested">
+                <button class="btn btn-danger-soft btn-sm btn-mq-dismiss" data-id="${job.id}" title="Dismiss job (Not Interested)">
                   ✕ Dismiss
                 </button>
               `}
@@ -2701,6 +2828,7 @@ class AutoApplyApp {
     // Bind item action buttons
     this.mqItemsContainer.querySelectorAll('.btn-mq-mark-applied').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.preventDefault();
         const id = e.currentTarget.getAttribute('data-id');
         const job = this.manualQueueItems.find(j => j.id === id);
         if (job) this.openMarkAppliedModal(job);
@@ -2709,6 +2837,7 @@ class AutoApplyApp {
 
     this.mqItemsContainer.querySelectorAll('.btn-mq-notes').forEach(btn => {
       btn.addEventListener('click', (e) => {
+        e.preventDefault();
         const id = e.currentTarget.getAttribute('data-id');
         const job = this.manualQueueItems.find(j => j.id === id);
         if (job) this.openNotesModal(job);
@@ -2716,11 +2845,16 @@ class AutoApplyApp {
     });
 
     this.mqItemsContainer.querySelectorAll('.btn-mq-dismiss').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
         const id = e.currentTarget.getAttribute('data-id');
-        if (confirm('Mark this job as Not Interested?')) {
-          this.updateManualQueueStatus(id, 'NOT_INTERESTED', 'Candidate marked as not interested');
+        const card = document.getElementById(`mq-card-${id}`);
+        if (card) {
+          card.style.transition = 'all 0.25s ease';
+          card.style.opacity = '0.35';
+          card.style.transform = 'scale(0.97)';
         }
+        await this.updateManualQueueStatus(id, 'NOT_INTERESTED', 'Candidate marked as not interested');
       });
     });
   }
@@ -2760,7 +2894,7 @@ class AutoApplyApp {
       }).then(r => r.json());
 
       if (res.success) {
-        this.showToast('✅ Application recorded successfully!', 'success');
+        this.showToast('✅ Application recorded as Completed!', 'success');
         this.closeMqModals();
         this.loadManualQueue();
       } else {
@@ -2780,7 +2914,17 @@ class AutoApplyApp {
       }).then(r => r.json());
 
       if (res.success) {
-        this.showToast(`Status updated to ${status}`, 'info');
+        const card = document.getElementById(`mq-card-${id}`);
+        if (card) {
+          card.style.transition = 'all 0.3s ease';
+          card.style.opacity = '0';
+          card.style.transform = 'translateX(30px)';
+          setTimeout(() => { if (card.parentNode) card.remove(); }, 300);
+        }
+        this.showToast('Job dismissed from manual queue.', 'info');
+        this.loadManualQueue();
+      } else {
+        this.showToast(`Error: ${res.error || 'Failed to update status'}`, 'error');
         this.loadManualQueue();
       }
     } catch (err) {
@@ -2879,6 +3023,216 @@ class AutoApplyApp {
     } catch (err) {
       this.showToast(`Error: ${err.message}`, 'error');
     }
+  }
+
+  // ============================================================
+  // RECRUITER OUTREACH & EMAIL TRACKING METHODS
+  // ============================================================
+  async loadRecruiterEmails() {
+    try {
+      const status = this.emailFilterStatus ? this.emailFilterStatus.value : 'all';
+      const platform = this.emailFilterPlatform ? this.emailFilterPlatform.value : 'all';
+      const search = this.emailSearchInput ? encodeURIComponent(this.emailSearchInput.value.trim()) : '';
+
+      const url = `/api/recruiter-emails?status=${status}&platform=${platform}&search=${search}`;
+      const res = await fetch(url).then(r => r.json());
+
+      if (res.success) {
+        this.recruiterEmails = res.emails || [];
+        this.renderRecruiterEmailsTable(this.recruiterEmails);
+        if (res.stats) {
+          if (this.emailKpiTotal) this.emailKpiTotal.textContent = res.stats.totalEmails || 0;
+          if (this.emailKpiNew) this.emailKpiNew.textContent = res.stats.newCount || 0;
+          if (this.emailKpiContacted) this.emailKpiContacted.textContent = res.stats.contactedCount || 0;
+          if (this.emailKpiReplied) this.emailKpiReplied.textContent = res.stats.repliedCount || 0;
+          if (this.emailsBadge) this.emailsBadge.textContent = res.stats.totalEmails || 0;
+          if (this.statRecruiterEmails) this.statRecruiterEmails.textContent = res.stats.totalEmails || 0;
+        }
+      }
+    } catch (err) {
+      console.error('[RecruiterEmails] Error loading emails:', err);
+    }
+  }
+
+  renderRecruiterEmailsTable(emails) {
+    if (!this.emailsTableBody) return;
+
+    if (!emails || emails.length === 0) {
+      this.emailsTableBody.innerHTML = `
+        <tr class="empty-row">
+          <td colspan="7" style="text-align: center; padding: 2rem; color: #94a3b8;">
+            No recruiter emails match the current filters. Discovered contacts will appear here automatically.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    this.emailsTableBody.innerHTML = emails.map(item => {
+      const dateStr = item.foundAt ? new Date(item.foundAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently';
+      const statusClass = `status-${item.status || 'new'}`;
+
+      return `
+        <tr data-email-id="${this.escapeHtml(item.id)}">
+          <td>
+            <div style="font-weight: 600; color: #f8fafc;">${this.escapeHtml(item.recruiterName || 'Hiring Team')}</div>
+            <div class="recruiter-company-meta">${this.escapeHtml(item.company || 'Employer')}</div>
+          </td>
+          <td>
+            <div class="recruiter-email-cell">
+              <div class="recruiter-email-main">
+                <a href="mailto:${this.escapeHtml(item.email)}" class="recruiter-email-link" title="Open mail client">${this.escapeHtml(item.email)}</a>
+                <button class="btn-icon-copy" title="Copy email" onclick="window.autoApplyApp.copyToClipboard('${this.escapeHtml(item.email)}', 'Email copied!')">
+                  📋
+                </button>
+              </div>
+              <button class="btn-pitch" onclick="window.autoApplyApp.openOutreachPitchModal('${this.escapeHtml(item.id)}')">
+                ✨ Follow-Up Pitch
+              </button>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight: 500; font-size: 0.86rem; color: #e2e8f0;">
+              ${this.escapeHtml(item.jobTitle || 'Software Developer')}
+              ${item.jobUrl ? `<a href="${this.escapeHtml(item.jobUrl)}" target="_blank" rel="noopener" style="font-size: 0.76rem; color: #6366f1; margin-left: 4px;">↗</a>` : ''}
+            </div>
+            ${item.context ? `<div class="email-context-snippet" title="${this.escapeHtml(item.context)}">"${this.escapeHtml(item.context)}"</div>` : ''}
+          </td>
+          <td>
+            <span class="platform-badge platform-${(item.platform || 'direct').toLowerCase().replace(/\s+/g, '-')}">
+              ${this.escapeHtml(item.platform || 'Direct')}
+            </span>
+          </td>
+          <td>
+            <select class="status-badge-select ${statusClass}" onchange="window.autoApplyApp.updateEmailStatus('${this.escapeHtml(item.id)}', this.value)">
+              <option value="new" ${item.status === 'new' ? 'selected' : ''}>New</option>
+              <option value="contacted" ${item.status === 'contacted' ? 'selected' : ''}>Contacted</option>
+              <option value="replied" ${item.status === 'replied' ? 'selected' : ''}>Replied</option>
+              <option value="archived" ${item.status === 'archived' ? 'selected' : ''}>Archived</option>
+            </select>
+          </td>
+          <td style="font-size: 0.82rem; color: #94a3b8; white-space: nowrap;">
+            ${dateStr}
+          </td>
+          <td>
+            <div style="display: flex; gap: 4px;">
+              <button class="btn btn-micro btn-danger-soft" title="Delete contact" onclick="window.autoApplyApp.deleteRecruiterEmail('${this.escapeHtml(item.id)}')">
+                ✕
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  async openOutreachPitchModal(emailId) {
+    try {
+      const res = await fetch(`/api/recruiter-emails/${emailId}/template`).then(r => r.json());
+      if (res.success && res.templates) {
+        this.activeOutreachEmailId = emailId;
+        this.emailModalRecipient.value = res.item.email;
+        this.emailModalSubject.value = res.templates.subject;
+        this.emailModalBody.value = res.templates.body;
+
+        const mailtoUrl = `mailto:${res.item.email}?subject=${encodeURIComponent(res.templates.subject)}&body=${encodeURIComponent(res.templates.body)}`;
+        this.btnOpenMailto.href = mailtoUrl;
+
+        if (this.emailOutreachModal) this.emailOutreachModal.style.display = 'flex';
+      }
+    } catch (err) {
+      this.showToast(`Error loading pitch: ${err.message}`, 'error');
+    }
+  }
+
+  async updateEmailStatus(emailId, status) {
+    try {
+      const res = await fetch(`/api/recruiter-emails/${emailId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      }).then(r => r.json());
+
+      if (res.success) {
+        this.showToast(`Status updated to "${status}"`, 'success');
+        this.loadRecruiterEmails();
+      }
+    } catch (err) {
+      this.showToast(`Error updating status: ${err.message}`, 'error');
+    }
+  }
+
+  async deleteRecruiterEmail(emailId) {
+    if (!confirm('Are you sure you want to remove this recruiter contact?')) return;
+    try {
+      const res = await fetch(`/api/recruiter-emails/${emailId}`, { method: 'DELETE' }).then(r => r.json());
+      if (res.success) {
+        this.showToast('Recruiter contact removed', 'info');
+        this.loadRecruiterEmails();
+      }
+    } catch (err) {
+      this.showToast(`Error deleting: ${err.message}`, 'error');
+    }
+  }
+
+  openAddRecruiterEmailModal() {
+    if (this.emailAddInput) this.emailAddInput.value = '';
+    if (this.emailAddName) this.emailAddName.value = '';
+    if (this.emailAddCompany) this.emailAddCompany.value = '';
+    if (this.emailAddJobTitle) this.emailAddJobTitle.value = '';
+    if (this.emailAddUrl) this.emailAddUrl.value = '';
+    if (this.emailAddContext) this.emailAddContext.value = '';
+    if (this.emailAddModal) this.emailAddModal.style.display = 'flex';
+  }
+
+  closeEmailModals() {
+    if (this.emailOutreachModal) this.emailOutreachModal.style.display = 'none';
+    if (this.emailAddModal) this.emailAddModal.style.display = 'none';
+    this.activeOutreachEmailId = null;
+  }
+
+  async submitAddRecruiterEmail() {
+    const email = (this.emailAddInput?.value || '').trim();
+    const company = (this.emailAddCompany?.value || '').trim();
+
+    if (!email || !company) {
+      this.showToast('Please provide email and company name', 'warning');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/recruiter-emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          company,
+          recruiterName: (this.emailAddName?.value || '').trim(),
+          jobTitle: (this.emailAddJobTitle?.value || '').trim(),
+          platform: this.emailAddPlatform?.value || 'Manual Entry',
+          jobUrl: (this.emailAddUrl?.value || '').trim(),
+          context: (this.emailAddContext?.value || '').trim()
+        })
+      }).then(r => r.json());
+
+      if (res.success) {
+        this.showToast('Recruiter contact saved successfully!', 'success');
+        this.closeEmailModals();
+        this.loadRecruiterEmails();
+      } else {
+        this.showToast(`Error: ${res.error}`, 'error');
+      }
+    } catch (err) {
+      this.showToast(`Error adding contact: ${err.message}`, 'error');
+    }
+  }
+
+  copyToClipboard(text, successMsg = 'Copied to clipboard!') {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.showToast(successMsg, 'success');
+    }).catch(() => {
+      this.showToast('Could not copy automatically. Please copy manually.', 'warning');
+    });
   }
 
   closeMqModals() {

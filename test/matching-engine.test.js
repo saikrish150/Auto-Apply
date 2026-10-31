@@ -120,4 +120,87 @@ test('MatchingEngine - Multi-Dimensional Job Matching & Experience Compatibility
     assert.equal(result.experienceCompatibility, MatchingEngine.EXPERIENCE_CATEGORIES.MEETS_REQUIRED);
     assert.ok(result.overallScore >= 75, `Expected score >= 75, got ${result.overallScore}`);
   });
+
+  await t.test('Correctly scores and recommends Software Engineer - Backend without false skips', () => {
+    const backendJob = {
+      title: 'Software Engineer - Backend',
+      description: 'Looking for a backend engineer to build scalable APIs, microservices, database systems, distributed architectures.',
+      company: 'CloudStream Systems',
+      location: 'Hyderabad',
+      profile
+    };
+
+    const result = MatchingEngine.evaluate(backendJob);
+    assert.ok(result.overallScore >= 75, `Expected overallScore >= 75, got ${result.overallScore}`);
+    assert.equal(result.isRecommended, true);
+    assert.equal(result.isMatch, true);
+  });
+
+  await t.test('Applies to Java Developer within 3 years, but skips jobs requiring 4+ or 5+ years', () => {
+    const javaWithin3Yrs = {
+      title: 'Java Developer',
+      description: 'Looking for 2 to 3 years experience in Java Spring Boot, microservices, REST APIs.',
+      company: 'Innovatech',
+      location: 'Hyderabad',
+      profile
+    };
+
+    const java5PlusYrs = {
+      title: 'Java Developer',
+      description: 'Looking for 5+ years experience in Java Spring Boot, microservices, AWS.',
+      company: 'FinTech Dynamics',
+      location: 'Bengaluru',
+      profile
+    };
+
+    const seniorJava5to7Yrs = {
+      title: 'Senior Java Developer',
+      description: 'Java, Spring, Microservices, 5-7 years experience required.',
+      company: 'Enterprise Solutions',
+      location: 'Hyderabad',
+      profile
+    };
+
+    // Within 3 years -> Apply
+    const resWithin = MatchingEngine.evaluate(javaWithin3Yrs);
+    assert.ok(resWithin.overallScore >= 75, `Expected resWithin >= 75, got ${resWithin.overallScore}`);
+    assert.equal(resWithin.isRecommended, true);
+
+    // 5+ years -> Skip
+    const res5Plus = MatchingEngine.evaluate(java5PlusYrs);
+    assert.ok(res5Plus.overallScore <= 50, `Expected res5Plus <= 50, got ${res5Plus.overallScore}`);
+    assert.equal(res5Plus.isRecommended, false);
+
+    // 5-7 years -> Skip
+    const resSenior = MatchingEngine.evaluate(seniorJava5to7Yrs);
+    assert.ok(resSenior.overallScore <= 50, `Expected resSenior <= 50, got ${resSenior.overallScore}`);
+    assert.equal(resSenior.isRecommended, false);
+  });
+
+  await t.test('Firmly rejects completely non-technical roles', () => {
+    const accountantJob = {
+      title: 'Senior Accountant',
+      description: 'Chartered accountant with 5 years experience in GAAP, tax filing, and audits.',
+      company: 'AuditCorp',
+      location: 'Hyderabad',
+      profile
+    };
+
+    const mechanicalJob = {
+      title: 'Mechanical Design Engineer',
+      description: 'Requires 4 years experience with AutoCAD, SolidWorks, and HVAC thermal design.',
+      company: 'MechWorks',
+      location: 'Hyderabad',
+      profile
+    };
+
+    const res1 = MatchingEngine.evaluate(accountantJob);
+    assert.ok(res1.overallScore <= 40, `Expected accountant score <= 40, got ${res1.overallScore}`);
+    assert.equal(res1.isRecommended, false);
+
+    const res2 = MatchingEngine.evaluate(mechanicalJob);
+    assert.ok(res2.overallScore <= 40, `Expected mechanical score <= 40, got ${res2.overallScore}`);
+    assert.equal(res2.isRecommended, false);
+  });
 });
+

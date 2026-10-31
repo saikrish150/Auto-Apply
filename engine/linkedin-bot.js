@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const CareerSiteBot = require('./career-site-bot');
 
 class LinkedInBot {
@@ -9,7 +11,86 @@ class LinkedInBot {
     this.dataStore = dataStore;
     this.shouldStop = false;
     this.seenJobKeys = new Set();
-    this.careerSiteBot = new CareerSiteBot(chromeManager, aiAgent, settings, logger);
+    this.careerSiteBot = new CareerSiteBot(chromeManager, aiAgent, settings, logger, dataStore);
+    this.resumePath = this.resolveResumePath();
+  }
+
+  resolveResumePath() {
+    const candidates = [
+      path.join(__dirname, '..', 'config', 'resume.pdf'),
+      path.join(__dirname, '..', 'config', 'Sai_Krishna_Resume.pdf'),
+      this.ai?.profile?.personal?.resumePath,
+      'D:\\Downloads\\Sai_Krishna_G_Resume.pdf'
+    ];
+    for (const c of candidates) {
+      if (c && fs.existsSync(c)) return c;
+    }
+    return null;
+  }
+
+  // Ensure candidate resume is selected or uploaded in Easy Apply modal
+  async handleResumeStep(page) {
+    try {
+      const dialogHandle = (await page.$('dialog, [role="dialog"], .jobs-easy-apply-modal, .artdeco-modal')) || page;
+      const resumeInfo = await dialogHandle.evaluate(el => {
+        const radios = Array.from(el.querySelectorAll('input[type="radio"][id*="resume"], .jobs-document-upload input[type="radio"]'));
+        const anyChecked = radios.some(r => r.checked);
+        const fileInput = el.querySelector('input[type="file"]');
+        return { hasRadios: radios.length > 0, anyChecked, hasFileInput: !!fileInput };
+      });
+
+      if (resumeInfo.hasRadios && !resumeInfo.anyChecked) {
+        await dialogHandle.evaluate(el => {
+          const radios = Array.from(el.querySelectorAll('input[type="radio"][id*="resume"], .jobs-document-upload input[type="radio"]'));
+          if (radios.length > 0) {
+            const r = radios[0];
+            r.click();
+            r.checked = true;
+            const l = r.id ? el.querySelector(`label[for="${r.id}"]`) : r.closest('label');
+            if (l) l.click();
+            r.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+        this.logger('action', 'LinkedIn', 'Selected candidate resume in Easy Apply modal.');
+        await this.randomDelay(400, 800);
+      } else if (resumeInfo.hasFileInput && (!resumeInfo.hasRadios || !resumeInfo.anyChecked)) {
+        const fileInputHandle = await dialogHandle.$('input[type="file"]');
+        if (fileInputHandle && this.resumePath && fs.existsSync(this.resumePath)) {
+          await fileInputHandle.uploadFile(this.resumePath);
+          this.logger('success', 'LinkedIn', `Uploaded candidate resume PDF (${path.basename(this.resumePath)}) in Easy Apply modal.`);
+          await this.randomDelay(1200, 2000);
+        }
+      }
+    } catch (e) {
+      // Resume step best effort
+    }
+  }
+
+  // Dismiss and discard modal cleanly so background cards aren't occluded
+  async dismissAndDiscardModal(page) {
+    try {
+      await page.evaluate(() => {
+        const modal = document.querySelector('dialog, [role="dialog"], .jobs-easy-apply-modal, .artdeco-modal') || document;
+        const dismissBtn = modal.querySelector('button[aria-label*="Dismiss"], button.artdeco-modal__dismiss, [data-control-name="overlay.close_padding"]');
+        if (dismissBtn) dismissBtn.click();
+      });
+      await this.randomDelay(600, 1000);
+
+      await page.evaluate(() => {
+        const confirmDialog = document.querySelector('[data-test-modal-container], .artdeco-modal, [role="dialog"]') || document;
+        const buttons = Array.from(confirmDialog.querySelectorAll('button'));
+        const discard = buttons.find(b => {
+          const txt = (b.innerText || '').toLowerCase();
+          const ctrl = (b.getAttribute('data-control-name') || '').toLowerCase();
+          return txt.includes('discard') || ctrl.includes('discard');
+        });
+        if (discard) discard.click();
+      });
+      await page.keyboard.press('Escape').catch(() => {});
+      await this.randomDelay(400, 800);
+    } catch (e) {
+      // Best-effort cleanup
+    }
   }
 
   stop() {
@@ -45,7 +126,7 @@ class LinkedInBot {
   // Get experience level filter for LinkedIn (1: Internship, 2: Entry level, 3: Associate, 4: Mid-Senior)
   getExperienceFilterParam(expSetting) {
     const raw = String(expSetting || '').toLowerCase();
-    if (raw === 'all') return '';
+    if (raw === 'all' || !raw) return '';
     if (raw.includes('1-4') || raw.includes('1 to 4') || (raw.includes('entry') && raw.includes('associate'))) {
       return 'f_E=2,3';
     }
@@ -80,8 +161,6 @@ class LinkedInBot {
 
     try {
       const scenarios = this.getScenarios();
-      const rawLocations = this.settings.search?.locations || 'Hyderabad';
-      const activeLocation = rawLocations.split(',')[0].trim() || 'India';
       const dateFilter = this.getDateFilterParam(this.settings.search?.datePosted);
       const expFilter = this.getExperienceFilterParam(this.settings.search?.experienceLevel);
       const expParam = expFilter ? `${expFilter}&` : '';
@@ -104,7 +183,7 @@ class LinkedInBot {
         phases.push({ name: 'Normal Jobs Discovery', easyApplyOnly: false });
       }
 
-      this.logger('info', 'LinkedIn', `LinkedIn bot initialized with ${scenarios.length} scenarios in ${activeLocation}. Freshness: ${this.settings.search?.datePosted || 'past_24h'}. Exp Filter: ${expFilter || 'All'}. Dual-Phase: ${shortlistNonEasyApply ? 'Easy Apply + Normal Shortlisting' : 'Easy Apply Only'}.`);
+      this.logger('info', 'LinkedIn', `LinkedIn bot initialized with ${scenarios.length} scenarios (All Locations / Worldwide). Freshness: ${this.settings.search?.datePosted || 'past_24h'}. Exp Filter: ${expFilter || 'All'}. Dual-Phase: ${shortlistNonEasyApply ? 'Easy Apply + Normal Shortlisting' : 'Easy Apply Only'}.`);
 
       for (let sIdx = 0; sIdx < scenarios.length; sIdx++) {
         if (this.shouldStop || totalProcessedCount >= maxApps) break;
@@ -122,9 +201,9 @@ class LinkedInBot {
 
             const startParam = pageNum > 0 ? `&start=${pageNum * 25}` : '';
             const easyApplyParam = phase.easyApplyOnly ? 'f_AL=true&' : '';
-            const searchUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(currentScenario)}&location=${encodeURIComponent(activeLocation)}&${easyApplyParam}${expParam}${dateFilter}${startParam}`;
+            const searchUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(currentScenario)}&${easyApplyParam}${expParam}${dateFilter}${startParam}`;
 
-            this.logger('info', 'LinkedIn', `[${phase.name} | Page ${pageNum + 1}] Searching: "${currentScenario}" in ${activeLocation} (Freshness: ${this.settings.search?.datePosted || 'past_24h'})...`);
+            this.logger('info', 'LinkedIn', `[${phase.name} | Page ${pageNum + 1}] Searching: "${currentScenario}" (All Locations | Freshness: ${this.settings.search?.datePosted || 'past_24h'})...`);
             
             await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
             await this.randomDelay(3000, 4500);
@@ -188,18 +267,31 @@ class LinkedInBot {
                 // Fast pre-click DOM inspection: check applied status, job ID, and title/company
                 const cardPre = await card.evaluate(el => {
                   const text = el.innerText || '';
-                  const isApplied = /applied/i.test(text) || !!el.querySelector('.job-card-container__footer-item, [class*="status-badge"], [class*="applied"]');
+                  const appliedBadge = el.querySelector('.job-card-container__footer-item, [class*="status-badge"], [class*="job-state"], .artdeco-inline-feedback--success');
+                  let isApplied = false;
+                  if (appliedBadge) {
+                    const bText = (appliedBadge.innerText || '').trim().toLowerCase();
+                    isApplied = bText.includes('applied');
+                  } else {
+                    isApplied = /\bapplied(\s+\d+[a-z]+ ago|\s+on\s+.*)?$/im.test(text) && !/applied\s+(materials|intuition|ai|science|data)/i.test(text);
+                  }
                   const hasEasyApply = /easy\s*apply/i.test(text);
 
                   const jobIdAttr = el.getAttribute('data-occludable-job-id') || el.getAttribute('data-job-id');
-                  const link = el.querySelector('a[href*="/jobs/view/"], a.job-card-list__title, a.job-card-container__link');
+                  const link = el.querySelector('a[href*="/jobs/view/"], a.job-card-list__title, a.job-card-list__title--link, a.job-card-container__link');
                   const href = link ? link.href : '';
                   const idMatch = href.match(/\/jobs\/view\/(\d+)/);
                   const jobId = jobIdAttr || (idMatch ? idMatch[1] : '');
 
-                  const titleEl = el.querySelector('.job-card-list__title, .job-card-container__link, a[class*="job-title"], strong');
-                  const compEl = el.querySelector('.job-card-container__primary-description, .artdeco-entity-lockup__subtitle, [class*="company-name"]');
-                  const locEl = el.querySelector('.job-card-container__metadata-item, [class*="metadata-item"], [class*="job-card-container__bullet"]');
+                  const titleEl = el.querySelector(
+                    '.job-card-list__title--link, .job-card-list__title, .job-card-container__link, .artdeco-entity-lockup__title a, [data-view-name="job-card"] a, a[class*="job-title"], a[href*="/jobs/view/"], strong'
+                  );
+                  const compEl = el.querySelector(
+                    '.job-card-container__primary-description, .artdeco-entity-lockup__subtitle, [class*="company-name"], [class*="subtitle"], a[href*="/company/"]'
+                  );
+                  const locEl = el.querySelector(
+                    '.job-card-container__metadata-item, [class*="metadata-item"], [class*="job-card-container__bullet"], [class*="caption"]'
+                  );
 
                   return {
                     jobId,
@@ -212,65 +304,103 @@ class LinkedInBot {
                   };
                 });
 
-                const titleKey = `${(cardPre.title || '').toLowerCase().trim()}|${(cardPre.company || '').toLowerCase().trim()}`;
+                const rawTitle = (cardPre.title || '').trim();
+                const rawComp = (cardPre.company || '').trim();
+                const titleKey = (rawTitle && rawComp) ? `${rawTitle.toLowerCase()}|${rawComp.toLowerCase()}` : '';
+                const isGenericKey = !titleKey || titleKey.startsWith('software developer|company') || titleKey === '|';
 
                 // 1. Skip if already applied
                 if (cardPre.isApplied) {
-                  this.logger('info', 'LinkedIn', `[Pre-check] Skipping "${cardPre.title || 'Job'}" at ${cardPre.company} - card shows already applied.`);
+                  this.logger('info', 'LinkedIn', `[Pre-check] Skipping "${rawTitle || 'Job'}" at ${rawComp} - card shows already applied.`);
                   if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
-                  if (titleKey) this.seenJobKeys.add(titleKey);
+                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
                   continue;
                 }
 
-                // 2. Skip if already seen in current session or historical applications
-                if ((cardPre.jobId && this.seenJobKeys.has(cardPre.jobId)) || (titleKey && this.seenJobKeys.has(titleKey))) {
-                  this.logger('info', 'LinkedIn', `[Pre-check] Skipping "${cardPre.title || 'Job'}" at ${cardPre.company} - already processed.`);
+                // 2. Skip if already seen in historical confirmed applications
+                if ((cardPre.jobId && this.seenJobKeys.has(cardPre.jobId)) || (titleKey && !isGenericKey && this.seenJobKeys.has(titleKey))) {
+                  this.logger('info', 'LinkedIn', `[Pre-check] Skipping "${rawTitle || 'Job'}" at ${rawComp} - already processed.`);
                   continue;
                 }
-
-                // 3. In Easy Apply phase: skip if card doesn't have Easy Apply
-                if (phase.easyApplyOnly && !cardPre.hasEasyApply) {
-                  this.logger('info', 'LinkedIn', `[Pre-check] Skipping "${cardPre.title || 'Job'}" - no Easy Apply indicator.`);
-                  if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
-                  continue;
-                }
-
-                // Record in seenJobKeys before opening so we don't repeat
-                if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
-                if (titleKey) this.seenJobKeys.add(titleKey);
 
                 // Click card to load job details in the right pane
                 await card.evaluate(el => {
                   el.scrollIntoView({ block: 'center', inline: 'nearest' });
                   el.click();
                 });
-                await this.randomDelay(1800, 2800);
 
-                // Extract job details from right-hand details pane
-                const jobDetails = await page.evaluate(() => {
-                  const pane = document.querySelector('.jobs-details__main-content, .scaffold-layout__detail, .job-view-layout, .jobs-search__job-details') || document;
-                  const titleEl = pane.querySelector(
-                    '.job-details-jobs-unified-top-card__job-title, .jobs-unified-top-card__job-title, h1, .top-card-layout__title, [class*="job-title"]'
-                  );
-                  const companyEl = pane.querySelector(
+                // Wait for the detail pane content to render (up to 3.5 seconds)
+                await page.waitForFunction(() => {
+                  const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
+                  const descEl = detailPane.querySelector('.jobs-description__content, #job-details, .show-more-less-html__markup, [class*="description"]');
+                  const titleEl = detailPane.querySelector('.job-details-jobs-unified-top-card__job-title, .jobs-unified-top-card__job-title, h1, h2, [class*="job-title"]');
+                  const hasDesc = descEl && (descEl.innerText || '').trim().length > 30;
+                  const hasTitle = titleEl && (titleEl.innerText || '').trim().length > 3;
+                  return hasDesc || hasTitle;
+                }, { timeout: 3500 }).catch(() => {});
+                await this.randomDelay(800, 1500);
+
+                // Extract job details from right-hand details pane with robust fallback to cardPre
+                const jobDetails = await page.evaluate((fallbackMeta, scenarioName) => {
+                  const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
+                  const topCard = detailPane.querySelector('.job-details-jobs-unified-top-card, .jobs-unified-top-card, [class*="top-card"]') || detailPane;
+
+                  const titleEl = topCard.querySelector(
+                    '.job-details-jobs-unified-top-card__job-title, .jobs-unified-top-card__job-title, h1.t-24, h1, h2, .top-card-layout__title, [class*="job-title"]'
+                  ) || document.querySelector('.job-details-jobs-unified-top-card__job-title, .jobs-unified-top-card__job-title, h1');
+
+                  const companyEl = topCard.querySelector(
                     '.job-details-jobs-unified-top-card__company-name, .jobs-unified-top-card__company-name, [class*="company-name"], a[href*="/company/"], .topcard__flavor'
-                  );
-                  const locationEl = pane.querySelector(
+                  ) || document.querySelector('.job-details-jobs-unified-top-card__company-name, .jobs-unified-top-card__company-name');
+
+                  const locationEl = topCard.querySelector(
                     '.job-details-jobs-unified-top-card__bullet, .jobs-unified-top-card__bullet, [class*="bullet"], .topcard__flavor--bullet'
                   );
-                  const descEl = pane.querySelector(
-                    '.jobs-description__content, #job-details, .show-more-less-html__markup, [class*="description"]'
-                  );
 
-                  return {
-                    title: titleEl ? titleEl.innerText.trim() : 'Software Developer',
-                    company: companyEl ? companyEl.innerText.trim() : 'Company',
-                    location: locationEl ? locationEl.innerText.trim() : 'India',
-                    description: descEl ? descEl.innerText.trim() : ''
-                  };
-                });
+                  const descEl = detailPane.querySelector(
+                    '#job-details, .jobs-description__content, .jobs-description-content__text, .show-more-less-html__markup, [class*="description"]'
+                  ) || document.querySelector('#job-details, .jobs-description__content');
+
+                  let title = (titleEl && titleEl.innerText.trim().length > 2) ? titleEl.innerText.trim() : '';
+                  if (!title && fallbackMeta.title && fallbackMeta.title.length > 2) {
+                    title = fallbackMeta.title;
+                  }
+                  if (!title) {
+                    title = scenarioName || 'Full Stack Developer';
+                  }
+
+                  let company = (companyEl && companyEl.innerText.trim().length > 1) ? companyEl.innerText.trim() : '';
+                  if (!company && fallbackMeta.company && fallbackMeta.company.length > 1) {
+                    company = fallbackMeta.company;
+                  }
+                  if (!company) {
+                    company = 'Direct Employer';
+                  }
+
+                  const location = (locationEl && locationEl.innerText.trim().length > 1) ? locationEl.innerText.trim() : (fallbackMeta.location || 'India');
+                  let description = descEl ? descEl.innerText.trim() : '';
+
+                  if (!description || description.length < 25) {
+                    description = `${title} role at ${company} in ${location}. Involves ${scenarioName}, Angular, Java Spring Boot, REST APIs, Microservices development.`;
+                  }
+
+                  return { title, company, location, description };
+                }, { title: rawTitle, company: rawComp, location: cardPre.location }, currentScenario);
 
                 this.logger('info', 'LinkedIn', `[${phase.name}] Evaluating: "${jobDetails.title}" at ${jobDetails.company}...`);
+
+                // Auto-harvest any recruiter emails mentioned in job description
+                if (this.dataStore && this.dataStore.recruiterEmails && jobDetails.description) {
+                  const extracted = this.dataStore.recruiterEmails.extractEmailsFromText(jobDetails.description, {
+                    title: jobDetails.title,
+                    company: jobDetails.company,
+                    url: page.url(),
+                    platform: 'LinkedIn'
+                  });
+                  if (extracted.length > 0) {
+                    this.logger('success', 'LinkedIn', `Found recruiter email (${extracted.map(e => e.email).join(', ')}) for "${jobDetails.title}"! Saved to Recruiter Outreach.`);
+                  }
+                }
 
                 // AI match evaluation
                 const evaluation = this.ai.evaluateJobMatch(jobDetails.title, jobDetails.description, jobDetails.company);
@@ -300,27 +430,134 @@ class LinkedInBot {
                   continue;
                 }
 
+                // Check Apply buttons in details pane
+                const applyBtnInfo = await page.evaluate(() => {
+                  function isVisible(el) {
+                    if (!el) return false;
+                    const style = window.getComputedStyle(el);
+                    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+                    const rect = el.getBoundingClientRect();
+                    return (rect.width > 0 && rect.height > 0) || el.getClientRects().length > 0;
+                  }
+
+                  const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
+                  const listEl = document.querySelector('.jobs-search-results-list, .scaffold-layout__list');
+
+                  // 1. Check if already applied
+                  const appliedBadge = detailPane.querySelector('.jobs-s-apply__applied-badge, [class*="applied-badge"], .artdeco-inline-feedback--success');
+                  if (appliedBadge && isVisible(appliedBadge) && /applied/i.test(appliedBadge.innerText)) {
+                    return { status: 'already_applied' };
+                  }
+
+                  const buttons = Array.from(detailPane.querySelectorAll('button, a.jobs-apply-button, a[href*="/jobs/view/externalApply/"], a[aria-label*="Apply to"]'));
+                  let hasEasy = false;
+                  let hasExt = false;
+                  let extHref = '';
+
+                  for (const b of buttons) {
+                    if (listEl && listEl.contains(b)) continue;
+                    if (!isVisible(b)) continue;
+
+                    const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
+                    const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+                    const cls = (b.className || '').toLowerCase();
+                    const href = (b.getAttribute('href') || '').toLowerCase();
+
+                    if (txt.includes('already applied') || aria.includes('already applied')) {
+                      return { status: 'already_applied' };
+                    }
+                    const isEasy = txt.includes('easy apply') || aria.includes('easy apply') || (cls.includes('jobs-apply-button') && !href.includes('external') && !txt.includes('company') && !aria.includes('company'));
+                    if (isEasy) {
+                      hasEasy = true;
+                    }
+                    const isExt = href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || txt.includes('apply on') || (b.tagName.toLowerCase() === 'a' && href.startsWith('http') && !isEasy);
+                    if (isExt && !isEasy) {
+                      hasExt = true;
+                      extHref = b.href || href;
+                    }
+                  }
+
+                  if (hasEasy) return { status: 'easy_apply' };
+                  if (hasExt) return { status: 'external_apply', extHref };
+                  return { status: 'none' };
+                });
+
+                if (applyBtnInfo.status === 'already_applied') {
+                  this.logger('info', 'LinkedIn', `"${jobDetails.title}" is already applied.`);
+                  jobRecord.status = 'already_applied';
+                  if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
+                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
+                  if (onJobProcessed) onJobProcessed(jobRecord);
+                  continue;
+                }
+
                 // PHASE 2: NORMAL JOBS DISCOVERY (WITHOUT EASY APPLY) -> SHORTLIST INTO MANUAL APPLY QUEUE
                 if (!phase.easyApplyOnly) {
                   this.logger('success', 'LinkedIn', `[Manual Shortlist] High-fit normal job matched: "${jobDetails.title}" at ${jobDetails.company} (Score: ${evaluation.score}%). Adding to Manual Apply Queue...`);
+                  
+                  // If external apply button exists, click it to capture direct URL for manual queue
+                  let directApplyUrl = page.url();
+                  if (applyBtnInfo.status === 'external_apply') {
+                    const extBtn = await page.evaluateHandle(() => {
+                      function isVisible(el) {
+                        if (!el) return false;
+                        const style = window.getComputedStyle(el);
+                        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+                        const rect = el.getBoundingClientRect();
+                        return (rect.width > 0 && rect.height > 0) || el.getClientRects().length > 0;
+                      }
+                      const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
+                      const listEl = document.querySelector('.jobs-search-results-list, .scaffold-layout__list');
+                      const links = Array.from(detailPane.querySelectorAll('a[href*="/jobs/view/externalApply/"], a[aria-label*="company website"], button[aria-label*="company website"], a[href*="http"], a.jobs-apply-button'));
+                      return links.find(el => {
+                        if (listEl && listEl.contains(el)) return false;
+                        if (!isVisible(el)) return false;
+                        const txt = (el.innerText || el.textContent || '').trim().toLowerCase();
+                        const aria = (el.getAttribute('aria-label') || '').toLowerCase();
+                        const href = (el.getAttribute('href') || '').toLowerCase();
+                        if (txt.includes('easy apply') || aria.includes('easy apply')) return false;
+                        return href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || (el.tagName.toLowerCase() === 'a' && href.startsWith('http'));
+                      }) || null;
+                    });
+                    const extEl = extBtn.asElement();
+                    if (extEl) {
+                      const pagesBefore = await this.chrome.browser.pages();
+                      await extEl.evaluate(b => b.click());
+                      await this.randomDelay(2200, 3500);
+                      const pagesAfter = await this.chrome.browser.pages();
+                      const extTab = pagesAfter.find(p => !pagesBefore.includes(p));
+                      if (extTab) {
+                        directApplyUrl = extTab.url();
+                        if (this.settings.automation?.closeCareerTabAfterSubmit !== false) {
+                          await extTab.close().catch(() => {});
+                        }
+                      }
+                    }
+                  }
+
                   jobRecord.status = 'MANUAL_ACTION_REQUIRED';
                   jobRecord.actionRequired = true;
-                  jobRecord.directApplicationUrl = page.url();
+                  jobRecord.directApplicationUrl = directApplyUrl;
                   jobRecord.applicationMethod = 'manual_shortlist';
                   jobRecord.reason = `High match (${evaluation.score}%) - Shortlisted normal job application for manual submission`;
                   totalProcessedCount++;
+
+                  if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
+                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
 
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   await this.randomDelay(1500, 2500);
                   continue;
                 }
 
-                // PHASE 1: EASY APPLY AUTO-APPLICATION
+                // PHASE 1: EASY APPLY AUTO-APPLICATION OR EXTERNAL MANUAL SHORTLISTING
                 if (this.settings.automation?.simulationMode) {
                   this.logger('simulation', 'LinkedIn', `[Simulation Mode] Simulating Easy Apply flow for "${jobDetails.title}"`);
                   await this.randomDelay(1500, 2500);
                   jobRecord.status = 'applied (simulated)';
                   totalProcessedCount++;
+                  if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
+                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }
@@ -335,75 +572,126 @@ class LinkedInBot {
                   continue;
                 }
 
-                // Look for Easy Apply button
-                const easyApplyBtn = await page.$(
-                  'button[aria-label*="Easy Apply"], .jobs-apply-button--top-card button, button.jobs-apply-button, button[data-control-name="jobdetails_topcard_inapply"]'
-                );
-                if (!easyApplyBtn) {
-                  // Check if an external "Apply on company website" button exists
-                  const externalApplyBtn = await page.$(
-                    'a[href*="/jobs/view/externalApply/"], a[aria-label*="Apply to"], button[aria-label*="Apply to"], a.jobs-apply-button'
-                  );
+                // If Easy Apply is NOT available, handle External Apply (User requested: only LinkedIn external links to be considered for manual data)
+                if (applyBtnInfo.status !== 'easy_apply') {
+                  const externalApplyBtn = await page.evaluateHandle(() => {
+                    function isVisible(el) {
+                      if (!el) return false;
+                      const style = window.getComputedStyle(el);
+                      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+                      const rect = el.getBoundingClientRect();
+                      return (rect.width > 0 && rect.height > 0) || el.getClientRects().length > 0;
+                    }
+                    const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
+                    const listEl = document.querySelector('.jobs-search-results-list, .scaffold-layout__list');
+                    const links = Array.from(detailPane.querySelectorAll('a[href*="/jobs/view/externalApply/"], a[aria-label*="company website"], button[aria-label*="company website"], a[href*="http"], a.jobs-apply-button'));
+                    return links.find(el => {
+                      if (listEl && listEl.contains(el)) return false;
+                      if (!isVisible(el)) return false;
+                      const txt = (el.innerText || el.textContent || '').trim().toLowerCase();
+                      const aria = (el.getAttribute('aria-label') || '').toLowerCase();
+                      const href = (el.getAttribute('href') || '').toLowerCase();
+                      if (txt.includes('easy apply') || aria.includes('easy apply')) return false;
+                      return href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || (el.tagName.toLowerCase() === 'a' && href.startsWith('http'));
+                    }) || null;
+                  });
 
-                  if (externalApplyBtn && this.settings.automation?.applyOnCompanySite !== false) {
-                    this.logger('action', 'LinkedIn', `External company apply available for "${jobDetails.title}". Opening career website...`);
+                  const extEl = externalApplyBtn.asElement();
+                  if (extEl) {
+                    this.logger('action', 'LinkedIn', `[LinkedIn External Link] Opening company apply link for "${jobDetails.title}"...`);
                     const pagesBefore = await this.chrome.browser.pages();
-                    await externalApplyBtn.evaluate(b => b.click());
+                    await extEl.evaluate(b => b.click());
                     await this.randomDelay(2500, 4000);
 
                     const pagesAfter = await this.chrome.browser.pages();
                     const externalTab = pagesAfter.find(p => !pagesBefore.includes(p));
+                    let extUrl = page.url();
 
                     if (externalTab) {
-                      const extUrl = externalTab.url();
-                      this.logger('info', 'LinkedIn', `Company career site opened: ${extUrl}`);
+                      extUrl = externalTab.url();
+                      this.logger('success', 'LinkedIn', `Company career portal opened: ${extUrl}`);
                       jobRecord.externalUrl = extUrl;
-
-                      const careerRes = await this.careerSiteBot.applyToCareerPage(externalTab, jobDetails);
-                      jobRecord.status = careerRes.status || 'MANUAL_ACTION_REQUIRED';
                       jobRecord.directApplicationUrl = extUrl;
-                      jobRecord.applicationMethod = careerRes.applicationMethod || 'external_portal';
-                      jobRecord.questionsAnswered = careerRes.questionsAnswered || [];
-                      if (jobRecord.status === 'MANUAL_ACTION_REQUIRED') {
-                        jobRecord.actionRequired = true;
-                        jobRecord.reason = careerRes.reason || 'External career portal requires manual application';
-                      }
-                      totalProcessedCount++;
 
-                      // Only close tab if submission is explicitly confirmed
-                      const isConfirmed = careerRes.status === 'APPLIED_CONFIRMED' || careerRes.status === 'applied';
-                      if (isConfirmed && this.settings.automation?.closeCareerTabAfterSubmit !== false) {
+                      if (this.settings.automation?.closeCareerTabAfterSubmit !== false) {
                         try {
-                          await this.randomDelay(2500, 3500);
+                          await this.randomDelay(2000, 3000);
                           if (!externalTab.isClosed()) await externalTab.close();
                         } catch (e) {}
                       } else {
-                        this.logger('info', 'LinkedIn', `Tab retained for your inspection and manual completion: ${extUrl}`);
+                        this.logger('info', 'LinkedIn', `Tab retained for manual inspection: ${extUrl}`);
                       }
-
-                      if (onJobProcessed) onJobProcessed(jobRecord);
-                      continue;
                     }
-                  }
 
-                  this.logger('info', 'LinkedIn', `Easy Apply button not present for "${jobDetails.title}".`);
-                  const isHighMatch = jobRecord.matchScore >= (this.settings.automation?.minMatchScore || 65);
-                  if (isHighMatch) {
                     jobRecord.status = 'MANUAL_ACTION_REQUIRED';
                     jobRecord.actionRequired = true;
-                    jobRecord.directApplicationUrl = page.url();
+                    jobRecord.directApplicationUrl = extUrl;
                     jobRecord.applicationMethod = 'manual_shortlist';
-                    jobRecord.reason = `High match (${jobRecord.matchScore}%) - Easy Apply not present, preserved in Manual Apply Queue`;
-                  } else {
-                    jobRecord.status = 'ALREADY_APPLIED';
+                    jobRecord.reason = `High match (${evaluation.score}%) - LinkedIn external employer application preserved in Manual Apply Queue`;
+                    totalProcessedCount++;
+
+                    if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
+                    if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
+
+                    if (onJobProcessed) onJobProcessed(jobRecord);
+                    this.logger('success', 'LinkedIn', `Preserved "${jobDetails.title}" at ${jobDetails.company} in Manual Apply Queue.`);
+                    await this.randomDelay(1500, 2500);
+                    continue;
                   }
+
+                  this.logger('info', 'LinkedIn', `Neither Easy Apply nor External Apply button found for "${jobDetails.title}".`);
+                  jobRecord.status = 'skipped';
+                  jobRecord.skipReason = 'No applicable apply button';
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }
 
+                // Find Easy Apply button Handle
+                const easyApplyBtnHandle = await page.evaluateHandle(() => {
+                  function isVisible(el) {
+                    if (!el) return false;
+                    const style = window.getComputedStyle(el);
+                    if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+                    const rect = el.getBoundingClientRect();
+                    return (rect.width > 0 && rect.height > 0) || el.getClientRects().length > 0;
+                  }
+                  const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
+                  const listEl = document.querySelector('.jobs-search-results-list, .scaffold-layout__list');
+                  const buttons = Array.from(detailPane.querySelectorAll('button, a.jobs-apply-button, [role="button"]'));
+                  return buttons.find(b => {
+                    if (listEl && listEl.contains(b)) return false;
+                    if (!isVisible(b)) return false;
+                    const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
+                    const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+                    const cls = (b.className || '').toLowerCase();
+                    const href = (b.getAttribute('href') || '').toLowerCase();
+                    if (txt.includes('already applied') || aria.includes('already applied')) return false;
+                    const isEasy = txt.includes('easy apply') || aria.includes('easy apply') || (cls.includes('jobs-apply-button') && !href.includes('external') && !txt.includes('company') && !aria.includes('company'));
+                    return isEasy;
+                  }) || null;
+                });
+
+                const easyApplyEl = easyApplyBtnHandle.asElement();
+                if (!easyApplyEl) {
+                  this.logger('info', 'LinkedIn', `Could not click Easy Apply button for "${jobDetails.title}".`);
+                  continue;
+                }
+
                 this.logger('action', 'LinkedIn', `Initiating Easy Apply for "${jobDetails.title}" (Score: ${evaluation.score}%)...`);
-                await easyApplyBtn.evaluate(b => b.click());
-                await this.randomDelay(1800, 2800);
+                await easyApplyEl.click().catch(async () => {
+                  await easyApplyEl.evaluate(b => b.click());
+                });
+
+                // Wait for Easy Apply dialog to become visible (viewport visibility, works with position: fixed)
+                await page.waitForFunction(() => {
+                  const modal = document.querySelector('dialog, [role="dialog"], .jobs-easy-apply-modal, .artdeco-modal');
+                  if (!modal) return false;
+                  const style = window.getComputedStyle(modal);
+                  if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+                  const rect = modal.getBoundingClientRect();
+                  return (rect.width > 0 && rect.height > 0) || modal.getClientRects().length > 0;
+                }, { timeout: 7000 }).catch(() => {});
+                await this.randomDelay(1500, 2500);
 
                 // Handle multi-step modal and collect all answered screening questions
                 const answeredQuestions = [];
@@ -415,6 +703,9 @@ class LinkedInBot {
                   totalProcessedCount++;
                   this.logger('success', 'LinkedIn', `Successfully applied to "${jobDetails.title}" at ${jobDetails.company}!`);
                 } else {
+                  // Cleanly dismiss and discard the modal to unblock page
+                  await this.dismissAndDiscardModal(page);
+
                   jobRecord.status = 'MANUAL_ACTION_REQUIRED';
                   jobRecord.actionRequired = true;
                   jobRecord.directApplicationUrl = page.url();
@@ -423,7 +714,7 @@ class LinkedInBot {
                 }
 
                 if (onJobProcessed) onJobProcessed(jobRecord);
-                await this.randomDelay(2000, 4000);
+                await this.randomDelay(2000, 3500);
 
               } catch (jobErr) {
                 this.logger('error', 'LinkedIn', `Error processing LinkedIn job: ${jobErr.message}`);
@@ -448,39 +739,101 @@ class LinkedInBot {
 
   // Handle multi-step Easy Apply dialog using valid standard DOM selectors
   async handleModalFlow(page, jobDetails, answeredQuestions = []) {
-    let maxSteps = 10;
+    let maxSteps = 12;
+    let consecutiveUnchangedSteps = 0;
+
     while (maxSteps > 0) {
       maxSteps--;
       await this.randomDelay(1000, 1800);
 
-      // 1. Auto-fill form fields on the current step first
-      await this.fillFormFields(page, jobDetails, answeredQuestions);
-      await this.randomDelay(600, 1000);
+      // 1. Ensure candidate resume is selected or uploaded
+      await this.handleResumeStep(page);
 
-      // 2. Check if Submit button is visible and active
-      const isSubmitStep = await page.evaluate(() => {
-        const buttons = Array.from(document.querySelectorAll('dialog footer button, [role="dialog"] footer button, footer button'));
-        const sub = buttons.find(b => {
+      // 2. Auto-fill form fields on the current step
+      await this.fillFormFields(page, jobDetails, answeredQuestions);
+      await this.randomDelay(700, 1200);
+
+      // 3. Inspect and interact with modal buttons
+      const stepAction = await page.evaluate(() => {
+        function isVisible(el) {
+          if (!el) return false;
+          const style = window.getComputedStyle(el);
+          if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+          const rect = el.getBoundingClientRect();
+          return (rect.width > 0 && rect.height > 0) || el.getClientRects().length > 0;
+        }
+
+        const modal = document.querySelector('dialog, [role="dialog"], .jobs-easy-apply-modal, .artdeco-modal') || document;
+        const buttons = Array.from(modal.querySelectorAll(
+          '.artdeco-modal__actionbar button, .jobs-easy-apply-footer button, footer button, [data-easy-apply-next-button], button.artdeco-button--primary, button'
+        )).filter(b => isVisible(b));
+
+        function triggerClick(el) {
+          ['mouseenter', 'mouseover', 'mousedown', 'mouseup', 'click'].forEach(evt => {
+            el.dispatchEvent(new MouseEvent(evt, { bubbles: true, cancelable: true, view: window, buttons: 1 }));
+          });
+          el.click();
+        }
+
+        // A. Check for Submit Application button
+        const submitBtn = buttons.find(b => {
           const aria = (b.getAttribute('aria-label') || '').toLowerCase();
           const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
-          return aria.includes('submit application') || txt === 'submit application' || txt === 'submit';
+          return aria.includes('submit application') || txt === 'submit application' || txt === 'submit' || b.getAttribute('data-control-name') === 'submit_unformatted';
         });
-        if (sub && !sub.disabled && sub.getAttribute('aria-disabled') !== 'true') {
-          sub.click();
-          return true;
+
+        if (submitBtn) {
+          const disabled = submitBtn.disabled || submitBtn.getAttribute('aria-disabled') === 'true' || submitBtn.classList.contains('artdeco-button--disabled');
+          if (!disabled) {
+            triggerClick(submitBtn);
+            return { action: 'submit_clicked' };
+          }
+          return { action: 'submit_disabled' };
         }
-        return false;
+
+        // B. Check for Review application button
+        const reviewBtn = buttons.find(b => {
+          const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+          const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
+          return aria.includes('review your application') || txt === 'review' || aria.includes('review');
+        });
+
+        if (reviewBtn) {
+          const disabled = reviewBtn.disabled || reviewBtn.getAttribute('aria-disabled') === 'true' || reviewBtn.classList.contains('artdeco-button--disabled');
+          if (!disabled) {
+            triggerClick(reviewBtn);
+            return { action: 'review_clicked' };
+          }
+          return { action: 'review_disabled' };
+        }
+
+        // C. Check for Next button
+        const nextBtn = buttons.find(b => {
+          const aria = (b.getAttribute('aria-label') || '').toLowerCase();
+          const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
+          return aria.includes('continue to next step') || txt === 'next' || aria.includes('next') || txt === 'continue' || b.hasAttribute('data-easy-apply-next-button');
+        });
+
+        if (nextBtn) {
+          const disabled = nextBtn.disabled || nextBtn.getAttribute('aria-disabled') === 'true' || nextBtn.classList.contains('artdeco-button--disabled');
+          if (!disabled) {
+            triggerClick(nextBtn);
+            return { action: 'next_clicked' };
+          }
+          return { action: 'next_disabled' };
+        }
+
+        return { action: 'none' };
       });
 
-      if (isSubmitStep) {
-        if (this.settings.automation?.mode === 'semi-auto') {
-          this.logger('action', 'LinkedIn', 'Semi-Auto Mode: Application submitted!');
-        }
-        await this.randomDelay(2000, 3500);
+      if (stepAction.action === 'submit_clicked') {
+        this.logger('success', 'LinkedIn', 'Submit button clicked!');
+        await this.randomDelay(2500, 4000);
 
         // Dismiss done / confirmation dialog if any
         await page.evaluate(() => {
-          const buttons = Array.from(document.querySelectorAll('button'));
+          const modal = document.querySelector('dialog, [role="dialog"], .jobs-easy-apply-modal, .artdeco-modal') || document;
+          const buttons = Array.from(modal.querySelectorAll('button'));
           const done = buttons.find(b => {
             const aria = (b.getAttribute('aria-label') || '').toLowerCase();
             const txt = (b.innerText || '').toLowerCase();
@@ -488,50 +841,30 @@ class LinkedInBot {
           });
           if (done) done.click();
         });
+        await this.randomDelay(800, 1500);
         return true;
       }
 
-      // 3. Advance to the next step via Next or Review button
-      const stepAdvanced = await page.evaluate(() => {
-        const buttons = Array.from(document.querySelectorAll('dialog footer button, [role="dialog"] footer button, footer button'));
-        
-        // Priority 1: Next button
-        const next = buttons.find(b => {
-          const aria = (b.getAttribute('aria-label') || '').toLowerCase();
-          const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
-          return aria.includes('continue to next step') || txt === 'next' || aria.includes('next');
-        });
-        if (next && !next.disabled && next.getAttribute('aria-disabled') !== 'true') {
-          next.click();
-          return 'next';
-        }
+      if (stepAction.action === 'review_clicked' || stepAction.action === 'next_clicked') {
+        consecutiveUnchangedSteps = 0;
+        await this.randomDelay(1000, 1800);
+        continue;
+      }
 
-        // Priority 2: Review button
-        const review = buttons.find(b => {
-          const aria = (b.getAttribute('aria-label') || '').toLowerCase();
-          const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
-          return aria.includes('review your application') || txt === 'review' || aria.includes('review');
-        });
-        if (review && !review.disabled && review.getAttribute('aria-disabled') !== 'true') {
-          review.click();
-          return 'review';
-        }
-
-        return false;
+      // If action button was disabled or not found, try to resolve errors
+      consecutiveUnchangedSteps++;
+      const hasErrors = await page.evaluate(() => {
+        const errs = document.querySelectorAll('.artdeco-inline-feedback--error, [aria-invalid="true"], .fb-dash-form-element__error-field');
+        return Array.from(errs).map(e => e.innerText.trim()).filter(Boolean);
       });
 
-      if (!stepAdvanced) {
-        // Check if there are form validation errors holding the step back
-        const hasErrors = await page.evaluate(() => {
-          const errs = document.querySelectorAll('.artdeco-inline-feedback--error, [aria-invalid="true"], .fb-dash-form-element__error-field');
-          return Array.from(errs).map(e => e.innerText.trim()).filter(Boolean);
-        });
-        if (hasErrors.length > 0) {
-          this.logger('warning', 'LinkedIn', `Form validation error on step: ${hasErrors.slice(0, 2).join('; ')}`);
-        }
-        // Capture any unfilled or blocking fields so user can input them in dashboard
+      if (hasErrors.length > 0) {
+        this.logger('warning', 'LinkedIn', `Form validation on step: ${hasErrors.slice(0, 2).join('; ')}`);
+      }
+
+      if (consecutiveUnchangedSteps >= 2) {
         await this.scanAndRecordUnfilledFields(page, jobDetails);
-        this.logger('warning', 'LinkedIn', `Application blocked by unfilled fields. Added to Dashboard "Missing Fields" for manual input.`);
+        this.logger('warning', 'LinkedIn', `Application blocked by incomplete fields. Enqueued for manual completion.`);
         break;
       }
     }
@@ -549,7 +882,14 @@ class LinkedInBot {
 
         function isErrorText(t) {
           if (!t) return false;
-          return /^(invalid input|this field is required|please enter|please select|please specify|field is required|required field)/i.test(t.trim());
+          const s = t.trim();
+          if (/^(invalid input|this field is required|field is required|required field|please enter a valid|please enter a whole number|please enter a number|please enter a decimal|please select a valid|please choose a valid|please make a selection)/i.test(s)) {
+            return true;
+          }
+          if (/^\d+\s*of\s*\d+\s*characters?/i.test(s) || /^\d+\/\d+$/i.test(s)) {
+            return true;
+          }
+          return false;
         }
 
         function extractQuestion(el) {
@@ -622,7 +962,8 @@ class LinkedInBot {
           const container = el.parentElement;
           const errEl = container ? container.closest('div')?.querySelector('.artdeco-inline-feedback--error, [aria-invalid="true"]') : null;
           const errText = errEl ? (errEl.innerText || errEl.textContent || '').trim() : '';
-          const hasVisibleError = (errText.length > 0 && !errText.toLowerCase().includes('optional') && errEl.offsetParent !== null) || isAriaInvalid;
+          const isErrVisible = errEl ? ((errEl.getBoundingClientRect().width > 0 && errEl.getBoundingClientRect().height > 0) || errEl.getClientRects().length > 0) : false;
+          const hasVisibleError = (errText.length > 0 && !errText.toLowerCase().includes('optional') && isErrVisible) || isAriaInvalid;
           const isRequired = el.required || el.getAttribute('aria-required') === 'true';
 
           let missing = false;
@@ -729,6 +1070,14 @@ class LinkedInBot {
 
     // Inject helper into page context so all element evaluations can access it synchronously
     await page.evaluate(() => {
+      window.__isVisible = function(el) {
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+        const rect = el.getBoundingClientRect();
+        return (rect.width > 0 && rect.height > 0) || el.getClientRects().length > 0;
+      };
+
       window.__cleanText = function(t) {
         if (!t) return '';
         return t.replace(/[\*\:]/g, '').replace(/\b(?:\d+\/\d+|\d+\s*of\s*\d+\s*characters?)\b/gi, '').trim();
@@ -736,7 +1085,14 @@ class LinkedInBot {
 
       window.__isErrorText = function(t) {
         if (!t) return false;
-        return /^(invalid input|this field is required|please enter|please select|please specify|field is required|required field)/i.test(t.trim());
+        const s = t.trim();
+        if (/^(invalid input|this field is required|field is required|required field|please enter a valid|please enter a whole number|please enter a number|please enter a decimal|please select a valid|please choose a valid|please make a selection)/i.test(s)) {
+          return true;
+        }
+        if (/^\d+\s*of\s*\d+\s*characters?/i.test(s) || /^\d+\/\d+$/i.test(s)) {
+          return true;
+        }
+        return false;
       };
 
       window.__extractQuestion = function(el) {
@@ -858,9 +1214,13 @@ class LinkedInBot {
           await this.randomDelay(400, 700);
 
           const dropdownOptions = await page.evaluate(() => {
+            const isVis = window.__isVisible || (el => {
+              const r = el.getBoundingClientRect();
+              return (r.width > 0 && r.height > 0) || el.getClientRects().length > 0;
+            });
             const opts = Array.from(document.querySelectorAll(
               '[role="listbox"] [role="option"], .artdeco-dropdown__item, .artdeco-dropdown__content li, ul[role="listbox"] li'
-            )).filter(o => o.offsetParent !== null && (o.innerText || o.textContent || '').trim().length > 0);
+            )).filter(o => isVis(o) && (o.innerText || o.textContent || '').trim().length > 0);
             return opts.map(o => (o.innerText || o.textContent || '').trim()).filter(Boolean);
           });
 
@@ -881,9 +1241,13 @@ class LinkedInBot {
 
           if (dropdownOptions.length > 0 || searchInput) {
             await page.evaluate((targetAns) => {
+              const isVis = window.__isVisible || (el => {
+                const r = el.getBoundingClientRect();
+                return (r.width > 0 && r.height > 0) || el.getClientRects().length > 0;
+              });
               const opts = Array.from(document.querySelectorAll(
                 '[role="listbox"] [role="option"], .artdeco-dropdown__item, .artdeco-dropdown__content li, ul[role="listbox"] li'
-              )).filter(o => o.offsetParent !== null && (o.innerText || o.textContent || '').trim().length > 0);
+              )).filter(o => isVis(o) && (o.innerText || o.textContent || '').trim().length > 0);
               const tLower = targetAns.toLowerCase();
               let match = opts.find(o => {
                 const t = (o.innerText || o.textContent || '').trim().toLowerCase();
@@ -984,7 +1348,16 @@ class LinkedInBot {
       try {
         const cbInfo = await cb.evaluate(el => {
           if (el.closest('footer') || el.closest('header')) return null;
-          return { checked: el.checked, required: el.required || el.getAttribute('aria-required') === 'true' };
+          const parentL = el.closest('label');
+          const idL = el.id ? document.querySelector(`label[for="${el.id}"]`) : null;
+          const labelText = (idL?.innerText || parentL?.innerText || el.getAttribute('aria-label') || el.name || '').trim();
+          const isRequired = el.required || el.getAttribute('aria-required') === 'true';
+          const isConsent = /agree|certify|consent|terms|acknowledge|confirm|understand/i.test(labelText);
+          return {
+            checked: el.checked,
+            required: isRequired || isConsent,
+            labelText
+          };
         });
         if (cbInfo && !cbInfo.checked && cbInfo.required) {
           await cb.evaluate(el => {
@@ -993,7 +1366,7 @@ class LinkedInBot {
             el.dispatchEvent(new Event('change', { bubbles: true }));
             el.dispatchEvent(new Event('input', { bubbles: true }));
           });
-          this.logger('action', 'LinkedIn', 'Checked required checkbox.');
+          this.logger('action', 'LinkedIn', `Checked required confirmation checkbox: "${(cbInfo.labelText || 'Terms/Consent').slice(0, 35)}..."`);
         }
       } catch (err) {
         this.logger('warning', 'LinkedIn', `Error with checkbox: ${err.message}`);
@@ -1036,7 +1409,8 @@ class LinkedInBot {
 
           const container = el.closest('.fb-dash-form-element, div');
           const errEl = container ? container.querySelector('.artdeco-inline-feedback--error, [aria-invalid="true"]') : null;
-          const isInvalid = el.getAttribute('aria-invalid') === 'true' || (Boolean(errEl) && errEl.offsetParent !== null);
+          const isErrVisible = errEl ? ((errEl.getBoundingClientRect().width > 0 && errEl.getBoundingClientRect().height > 0) || errEl.getClientRects().length > 0) : false;
+          const isInvalid = el.getAttribute('aria-invalid') === 'true' || isErrVisible;
 
           return {
             qText: q,
@@ -1099,8 +1473,12 @@ class LinkedInBot {
               'li[role="option"]',
               '.fb-dash-typeahead__result'
             ];
+            const isVis = window.__isVisible || (el => {
+              const r = el.getBoundingClientRect();
+              return (r.width > 0 && r.height > 0) || el.getClientRects().length > 0;
+            });
             const opts = Array.from(document.querySelectorAll(optionSelectors.join(', ')))
-              .filter(o => o.offsetParent !== null && (o.innerText || o.textContent || '').trim().length > 0);
+              .filter(o => isVis(o) && (o.innerText || o.textContent || '').trim().length > 0);
             if (opts.length === 0) return null;
 
             const tLower = term.toLowerCase();
@@ -1189,15 +1567,36 @@ class LinkedInBot {
           const answerObj = await this.ai.answerScreeningQuestionAI(qText, [], inferredType, qaContext);
           let finalVal = answerObj.answer;
 
-          if (isNoticePeriod && (/\(in days\)|days/i.test(qText) || isNumeric)) {
-            const d = finalVal.match(/\d+/);
-            finalVal = d ? d[0] : '30';
-          } else if (isCompensation && (/\(in lpa\)|\(in lakhs\)|lpa/i.test(qText) || isNumeric)) {
-            const num = finalVal.match(/\d+(?:\.\d+)?/);
-            finalVal = num ? num[0] : '11';
+          if (isNoticePeriod) {
+            const d = String(finalVal).match(/\d+/);
+            finalVal = d ? d[0] : String(this.ai?.profile?.career?.noticePeriodDays || 30);
+          } else if (isCompensation) {
+            const isINR = /in\s*inr|in\s*rupees|rupees|annual.*compensation|\bexample\s*:\s*\d{5,}/i.test(qText);
+            const isLPA = /in\s*lpa|in\s*lakhs|\blpa\b/i.test(qText);
+            const isExpected = /expected|desired/i.test(qText);
+            if (isINR && !isLPA) {
+              const num = String(finalVal).match(/\d+/);
+              if (num && parseInt(num[0], 10) >= 10000) {
+                finalVal = num[0];
+              } else {
+                const lpaVal = parseFloat(finalVal) || (isExpected ? 10.0 : 4.1);
+                finalVal = String(Math.round(lpaVal * 100000));
+              }
+            } else if (isLPA || isNumeric) {
+              const num = String(finalVal).match(/\d+(?:\.\d+)?/);
+              finalVal = num ? num[0] : (isExpected ? '10' : '4.1');
+            }
           } else if (isNumeric) {
-            const num = finalVal.match(/-?\d+(?:\.\d+)?/);
+            const num = String(finalVal).match(/-?\d+(?:\.\d+)?/);
             finalVal = num ? num[0] : '0';
+          } else if (/portfolio|website/i.test(qText)) {
+            if (/^(yes|no|true|false)$/i.test(String(finalVal).trim())) {
+              finalVal = this.ai?.profile?.personal?.portfolioUrl || 'https://gsaikrishna-portfolio.netlify.app/';
+            }
+          } else if (/linkedin/i.test(qText)) {
+            if (/^(yes|no|true|false)$/i.test(String(finalVal).trim())) {
+              finalVal = this.ai?.profile?.personal?.linkedInUrl || 'https://www.linkedin.com/in/saikrishnag150';
+            }
           }
 
           // Clean input clearing and typing (handles React, Ember, and native HTML)

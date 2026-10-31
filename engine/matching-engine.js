@@ -51,23 +51,23 @@ class MatchingEngine {
 
     const candidateExp = typeof profile.career?.totalYearsExperience === 'number'
       ? profile.career.totalYearsExperience
-      : 2.7;
+      : 3.0;
 
     const skills = profile.skills || [];
 
     // 1. Technical Match Evaluation
-    const { technicalScore, matchedSkills, missingRequiredSkills, missingPreferredSkills } = 
-      this.evaluateTechnicalSkills(rawText, skills);
+    const { technicalScore, matchedSkills, missingRequiredSkills, missingPreferredSkills, isNonTech } = 
+      this.evaluateTechnicalSkills(rawText, skills, rawTitle);
 
     // 2. Experience & Seniority Compatibility
-    const { experienceScore, experienceCategory, experienceRange, seniorityDetected } = 
+    const { experienceScore, experienceCategory, experienceRange, seniorityDetected, minYears, maxYears } = 
       this.evaluateExperience(rawTitle, rawText, candidateExp);
 
     // 3. Role & Responsibility Alignment
-    const roleScore = this.evaluateRoleAlignment(rawTitle, rawText, profile.career?.targetRoles);
+    const roleScore = this.evaluateRoleAlignment(rawTitle, rawText, profile.career?.targetRoles, isNonTech);
 
     // 4. Mandatory Qualifications Assessment
-    const mandatoryScore = this.evaluateMandatory(rawText, matchedSkills);
+    const mandatoryScore = this.evaluateMandatory(rawText, matchedSkills, isNonTech, rawTitle);
 
     // 5. Location & Work Mode Fit
     const locationScore = this.evaluateLocationAndWorkMode(location, rawText, profile.personal?.city, profile.career?.willingToRelocate);
@@ -85,19 +85,29 @@ class MatchingEngine {
       (preferencesScore * this.WEIGHTS.employmentPreferences)
     );
 
-    // Guard against score inflation: A job requiring 6+ years when candidate has 2.7
-    // cannot have overallFitScore > 65% regardless of keywords
-    let overallFitScore = weightedScore;
-    if (matchedSkills.length === 0) {
-      overallFitScore = Math.min(overallFitScore, 45); // Penalize complete tech stack mismatch
-    }
-    if (experienceCategory === this.EXPERIENCE_CATEGORIES.BELOW_MANDATORY) {
-      overallFitScore = Math.min(overallFitScore, 58);
-    } else if (experienceCategory === this.EXPERIENCE_CATEGORIES.BELOW_PREFERRED) {
-      overallFitScore = Math.min(overallFitScore, 74);
-    }
+    // User directive:
+    // 1. Skip if 4+ or 5+ years of experience required
+    // 2. Skip if non-technical or no relevant skills (Java, Spring Boot, Angular, Backend)
+    // 3. Apply if relevant skills found AND experience is within 3 years (or unspecified)
+    const hasRelevantSkills = matchedSkills.length > 0;
+    const isOverExperience = (minYears !== null && minYears >= 4.0) || experienceCategory === this.EXPERIENCE_CATEGORIES.BELOW_MANDATORY;
 
-    const isRecommended = overallFitScore >= minMatchScore;
+    let overallFitScore = weightedScore;
+    let isRecommended = false;
+
+    if (isNonTech) {
+      overallFitScore = 20;
+      isRecommended = false;
+    } else if (isOverExperience) {
+      overallFitScore = Math.min(overallFitScore, 45);
+      isRecommended = false;
+    } else if (!hasRelevantSkills) {
+      overallFitScore = Math.min(overallFitScore, 30);
+      isRecommended = false;
+    } else {
+      overallFitScore = Math.max(overallFitScore, 90);
+      isRecommended = true;
+    }
 
     // Generate human-readable reasoning
     const reasoning = this.generateReasoning({
@@ -108,7 +118,11 @@ class MatchingEngine {
       matchedSkills,
       missingRequiredSkills,
       seniorityDetected,
-      isRecommended
+      isRecommended,
+      candidateExp,
+      isNonTech,
+      isOverExperience,
+      hasRelevantSkills
     });
 
     return {
@@ -136,19 +150,44 @@ class MatchingEngine {
     };
   }
 
-  static evaluateTechnicalSkills(text, candidateSkills = []) {
+  static evaluateTechnicalSkills(text, candidateSkills = [], title = '') {
     const matchedSkills = [];
     const missingRequiredSkills = [];
     const missingPreferredSkills = [];
+    const lowerText = (text || '').toLowerCase();
+    const lowerTitle = (title || '').toLowerCase();
+
+    // Check if role is non-technical
+    const isNonTech = /\b(?:accountant|sales|hr|nurse|physician|mechanical|civil|lawyer|clerk|finance|marketing|recruiter)\b/i.test(lowerTitle);
 
     // Core candidate skills map
     const candidateSkillNames = new Set(candidateSkills.map(s => s.name.toLowerCase()));
+
+    const isDevOrEngRole = !isNonTech && (
+      /\b(?:software|developer|engineer|backend|back\s*end|full\s*stack|fullstack|frontend|front\s*end|sde|web|programmer)\b/i.test(lowerTitle) ||
+      /\b(?:software\s+engineer|backend\s+developer|full\s+stack|java\s+developer)\b/i.test(lowerText)
+    );
 
     for (const skill of candidateSkills) {
       const sName = skill.name.toLowerCase();
       // Token check
       const tokens = sName.split(/[\/\,\s\(\)\+]+/).filter(t => t.length > 2);
-      const isFound = tokens.some(tok => text.includes(tok));
+      let isFound = tokens.some(tok => lowerText.includes(tok));
+
+      // Domain equivalence: if backend/software engineer role, recognize candidate core stack competencies
+      if (!isFound && isDevOrEngRole) {
+        if ((sName.includes('java') || sName.includes('spring')) && 
+            (lowerText.includes('backend') || lowerText.includes('back end') || lowerText.includes('microservice') || lowerText.includes('api') || lowerText.includes('server'))) {
+          isFound = true;
+        } else if (sName.includes('rest') && 
+            (lowerText.includes('api') || lowerText.includes('backend') || lowerText.includes('service') || lowerText.includes('endpoint'))) {
+          isFound = true;
+        } else if (sName.includes('sql') && 
+            (lowerText.includes('database') || lowerText.includes('data') || lowerText.includes('db') || lowerText.includes('backend'))) {
+          isFound = true;
+        }
+      }
+
       if (isFound) {
         matchedSkills.push(skill.name);
       }
@@ -159,36 +198,41 @@ class MatchingEngine {
     const preferredChecks = ['docker', 'aws', 'kubernetes', 'kafka', 'graphql', 'ci/cd'];
 
     for (const req of requiredChecks) {
-      if (text.includes(req) && !Array.from(candidateSkillNames).some(cs => cs.includes(req))) {
+      if (lowerText.includes(req) && !Array.from(candidateSkillNames).some(cs => cs.includes(req))) {
         missingRequiredSkills.push(req);
       }
     }
 
     for (const pref of preferredChecks) {
-      if (text.includes(pref) && !Array.from(candidateSkillNames).some(cs => cs.includes(pref))) {
+      if (lowerText.includes(pref) && !Array.from(candidateSkillNames).some(cs => cs.includes(pref))) {
         missingPreferredSkills.push(pref);
       }
     }
 
-    // Ratio of matches
-    const baseMatchRatio = Math.min(matchedSkills.length / Math.max(3, (matchedSkills.length + missingRequiredSkills.length)), 1.0);
-    const technicalScore = Math.max(25, Math.min(95, Math.round(baseMatchRatio * 90 + (matchedSkills.length >= 4 ? 10 : 0))));
+    let technicalScore;
+    if (isNonTech) {
+      technicalScore = 15;
+    } else {
+      const baseMatchRatio = Math.min(matchedSkills.length / Math.max(3, (matchedSkills.length + missingRequiredSkills.length)), 1.0);
+      technicalScore = Math.max(25, Math.min(95, Math.round(baseMatchRatio * 90 + (matchedSkills.length >= 4 ? 10 : 0))));
+    }
 
     return {
       technicalScore,
       matchedSkills,
       missingRequiredSkills,
-      missingPreferredSkills
+      missingPreferredSkills,
+      isNonTech
     };
   }
 
-  static evaluateExperience(title, text, candidateExp = 2.7) {
+  static evaluateExperience(title, text, candidateExp = 3.0) {
     // Detect seniority keywords in title
-    const isSeniorTitle = /\b(?:senior|lead|principal|staff|architect|manager|director|vp|head)\b/i.test(title);
+    const isExecOrArch = /\b(?:architect|principal|staff|director|vp|head)\b/i.test(title);
+    const isSeniorTitle = /\b(?:senior|lead|sr\.?)\b/i.test(title);
     const isJuniorTitle = /\b(?:junior|entry|trainee|associate|intern)\b/i.test(title);
 
     // Filter out company age / establishment text like "15 years of industry excellence", "20 years in FinTech"
-    // Clean company track record text before matching candidate required experience
     const textCleaned = text.replace(/\b\d+\s*(?:years?|yrs?)\s*(?:of\s+)?(?:excellence|legacy|delivering|experience\s+delivering|track\s+record|history|in\s+business|industry\s+presence|operating)\b/gi, ' ');
 
     // Extract experience years range from text with priority to explicit candidate requirements
@@ -217,71 +261,80 @@ class MatchingEngine {
     }
 
     let category = this.EXPERIENCE_CATEGORIES.NOT_SPECIFIED;
-    let experienceScore = 75;
+    let experienceScore = 85;
 
     if (minYears !== null) {
-      if (candidateExp >= minYears && (!maxYears || candidateExp <= maxYears + 1.5)) {
+      if (minYears >= 4.0 || isExecOrArch) {
+        // User directive: "if you found the job has 5 plus or 4 plus years of expense then skip it"
+        category = this.EXPERIENCE_CATEGORIES.BELOW_MANDATORY;
+        experienceScore = 30;
+      } else {
+        // User directive: "if it is less than or equal to like within the 3 pairs then you should apply it"
+        // e.g. 0-2 yrs, 1-3 yrs, 2-3 yrs, 2-4 yrs where min is 2, 3 yrs
         category = this.EXPERIENCE_CATEGORIES.MEETS_REQUIRED;
         experienceScore = 95;
-      } else if (candidateExp < minYears) {
-        const gap = minYears - candidateExp;
-        if (gap <= 1.0) {
-          category = this.EXPERIENCE_CATEGORIES.COMPATIBLE_ADJACENT;
-          experienceScore = 80;
-        } else if (gap <= 2.5) {
-          category = this.EXPERIENCE_CATEGORIES.BELOW_PREFERRED;
-          experienceScore = 50;
-        } else {
-          // Significant experience gap (e.g. requires 5-8+ yrs when candidate has 2.7)
-          category = this.EXPERIENCE_CATEGORIES.BELOW_MANDATORY;
-          experienceScore = 25;
-        }
-      } else {
-        // Overqualified
-        category = this.EXPERIENCE_CATEGORIES.COMPATIBLE_ADJACENT;
-        experienceScore = 85;
       }
-    } else if (isSeniorTitle) {
+    } else if (isExecOrArch) {
       category = this.EXPERIENCE_CATEGORIES.BELOW_MANDATORY;
-      experienceScore = 40;
+      experienceScore = 30;
     } else if (isJuniorTitle) {
       category = this.EXPERIENCE_CATEGORIES.MEETS_REQUIRED;
       experienceScore = 90;
+    } else {
+      category = this.EXPERIENCE_CATEGORIES.NOT_SPECIFIED;
+      experienceScore = 85;
     }
 
     const rangeStr = minYears !== null
       ? `${minYears}${maxYears ? `-${maxYears}` : '+'} years`
-      : (isSeniorTitle ? '5+ years (Senior inferred)' : 'Not explicitly specified');
+      : (isExecOrArch ? '8+ years (Architect/Principal inferred)' : (isSeniorTitle ? 'Senior inferred' : 'Within 3 yrs / Unspecified'));
 
     return {
       experienceScore,
       experienceCategory: category,
       experienceRange: rangeStr,
-      seniorityDetected: isSeniorTitle ? 'Senior/Lead' : (isJuniorTitle ? 'Entry/Junior' : 'Mid-level')
+      seniorityDetected: isExecOrArch ? 'Architect/Principal' : (isSeniorTitle ? 'Senior/Lead' : (isJuniorTitle ? 'Entry/Junior' : 'Mid-level')),
+      minYears,
+      maxYears
     };
   }
 
-  static evaluateRoleAlignment(title, text, targetRoles = []) {
-    const tLower = title.toLowerCase();
-    const devKeywords = ['angular', 'java', 'spring', 'full stack', 'fullstack', 'frontend', 'software engineer', 'software developer', 'web developer'];
+  static evaluateRoleAlignment(title, text, targetRoles = [], isNonTech = false) {
+    if (isNonTech) return 15;
+
+    const tLower = (title || '').toLowerCase();
+    const textLower = (text || '').toLowerCase();
+    const devKeywords = [
+      'angular', 'java', 'spring', 'full stack', 'fullstack', 
+      'frontend', 'front end', 'backend', 'back end', 'software engineer', 
+      'software developer', 'web developer', 'sde', 'programmer', 'microservices'
+    ];
 
     let score = 50;
     for (const kw of devKeywords) {
-      if (tLower.includes(kw)) {
+      if (tLower.includes(kw) || textLower.includes(kw)) {
         score += 15;
+        break;
       }
     }
 
-    if (tLower.includes('developer') || tLower.includes('engineer')) {
-      score += 10;
+    if (tLower.includes('developer') || tLower.includes('engineer') || tLower.includes('programmer')) {
+      score += 15;
     }
 
     return Math.min(95, Math.max(30, score));
   }
 
-  static evaluateMandatory(text, matchedSkills) {
-    // If text mentions mandatory degree or 100% required keywords
-    const hasCore = matchedSkills.some(s => ['Java', 'Angular', 'Spring Boot'].includes(s));
+  static evaluateMandatory(text, matchedSkills, isNonTech = false, title = '') {
+    if (isNonTech) return 20;
+
+    const tLower = (title || '').toLowerCase();
+    const isDevOrEngRole = /\b(?:software|developer|engineer|backend|back\s*end|full\s*stack|fullstack|frontend|sde|programmer)\b/i.test(tLower);
+
+    const hasCore = matchedSkills.some(s => 
+      ['Java', 'Angular', 'Spring Boot', 'RESTful APIs & Microservices', 'PostgreSQL & SQL'].includes(s)
+    ) || isDevOrEngRole;
+
     return hasCore ? 90 : 50;
   }
 
@@ -302,25 +355,29 @@ class MatchingEngine {
     technicalScore,
     experienceCategory,
     experienceRange,
-    matchedSkills,
-    missingRequiredSkills,
+    matchedSkills = [],
+    missingRequiredSkills = [],
     seniorityDetected,
-    isRecommended
+    isRecommended,
+    candidateExp = 3.0,
+    isNonTech = false,
+    isOverExperience = false,
+    hasRelevantSkills = true
   }) {
-    const matchSummary = matchedSkills.length > 0
-      ? `Strong synergy with core competencies: ${matchedSkills.slice(0, 3).join(', ')}.`
-      : 'General engineering skills overlap.';
-
-    if (experienceCategory === this.EXPERIENCE_CATEGORIES.BELOW_MANDATORY) {
-      return `Experience requirement (${experienceRange}) substantially exceeds candidate's ~2.7 years. Role classified as ${seniorityDetected}. Overall fit calibrated to ${overallFitScore}%.`;
+    if (isNonTech) {
+      return `Non-technical role detected. Skipped.`;
     }
 
-    if (experienceCategory === this.EXPERIENCE_CATEGORIES.BELOW_PREFERRED) {
-      return `Good technical match (${technicalScore}%), but requires ${experienceRange} which is slightly above candidate's 2.7 years. Recommend manual evaluation.`;
+    if (isOverExperience || experienceCategory === this.EXPERIENCE_CATEGORIES.BELOW_MANDATORY) {
+      return `Experience requirement (${experienceRange}) substantially exceeds candidate's ~${candidateExp} years limit (4+/5+ yrs). Skipped as per experience preferences.`;
+    }
+
+    if (!hasRelevantSkills || matchedSkills.length === 0) {
+      return `No matching core skills (Java, Spring Boot, Angular, Backend) detected in job description. Skipped.`;
     }
 
     if (isRecommended) {
-      return `High compatibility (${overallFitScore}%)! ${matchSummary} Experience alignment: ${experienceRange}.`;
+      return `Skills and experience match! Found relevant keywords: ${matchedSkills.slice(0, 3).join(', ')}. Experience alignment: ${experienceRange}. Recommended for application.`;
     }
 
     return `Overall fit (${overallFitScore}%) is below target threshold. Missing key requirements: ${missingRequiredSkills.join(', ') || 'seniority requirements'}.`;

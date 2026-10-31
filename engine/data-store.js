@@ -2,15 +2,19 @@ const fs = require('fs');
 const path = require('path');
 const { StateMachine, ApplicationStates } = require('./state-machine');
 const ManualQueueService = require('./manual-queue');
+const RecruiterEmailsService = require('./recruiter-emails-service');
 
 class DataStore {
   constructor(options = {}) {
+    this.options = options;
     this.dataDir = options.dataDir || path.join(__dirname, '..', 'data');
     this.primaryFilePath = path.join(this.dataDir, 'applications.json');
     this.aliasFilePath = path.join(this.dataDir, 'data.json');
     this.rootDataFilePath = options.rootDataFilePath || (options.dataDir ? path.join(this.dataDir, 'root_data.json') : path.join(__dirname, '..', 'data.json'));
 
     this.manualQueue = options.manualQueueService || new ManualQueueService({ dataDir: this.dataDir });
+    this.recruiterEmails = options.recruiterEmailsService || new RecruiterEmailsService({ dataDir: this.dataDir });
+    this.linkedinOnlyManualQueue = options.linkedinOnlyManualQueue !== false;
 
     this.applications = [];
     this.summary = {
@@ -62,6 +66,10 @@ class DataStore {
 
       this.recalculateSummary();
       this.persist();
+
+      if (this.applications.length > 0 && this.recruiterEmails) {
+        this.recruiterEmails.scanHistoricalApplications(this.applications);
+      }
     } catch (err) {
       console.error('[DataStore] Initialization error:', err.message);
     }
@@ -165,6 +173,7 @@ class DataStore {
       unverifiedSubmissions,
       byPlatform,
       byStatus,
+      recruiterEmails: this.recruiterEmails ? this.recruiterEmails.getStats() : { totalEmails: 0, newCount: 0 },
       lastUpdated: new Date().toISOString()
     };
   }
@@ -260,21 +269,35 @@ class DataStore {
       this.applications.unshift(normalizedRecord);
     }
 
-    // Auto-enqueue into Manual Apply Queue if job requires manual intervention or was shortlisted
-    if (
+    // Auto-enqueue into Manual Apply Queue - strictly reserved for genuine LinkedIn external apply opportunities
+    const isLinkedIn = (
+      (jobRecord.platform || normalizedRecord.platform || '').toLowerCase().includes('linkedin') ||
+      (jobRecord.sourcePlatform || '').toLowerCase().includes('linkedin') ||
+      (jobRecord.url && String(jobRecord.url).includes('linkedin.com')) ||
+      (normalizedRecord.url && String(normalizedRecord.url).includes('linkedin.com')) ||
+      (jobRecord.jobListingUrl && String(jobRecord.jobListingUrl).includes('linkedin.com'))
+    );
+
+    if (this.linkedinOnlyManualQueue && !isLinkedIn && !jobRecord.isUserManualEntry) {
+      // Strictly skip non-LinkedIn spam/agency jobs
+    } else if (
       normalizedStatus === ApplicationStates.MANUAL_ACTION_REQUIRED ||
       jobRecord.status === 'MANUAL_ACTION_REQUIRED' ||
       jobRecord.status === 'already_applied_or_external' ||
       jobRecord.status === 'needs_manual_review' ||
       jobRecord.actionRequired ||
       jobRecord.applicationMethod === 'manual_shortlist' ||
-      jobRecord.applicationMethod === 'login_walled_portal'
+      jobRecord.applicationMethod === 'login_walled_portal' ||
+      jobRecord.applicationMethod === 'external_portal' ||
+      jobRecord.externalUrl
     ) {
       if (this.manualQueue) {
         this.manualQueue.enqueue({
           ...normalizedRecord,
-          directApplyUrl: jobRecord.directApplicationUrl || jobRecord.directApplyUrl || normalizedRecord.directApplicationUrl || normalizedRecord.url,
-          reason: jobRecord.skipReason || jobRecord.reason || 'External career portal or manual action required'
+          sourcePlatform: isLinkedIn ? 'LinkedIn' : (normalizedRecord.platform || 'Direct'),
+          platform: isLinkedIn ? 'LinkedIn' : (normalizedRecord.platform || 'Direct'),
+          directApplyUrl: jobRecord.directApplicationUrl || jobRecord.directApplyUrl || jobRecord.externalUrl || normalizedRecord.directApplicationUrl || normalizedRecord.url,
+          reason: jobRecord.skipReason || jobRecord.reason || (isLinkedIn ? 'LinkedIn external company career portal application required' : 'External career portal or manual action required')
         });
       }
     }
@@ -285,6 +308,26 @@ class DataStore {
 
     this.recalculateSummary();
     this.persist();
+
+    // Auto-scan for recruiter emails in job description or details
+    const textToScan = [
+      jobRecord.description,
+      jobRecord.jobDescription,
+      jobRecord.notes,
+      jobRecord.reason,
+      jobRecord.recruiterEmail
+    ].filter(Boolean).join('\n');
+
+    if (textToScan.trim() && this.recruiterEmails) {
+      this.recruiterEmails.extractEmailsFromText(textToScan, {
+        title: jobRecord.title,
+        company: jobRecord.company,
+        url: jobRecord.url || jobRecord.directApplicationUrl,
+        platform: jobRecord.platform,
+        recruiterName: jobRecord.recruiterName
+      });
+    }
+
     return normalizedRecord;
   }
 
@@ -355,7 +398,19 @@ class DataStore {
   // Returns a Set of normalized keys (URLs, job IDs, title|company) to prevent re-processing
   getProcessedKeys() {
     const keys = new Set();
+    const genericTitles = new Set([
+      'software developer|company',
+      'software engineer|company',
+      'developer|company',
+      'engineer|company',
+      '|'
+    ]);
+
     for (const app of (this.applications || [])) {
+      const st = String(app.status || app.normalizedStatus || '').toLowerCase();
+      const isAppliedStatus = st.includes('applied') || st.includes('submitted') || st.includes('confirmed');
+      if (!isAppliedStatus) continue;
+
       if (app.url) {
         const norm = ManualQueueService.normalizeJobUrl(app.url);
         if (norm) keys.add(norm);
@@ -363,7 +418,10 @@ class DataStore {
         if (match) keys.add(match[1]);
       }
       if (app.title && app.company) {
-        keys.add(`${(app.title).toLowerCase().trim()}|${(app.company).toLowerCase().trim()}`);
+        const combo = `${(app.title).toLowerCase().trim()}|${(app.company).toLowerCase().trim()}`;
+        if (!genericTitles.has(combo)) {
+          keys.add(combo);
+        }
       }
     }
     if (this.manualQueue && Array.isArray(this.manualQueue.items)) {
@@ -375,7 +433,10 @@ class DataStore {
           if (match) keys.add(match[1]);
         }
         if (item.title && item.company) {
-          keys.add(`${(item.title).toLowerCase().trim()}|${(item.company).toLowerCase().trim()}`);
+          const combo = `${(item.title).toLowerCase().trim()}|${(item.company).toLowerCase().trim()}`;
+          if (!genericTitles.has(combo)) {
+            keys.add(combo);
+          }
         }
       }
     }

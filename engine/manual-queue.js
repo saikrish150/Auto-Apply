@@ -14,6 +14,7 @@ class ManualQueueService {
     this.backupPath = path.join(this.dataDir, 'manual_queue.backup.json');
     this.items = [];
     this.onQueueChanged = null;
+    this.linkedinOnlyManualQueue = options.linkedinOnlyManualQueue !== false;
 
     this.init();
   }
@@ -25,8 +26,11 @@ class ManualQueueService {
       }
 
       if (fs.existsSync(this.filePath)) {
-        const raw = fs.readFileSync(this.filePath, 'utf-8');
-        const parsed = JSON.parse(raw);
+        let raw = fs.readFileSync(this.filePath, 'utf-8');
+        if (raw && raw.charCodeAt(0) === 0xFEFF) {
+          raw = raw.slice(1);
+        }
+        const parsed = JSON.parse(raw.trim());
         if (Array.isArray(parsed)) {
           this.items = parsed;
         } else if (parsed && Array.isArray(parsed.items)) {
@@ -91,17 +95,26 @@ class ManualQueueService {
     const title = String(jobData.title || 'Software Developer').trim();
     const company = String(jobData.company || 'Direct Employer').trim();
     const platform = String(jobData.platform || jobData.sourcePlatform || 'Direct').trim();
-
-    // Check for existing record
+    const isLinkedIn = Boolean(
+      platform.toLowerCase().includes('linkedin') ||
+      (jobData.url && String(jobData.url).includes('linkedin.com')) ||
+      (jobData.jobListingUrl && String(jobData.jobListingUrl).includes('linkedin.com'))
+    );
     const existingIndex = this.items.findIndex(item => {
       if (jobData.id && item.id === jobData.id) return true;
       if (normUrl && item.normalizedListingUrl && normUrl === item.normalizedListingUrl) return true;
       return (
         item.title.toLowerCase() === title.toLowerCase() &&
         item.company.toLowerCase() === company.toLowerCase() &&
-        item.sourcePlatform.toLowerCase() === platform.toLowerCase()
+        (item.sourcePlatform.toLowerCase() === platform.toLowerCase() || (item.sourcePlatform && platform === 'Direct'))
       );
     });
+
+    const isExistingLinkedIn = existingIndex >= 0 && (this.items[existingIndex].sourcePlatform || '').toLowerCase().includes('linkedin');
+
+    if (this.linkedinOnlyManualQueue && !isLinkedIn && !isExistingLinkedIn && !jobData.isUserManualEntry) {
+      return null;
+    }
 
     const now = new Date().toISOString();
     const overallFit = jobData.overallScore || jobData.overallFitScore || jobData.matchScore || jobData.score || 85;

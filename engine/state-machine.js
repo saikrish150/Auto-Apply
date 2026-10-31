@@ -16,6 +16,7 @@ const ApplicationStates = Object.freeze({
   APPLIED_CONFIRMED: 'APPLIED_CONFIRMED',
   ALREADY_APPLIED: 'ALREADY_APPLIED',
   CLOSED_OR_EXPIRED: 'CLOSED_OR_EXPIRED',
+  NOT_INTERESTED: 'NOT_INTERESTED',
   FAILED_RETRYABLE: 'FAILED_RETRYABLE',
   FAILED_FINAL: 'FAILED_FINAL'
 });
@@ -70,7 +71,11 @@ const LegalTransitions = {
     ApplicationStates.APPLIED_CONFIRMED,
     ApplicationStates.SUBMITTED_UNVERIFIED,
     ApplicationStates.CLOSED_OR_EXPIRED,
-    ApplicationStates.ALREADY_APPLIED
+    ApplicationStates.ALREADY_APPLIED,
+    ApplicationStates.NOT_INTERESTED
+  ],
+  [ApplicationStates.NOT_INTERESTED]: [
+    ApplicationStates.MANUAL_ACTION_REQUIRED
   ],
   [ApplicationStates.SUBMITTED_UNVERIFIED]: [
     ApplicationStates.APPLIED_CONFIRMED,
@@ -101,6 +106,8 @@ const LegacyStatusMap = {
   'already_applied_or_closed': ApplicationStates.ALREADY_APPLIED,
   'already_applied_or_external': ApplicationStates.MANUAL_ACTION_REQUIRED,
   'already_applied': ApplicationStates.ALREADY_APPLIED,
+  'not_interested': ApplicationStates.NOT_INTERESTED,
+  'dismissed': ApplicationStates.NOT_INTERESTED,
   'failed_captcha': ApplicationStates.MANUAL_ACTION_REQUIRED,
   'failed_external_form': ApplicationStates.MANUAL_ACTION_REQUIRED,
   'failed (captcha)': ApplicationStates.MANUAL_ACTION_REQUIRED,
@@ -135,6 +142,9 @@ class StateMachine {
     }
     if (lower.includes('skip')) {
       return ApplicationStates.SKIPPED_LOW_MATCH;
+    }
+    if (lower.includes('not_interested') || lower.includes('not interested') || lower.includes('dismiss')) {
+      return ApplicationStates.NOT_INTERESTED;
     }
     if (lower.includes('close') || lower.includes('expire')) {
       return ApplicationStates.CLOSED_OR_EXPIRED;

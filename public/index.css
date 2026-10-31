@@ -2467,7 +2467,8 @@ input:checked + .slider:before {
    SCREENING Q&A INSPECTION MODAL
    ======================================================== */
 
-.modal-backdrop {
+.modal-backdrop,
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -3400,3 +3401,164 @@ input:checked + .slider:before {
   height: 16px;
   accent-color: #6366f1;
 }
+
+/* ==========================================================================
+   Recruiter Contacts & Outreach Styling
+   ========================================================================== */
+.emails-kpi-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.email-kpi-item {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.email-kpi-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.email-kpi-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+}
+
+.modal-card-lg {
+  max-width: 680px;
+  width: 95%;
+}
+
+.input-with-copy {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.input-with-copy input {
+  flex: 1;
+}
+
+.recruiter-email-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recruiter-email-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recruiter-email-link {
+  color: #a78bfa;
+  font-weight: 600;
+  font-size: 0.88rem;
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.recruiter-email-link:hover {
+  text-decoration: underline;
+  color: #c4b5fd;
+}
+
+.btn-icon-copy {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all var(--transition-fast);
+}
+
+.btn-icon-copy:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.recruiter-company-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.email-context-snippet {
+  font-size: 0.76rem;
+  color: #94a3b8;
+  font-style: italic;
+  max-width: 280px;
+  line-height: 1.35;
+  margin-top: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.status-badge-select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  outline: none;
+}
+
+.status-badge-select.status-new {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.status-badge-select.status-contacted {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.status-badge-select.status-replied {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c084fc;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.status-badge-select.status-archived {
+  background: rgba(100, 116, 139, 0.15);
+  color: #94a3b8;
+  border-color: rgba(100, 116, 139, 0.3);
+}
+
+.btn-pitch {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  font-size: 0.78rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+
+.btn-pitch:hover {
+  background: rgba(168, 85, 247, 0.3);
+  color: #f3e8ff;
+}
+

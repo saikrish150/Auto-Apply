@@ -1,9 +1,10 @@
 class FounditBot {
-  constructor(chromeManager, aiAgent, settings, logger) {
+  constructor(chromeManager, aiAgent, settings, logger, dataStore = null) {
     this.chrome = chromeManager;
     this.ai = aiAgent;
     this.settings = settings;
     this.logger = logger;
+    this.dataStore = dataStore;
     this.shouldStop = false;
   }
 
@@ -52,12 +53,11 @@ class FounditBot {
 
     try {
       const scenarios = this.getScenarios();
-      const locationRaw = (this.settings.search?.locations || 'Hyderabad').split(',')[0].trim();
       const dateParam = this.getDateFilterParam(this.settings.search?.datePosted);
       const maxApps = this.settings.automation?.maxApplicationsPerSession || 25;
       let totalProcessedCount = 0;
 
-      this.logger('info', 'Foundit', `Foundit bot loaded with ${scenarios.length} search scenarios across ${locationRaw}. Filter: ${this.settings.search?.datePosted || 'past_24h'}.`);
+      this.logger('info', 'Foundit', `Foundit bot loaded with ${scenarios.length} search scenarios (All Locations | Deduplication Filter Disabled). Filter: ${this.settings.search?.datePosted || 'past_24h'}.`);
 
       for (let sIdx = 0; sIdx < scenarios.length; sIdx++) {
         if (this.shouldStop || totalProcessedCount >= maxApps) break;
@@ -65,9 +65,9 @@ class FounditBot {
         const currentScenario = scenarios[sIdx];
         const dateFilter = dateParam ? `&${dateParam}` : '';
         const expFilter = '&experienceRanges=1~4';
-        const searchUrl = `https://www.foundit.in/srp/results?query=${encodeURIComponent(currentScenario)}&locations=${encodeURIComponent(locationRaw)}${expFilter}${dateFilter}`;
+        const searchUrl = `https://www.foundit.in/srp/results?query=${encodeURIComponent(currentScenario)}${expFilter}${dateFilter}`;
 
-        this.logger('action', 'Foundit', `[Scenario ${sIdx + 1}/${scenarios.length}] Searching: "${currentScenario}" in ${locationRaw} (Fresh jobs: ${this.settings.search?.datePosted || '24h'})...`);
+        this.logger('action', 'Foundit', `[Scenario ${sIdx + 1}/${scenarios.length}] Searching: "${currentScenario}" (All Locations | Fresh jobs: ${this.settings.search?.datePosted || '24h'})...`);
         
         try {
           await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
@@ -151,6 +151,19 @@ class FounditBot {
               }, card);
 
               this.logger('info', 'Foundit', `[${currentScenario}] Evaluating: "${jobDetails.title}" at ${jobDetails.company}...`);
+
+              // Auto-harvest any recruiter emails mentioned in job description
+              if (this.dataStore && this.dataStore.recruiterEmails && jobDetails.description) {
+                const extracted = this.dataStore.recruiterEmails.extractEmailsFromText(jobDetails.description, {
+                  title: jobDetails.title,
+                  company: jobDetails.company,
+                  url: page.url(),
+                  platform: 'Foundit'
+                });
+                if (extracted.length > 0) {
+                  this.logger('success', 'Foundit', `Found recruiter email (${extracted.map(e => e.email).join(', ')}) on Foundit for "${jobDetails.title}"! Saved to Recruiter Outreach.`);
+                }
+              }
 
               const fullDescription = `${jobDetails.title} ${jobDetails.description}`;
               const evaluation = this.ai.evaluateJobMatch(jobDetails.title, fullDescription, jobDetails.company);

@@ -28,18 +28,36 @@ class BotOrchestrator extends EventEmitter {
     const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 
     this.manualQueue = this.dataStore.manualQueue;
+    this.dataStore.linkedinOnlyManualQueue = true;
+    if (this.manualQueue) {
+      this.manualQueue.linkedinOnlyManualQueue = true;
+    }
     const mqStats = this.manualQueue.getStats();
+
+    this.recruiterEmails = this.dataStore.recruiterEmails;
+    const emailStats = this.recruiterEmails ? this.recruiterEmails.getStats() : { totalEmails: 0 };
 
     this.stats = {
       appliedToday: timeStats.today || 0,
       matchesFound: timeStats.totalApplications || 0,
       manualQueuePending: mqStats.pendingCount || 0,
       unverifiedSubmissions: timeStats.unverifiedSubmissions || 0,
+      recruiterEmailsCount: emailStats.totalEmails || 0,
       skipped: (timeStats.byStatus['SKIPPED_LOW_MATCH'] || 0) + (timeStats.byStatus['skipped'] || 0) + (timeStats.byStatus['already_applied_or_closed'] || 0) + (timeStats.byStatus['already_applied'] || 0),
       failed: (timeStats.byStatus['FAILED_FINAL'] || 0) + (timeStats.byStatus['FAILED_RETRYABLE'] || 0) + (timeStats.byStatus['failed'] || 0),
       avgMatchScore: avgScore,
       sessionStartTime: null
     };
+
+    if (this.recruiterEmails) {
+      this.recruiterEmails.on('recruiter_email_found', (email) => {
+        this.emit('recruiter_email_found', email);
+        this.log('success', 'RecruiterOutreach', `New recruiter contact discovered: ${email.email} (${email.company}) - Ready for follow-up!`);
+      });
+      this.recruiterEmails.on('recruiter_email_updated', (email) => {
+        this.emit('recruiter_email_updated', email);
+      });
+    }
 
     this.linkedInBot = null;
     this.naukriBot = null;
@@ -206,6 +224,7 @@ class BotOrchestrator extends EventEmitter {
     this.stats.matchesFound = timeStats.totalApplications;
     this.stats.manualQueuePending = mqStats.pendingCount;
     this.stats.unverifiedSubmissions = timeStats.unverifiedSubmissions || 0;
+    this.stats.recruiterEmailsCount = this.recruiterEmails ? this.recruiterEmails.getStats().totalEmails : 0;
     this.stats.skipped = (timeStats.byStatus['SKIPPED_LOW_MATCH'] || 0) + (timeStats.byStatus['skipped'] || 0) + (timeStats.byStatus['already_applied_or_closed'] || 0) + (timeStats.byStatus['already_applied'] || 0);
     this.stats.failed = (timeStats.byStatus['FAILED_FINAL'] || 0) + (timeStats.byStatus['FAILED_RETRYABLE'] || 0) + (timeStats.byStatus['failed'] || 0);
 
@@ -215,7 +234,8 @@ class BotOrchestrator extends EventEmitter {
       this.stats.avgMatchScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
     }
 
-    this.emit('job_processed', { job: savedRecord || job, stats: this.stats, timeStats, manualQueueStats: mqStats });
+    const emailStats = this.recruiterEmails ? this.recruiterEmails.getStats() : { totalEmails: 0 };
+    this.emit('job_processed', { job: savedRecord || job, stats: this.stats, timeStats, manualQueueStats: mqStats, recruiterEmailsStats: emailStats });
   }
 
   // Realistic interactive simulation for demonstrations and dry runs
@@ -350,12 +370,14 @@ class BotOrchestrator extends EventEmitter {
   getSnapshot() {
     const timeStats = this.dataStore.getTimeStats();
     const mqStats = this.manualQueue ? this.manualQueue.getStats() : { pendingCount: 0 };
+    const emailStats = this.recruiterEmails ? this.recruiterEmails.getStats() : { totalEmails: 0, newCount: 0 };
     return {
       state: this.state,
       currentJob: this.currentJob,
       stats: this.stats,
       timeStats,
       manualQueueStats: mqStats,
+      recruiterEmailsStats: emailStats,
       jobsCount: this.jobsHistory.length,
       recentJobs: this.jobsHistory.slice(0, 100)
     };

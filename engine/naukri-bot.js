@@ -9,7 +9,7 @@ class NaukriBot {
     this.dataStore = dataStore;
     this.shouldStop = false;
     this.seenJobKeys = new Set();
-    this.careerSiteBot = new CareerSiteBot(chromeManager, aiAgent, settings, logger);
+    this.careerSiteBot = new CareerSiteBot(chromeManager, aiAgent, settings, logger, dataStore);
   }
 
   stop() {
@@ -83,10 +83,32 @@ class NaukriBot {
     await page.setViewport({ width: 1280, height: 800 });
     await this.cleanupOrphanTabs(page);
 
+    // Intercept real-time Naukri Search API to map each jobId to its application type (native Easy Apply vs company external apply)
+    const jobMetadataMap = new Map();
+    page.on('response', async res => {
+      try {
+        const u = res.url();
+        if (u.includes('/jobapi/v3/search') || u.includes('/jobapi/v2/search')) {
+          const data = await res.json();
+          if (data && Array.isArray(data.jobDetails)) {
+            for (const job of data.jobDetails) {
+              if (job && job.jobId) {
+                jobMetadataMap.set(String(job.jobId), {
+                  companyApplyJob: job.companyApplyJob === true,
+                  applyRedirectUrl: job.applyRedirectUrl || '',
+                  companyApplyUrl: job.companyApplyUrl || '',
+                  title: job.title || '',
+                  companyName: job.companyName || ''
+                });
+              }
+            }
+          }
+        }
+      } catch (e) {}
+    });
+
     try {
       const scenarios = this.getScenarios();
-      const locationRaw = (this.settings.search?.locations || 'Hyderabad').split(',')[0].trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      const locSlug = locationRaw === 'hyderabad' ? 'hyderabad-secunderabad' : locationRaw;
       const dateParam = this.getDateFilterParam(this.settings.search?.datePosted);
       const expParam = this.getExperienceParam(this.settings.search?.experienceLevel);
       const queryParts = [expParam, dateParam].filter(Boolean);
@@ -95,14 +117,7 @@ class NaukriBot {
       const maxPages = this.settings.automation?.maxPagesPerScenario || 2;
       let totalProcessedCount = 0;
 
-      // Load historical seen keys to avoid re-processing or re-checking duplicates
-      if (this.dataStore && typeof this.dataStore.getProcessedKeys === 'function') {
-        const historicalKeys = this.dataStore.getProcessedKeys();
-        historicalKeys.forEach(k => this.seenJobKeys.add(k));
-        this.logger('info', 'Naukri', `Loaded ${historicalKeys.size} historical job records to prevent duplicate applications.`);
-      }
-
-      this.logger('info', 'Naukri', `Naukri bot initialized with ${scenarios.length} scenarios in ${locSlug}. Freshness: ${this.settings.search?.datePosted || 'past_24h'}. Exp Filter: ${expParam || 'None'}.`);
+      this.logger('info', 'Naukri', `Naukri bot initialized with ${scenarios.length} scenarios (All Locations | Deduplication Filter Disabled). Freshness: ${this.settings.search?.datePosted || 'past_24h'}. Exp Filter: ${expParam || 'None'}.`);
 
       for (let sIdx = 0; sIdx < scenarios.length; sIdx++) {
         if (this.shouldStop || totalProcessedCount >= maxApps) break;
@@ -114,7 +129,7 @@ class NaukriBot {
           if (this.shouldStop || totalProcessedCount >= maxApps) break;
 
           const pageSlug = pageNum > 1 ? `-${pageNum}` : '';
-          const searchUrl = `https://www.naukri.com/${scenarioSlug}-jobs-in-${locSlug}${pageSlug}${searchQueryParams}`;
+          const searchUrl = `https://www.naukri.com/${scenarioSlug}-jobs${pageSlug}${searchQueryParams}`;
 
           this.logger('action', 'Naukri', `[Scenario ${sIdx + 1}/${scenarios.length} | Page ${pageNum}] Navigating to: ${searchUrl}...`);
           await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
@@ -170,8 +185,10 @@ class NaukriBot {
                 const locEl = el.querySelector('.locwdth, .loc-wrap, .loc');
                 const tagEls = Array.from(el.querySelectorAll('.tag-li, .tags-gt, .dot-gt'));
                 const appliedBadge = el.querySelector('.applied-text, .already-applied');
+                const cardJobId = el.getAttribute('data-job-id') || (titleEl && titleEl.href ? (titleEl.href.match(/-(\d+)(?:\?|$)/)?.[1] || '') : '');
 
                 return {
+                  jobId: cardJobId,
                   title: titleEl ? titleEl.innerText.trim() : 'Software Engineer',
                   company: compEl ? compEl.innerText.trim() : 'Company',
                   url: titleEl ? titleEl.href : window.location.href,
@@ -209,9 +226,27 @@ class NaukriBot {
                 continue;
               }
 
-              // 2. Skip if already seen in current session or historical applications
-              if ((titleKey && this.seenJobKeys.has(titleKey)) || (normUrl && this.seenJobKeys.has(normUrl))) {
-                this.logger('info', 'Naukri', `[Pre-check] Skipping "${jobMeta.title}" at ${jobMeta.company} - already processed.`);
+              // 2. Pre-filter external company applies via intercepted Naukri Search API
+              // Exclusively process native 1-Click Fast Apply / Easy Apply jobs
+              const apiMeta = jobMeta.jobId ? jobMetadataMap.get(String(jobMeta.jobId)) : null;
+              if (apiMeta && apiMeta.companyApplyJob === true) {
+                this.logger('info', 'Naukri', `[Pre-check] Skipping "${jobMeta.title}" at ${jobMeta.company} - External company site link (Naukri external applies disabled; exclusively processing native Easy / Fast Apply).`);
+                if (titleKey) this.seenJobKeys.add(titleKey);
+                if (normUrl) this.seenJobKeys.add(normUrl);
+                jobRecord.status = 'skipped';
+                jobRecord.skipReason = 'External company apply link (Naukri external applies disabled)';
+                if (onJobProcessed) onJobProcessed(jobRecord);
+                continue;
+              }
+
+              // Guard 0: Skip if card URL itself is an external company portal (not on naukri.com)
+              if (jobMeta.url && !jobMeta.url.includes('naukri.com')) {
+                this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - External company link on card (${jobMeta.url}). Naukri external applies are disabled.`);
+                if (titleKey) this.seenJobKeys.add(titleKey);
+                if (normUrl) this.seenJobKeys.add(normUrl);
+                jobRecord.status = 'skipped';
+                jobRecord.skipReason = 'External company link on card (Naukri external applies disabled)';
+                if (onJobProcessed) onJobProcessed(jobRecord);
                 continue;
               }
 
@@ -259,7 +294,39 @@ class NaukriBot {
                 jobTab = pagesAfter.find(p => !pagesBefore.includes(p)) || pagesAfter[pagesAfter.length - 1];
                 
                 if (jobTab && jobTab !== page) {
-                  // Keep running in background with CDP focus emulation without stealing user's active window/tab
+                  // Guard 1: Verify the opened tab is strictly a naukri.com domain page
+                  const initialUrl = (jobTab.url() || '').toLowerCase();
+                  if (!initialUrl.includes('naukri.com')) {
+                    this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - Opened external employer site (${jobTab.url()}). Naukri external applies are disabled.`);
+                    try {
+                      if (!jobTab.isClosed()) await jobTab.close();
+                    } catch (e) {}
+                    jobRecord.status = 'skipped';
+                    jobRecord.skipReason = 'Opened external employer site (Naukri external applies disabled)';
+                    if (onJobProcessed) onJobProcessed(jobRecord);
+                    continue;
+                  }
+
+                  // Scan job details & recruiter contacts for recruiter emails
+                  if (this.dataStore && this.dataStore.recruiterEmails) {
+                    try {
+                      const descText = await jobTab.evaluate(() => {
+                        const d = document.querySelector('.styles_JDC__dang-inner-html__fq021, .dang-inner-html, .job-desc-container, [class*="recruiter"]');
+                        return d ? d.innerText : (document.body ? document.body.innerText.slice(0, 10000) : '');
+                      });
+                      if (descText) {
+                        const extracted = this.dataStore.recruiterEmails.extractEmailsFromText(descText, {
+                          title: jobMeta.title,
+                          company: jobMeta.company,
+                          url: jobMeta.url,
+                          platform: 'Naukri'
+                        });
+                        if (extracted.length > 0) {
+                          this.logger('success', 'Naukri', `Found recruiter email (${extracted.map(e => e.email).join(', ')}) on Naukri for "${jobMeta.title}"! Saved to Recruiter Outreach.`);
+                        }
+                      }
+                    } catch (e) {}
+                  }
 
                   // Look for Apply button on Naukri detail page
                   const applyResult = await this.findNaukriApplyButton(jobTab);
@@ -273,85 +340,89 @@ class NaukriBot {
                     }
 
                     const isExternal = applyResult.isExternal;
-                    this.logger('action', 'Naukri', `Submitting ${isExternal ? 'Company Site Application' : '1-Click Fast Apply'} for "${jobMeta.title}"...`);
+                    if (isExternal) {
+                      this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - External company site apply link (Naukri external links are disabled; only 1-Click Fast Apply is allowed).`);
+                      try {
+                        if (!jobTab.isClosed()) await jobTab.close();
+                      } catch (e) {}
+                      jobRecord.status = 'skipped';
+                      jobRecord.skipReason = 'External company site apply link (Naukri external links disabled)';
+                      if (onJobProcessed) onJobProcessed(jobRecord);
+                      continue;
+                    }
+
+                    this.logger('action', 'Naukri', `Submitting 1-Click Fast Apply for "${jobMeta.title}"...`);
 
                     const pagesBefore = await this.chrome.browser.pages();
                     await applyResult.button.evaluate(b => b.click());
                     await this.randomDelay(2200, 3500);
 
-                    // Check if an external company careers tab opened
+                    // Guard 2: Check if an external company careers tab opened unexpectedly
                     const pagesAfter = await this.chrome.browser.pages();
                     const newExternalTab = pagesAfter.find(p => !pagesBefore.includes(p));
 
                     if (newExternalTab) {
                       const extUrl = newExternalTab.url();
-                      this.logger('success', 'Naukri', `Company careers portal opened: ${extUrl}`);
-                      jobRecord.externalUrl = extUrl;
+                      try {
+                        if (!newExternalTab.isClosed()) await newExternalTab.close();
+                      } catch (e) {}
+                      this.logger('info', 'Naukri', `Closed external tab: ${extUrl} (Naukri external apply links disabled).`);
+                      jobRecord.status = 'skipped';
+                      jobRecord.skipReason = 'External company site link (Naukri external applies disabled)';
+                      if (onJobProcessed) onJobProcessed(jobRecord);
+                      continue;
+                    }
 
-                      // Full autonomous career site application (handles resume upload & screening Q&A)
-                      const careerRes = await this.careerSiteBot.applyToCareerPage(newExternalTab, jobMeta);
-                      jobRecord.status = careerRes.status || 'MANUAL_ACTION_REQUIRED';
-                      jobRecord.directApplicationUrl = extUrl;
-                      jobRecord.applicationMethod = careerRes.applicationMethod || 'external_portal';
-                      jobRecord.questionsAnswered = careerRes.questionsAnswered || [];
-                      totalProcessedCount++;
+                    // Guard 3: Check if the current jobTab redirected to an external domain
+                    const currentTabUrl = (jobTab.url() || '').toLowerCase();
+                    if (!currentTabUrl.includes('naukri.com')) {
+                      this.logger('info', 'Naukri', `Closed redirected external tab: ${jobTab.url()} (Naukri external apply links disabled).`);
+                      try {
+                        if (!jobTab.isClosed()) await jobTab.close();
+                      } catch (e) {}
+                      jobRecord.status = 'skipped';
+                      jobRecord.skipReason = 'Redirected to external company site (Naukri external applies disabled)';
+                      if (onJobProcessed) onJobProcessed(jobRecord);
+                      continue;
+                    }
 
-                      // Only close tab if submission is explicitly confirmed
-                      const isConfirmed = careerRes.status === 'APPLIED_CONFIRMED' || careerRes.status === 'applied';
-                      if (isConfirmed && this.settings.automation?.closeCareerTabAfterSubmit !== false) {
-                        try {
-                          await this.randomDelay(2500, 3500);
-                          if (!newExternalTab.isClosed()) await newExternalTab.close();
-                        } catch (e) {}
-                      } else {
-                        this.logger('info', 'Naukri', `Tab retained for your inspection and manual completion: ${extUrl}`);
-                      }
+                    // Check for real visible login modal
+                    const isRealLoginPrompt = await jobTab.evaluate(() => {
+                      const loginEl = document.querySelector('#login_Layer, .login-layer, form[name*="login"], .nI-gNb-login');
+                      if (!loginEl) return false;
+                      const isVisible = loginEl.offsetParent !== null && window.getComputedStyle(loginEl).display !== 'none' && window.getComputedStyle(loginEl).visibility !== 'hidden';
+                      if (!isVisible) return false;
+                      const hasPwd = !!loginEl.querySelector('input[type="password"]');
+                      const txt = (loginEl.innerText || '').toLowerCase();
+                      return hasPwd || (txt.includes('login') && (txt.includes('password') || txt.includes('sign in')));
+                    });
+
+                    const isTabLoggedIn = await jobTab.evaluate(() => {
+                      const userIndicators = document.querySelectorAll('.nI-gNb-drawer, .view-profile-wrapper, .user-name, img[alt*="profile"], .nI-gNb-header__user, a[href*="my-profile"], a[href*="mynaukri"], .user-details');
+                      return userIndicators.length > 0;
+                    });
+
+                    if (isRealLoginPrompt && !isLoggedIn && !isTabLoggedIn) {
+                      this.logger('warning', 'Naukri', `Naukri requires login to complete application for "${jobMeta.title}".`);
+                      jobRecord.status = 'skipped';
+                      jobRecord.skipReason = 'Naukri account login required';
                     } else {
-                      // Check for real visible login modal
-                      const isRealLoginPrompt = await jobTab.evaluate(() => {
-                        const loginEl = document.querySelector('#login_Layer, .login-layer, form[name*="login"], .nI-gNb-login');
-                        if (!loginEl) return false;
-                        const isVisible = loginEl.offsetParent !== null && window.getComputedStyle(loginEl).display !== 'none' && window.getComputedStyle(loginEl).visibility !== 'hidden';
-                        if (!isVisible) return false;
-                        const hasPwd = !!loginEl.querySelector('input[type="password"]');
-                        const txt = (loginEl.innerText || '').toLowerCase();
-                        return hasPwd || (txt.includes('login') && (txt.includes('password') || txt.includes('sign in')));
-                      });
+                      // Check if questionnaire chatbot or modal appeared
+                      const answeredQuestions = await this.handleNaukriChatbot(jobTab, jobMeta);
+                      jobRecord.questionsAnswered = answeredQuestions || [];
 
-                      const isTabLoggedIn = await jobTab.evaluate(() => {
-                        const userIndicators = document.querySelectorAll('.nI-gNb-drawer, .view-profile-wrapper, .user-name, img[alt*="profile"], .nI-gNb-header__user, a[href*="my-profile"], a[href*="mynaukri"], .user-details');
-                        return userIndicators.length > 0;
-                      });
-
-                      if (isRealLoginPrompt && !isLoggedIn && !isTabLoggedIn) {
-                        this.logger('warning', 'Naukri', `Naukri requires login to complete application for "${jobMeta.title}". Added to Manual Apply Queue.`);
-                        jobRecord.status = 'MANUAL_ACTION_REQUIRED';
-                        jobRecord.actionRequired = true;
-                        jobRecord.directApplicationUrl = jobTab.url() || jobMeta.url;
-                        jobRecord.reason = 'Naukri account login required to complete application';
-                      } else {
-                        // Check if questionnaire chatbot or modal appeared
-                        const answeredQuestions = await this.handleNaukriChatbot(jobTab, jobMeta);
-                        jobRecord.questionsAnswered = answeredQuestions || [];
-
-                        jobRecord.status = 'applied';
-                        totalProcessedCount++;
-                        this.logger('success', 'Naukri', `Successfully applied to "${jobMeta.title}" at ${jobMeta.company}! (${jobRecord.questionsAnswered.length} screening questions answered)`);
-                      }
+                      jobRecord.status = 'applied';
+                      totalProcessedCount++;
+                      this.logger('success', 'Naukri', `Successfully applied to "${jobMeta.title}" at ${jobMeta.company}! (${jobRecord.questionsAnswered.length} screening questions answered)`);
                     }
                   } else {
-                    const isHighMatch = (evaluation.score || 0) >= (this.settings.automation?.minMatchScore || 65);
-                    if (isHighMatch) {
-                      this.logger('info', 'Naukri', `[Manual Shortlist] High-fit job "${jobMeta.title}" (${evaluation.score}%) requires manual application on detail page. Adding to Manual Apply Queue...`);
-                      jobRecord.status = 'MANUAL_ACTION_REQUIRED';
-                      jobRecord.actionRequired = true;
-                      jobRecord.directApplicationUrl = jobTab.url() || jobMeta.url;
-                      jobRecord.applicationMethod = 'naukri_manual_detail';
-                      jobRecord.reason = `High match (${evaluation.score}%) on Naukri - requires manual application or external employer redirect`;
-                    } else {
-                      this.logger('info', 'Naukri', `No 1-Click apply button found for "${jobMeta.title}".`);
-                      jobRecord.status = 'already_applied_or_closed';
-                    }
+                    // Guard 4: No 1-Click apply button found on Naukri detail page
+                    this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" - No 1-Click Fast Apply button found on Naukri (Naukri external applies are disabled).`);
+                    try {
+                      if (!jobTab.isClosed()) await jobTab.close();
+                    } catch (e) {}
+                    jobRecord.status = 'skipped';
+                    jobRecord.skipReason = 'No 1-Click Fast Apply button (Naukri external applies disabled)';
                   }
                 }
               }
@@ -395,7 +466,8 @@ class NaukriBot {
           const text = (el.innerText || el.textContent || '').trim().toLowerCase();
           const id = (el.id || '').toLowerCase();
           const cls = (el.className || '').toLowerCase();
-          const isExternal = text.includes('company site') || text.includes('external') || id.includes('company-site') || cls.includes('company-site');
+          const href = (el.getAttribute('href') || '').toLowerCase();
+          const isExternal = text.includes('company site') || text.includes('external') || id.includes('company-site') || cls.includes('company-site') || (href.length > 0 && !href.includes('naukri.com') && !href.startsWith('#') && !href.startsWith('javascript'));
           const isAlreadyApplied = text.includes('already applied') || text.includes('applied');
           return { isExternal, isAlreadyApplied, text, tagName: el.tagName };
         });
@@ -423,7 +495,8 @@ class NaukriBot {
           const text = (e.innerText || e.textContent || '').trim().toLowerCase();
           const id = (e.id || '').toLowerCase();
           const cls = (e.className || '').toLowerCase();
-          const isExternal = text.includes('company site') || text.includes('external') || id.includes('company-site') || cls.includes('company-site');
+          const href = (e.getAttribute('href') || '').toLowerCase();
+          const isExternal = text.includes('company site') || text.includes('external') || id.includes('company-site') || cls.includes('company-site') || (href.length > 0 && !href.includes('naukri.com') && !href.startsWith('#') && !href.startsWith('javascript'));
           const isAlreadyApplied = text.includes('already applied') || text.includes('applied');
           return { isExternal, isAlreadyApplied, text, tagName: e.tagName };
         });
@@ -720,113 +793,10 @@ class NaukriBot {
     return questionsAnswered;
   }
 
-  // Autofill external career portal applications (Workday, Greenhouse, Lever, Ashby, custom portals)
+  // External career portal filling is strictly disabled on Naukri
   async autofillExternalCareerPortal(page, jobMeta = {}) {
-    try {
-      this.logger('action', 'Naukri', `Scanning external career portal for application form fields...`);
-      await this.randomDelay(1500, 2500);
-
-      const personal = this.profile.personal || {};
-      const career = this.profile.career || {};
-
-      const filledFields = await page.evaluate((p, c) => {
-        const filled = [];
-
-        function setInputVal(input, val) {
-          if (!input || !val) return false;
-          input.focus();
-          input.value = val;
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-          input.dispatchEvent(new Event('blur', { bubbles: true }));
-          return true;
-        }
-
-        const inputs = Array.from(document.querySelectorAll('input:not([type="hidden"]), textarea'));
-        for (const input of inputs) {
-          if (input.value && input.value.trim().length > 0) continue;
-          const name = (input.name || '').toLowerCase();
-          const id = (input.id || '').toLowerCase();
-          const placeholder = (input.placeholder || '').toLowerCase();
-          const ariaLabel = (input.getAttribute('aria-label') || '').toLowerCase();
-          const key = `${name} ${id} ${placeholder} ${ariaLabel}`;
-
-          // First Name
-          if (/\b(first\s*name|fname|given\s*name)\b/.test(key) && !key.includes('last')) {
-            if (setInputVal(input, p.firstName || 'Sai Krishna')) filled.push('First Name');
-          }
-          // Last Name
-          else if (/\b(last\s*name|lname|family\s*name|surname)\b/.test(key)) {
-            if (setInputVal(input, p.lastName || 'G')) filled.push('Last Name');
-          }
-          // Full Name
-          else if (/\b(full\s*name|your\s*name|candidate\s*name)\b/.test(key) || (key.includes('name') && !key.includes('user') && !key.includes('comp') && !key.includes('first') && !key.includes('last'))) {
-            if (setInputVal(input, p.fullName || 'Sai Krishna G')) filled.push('Full Name');
-          }
-          // Email
-          else if (input.type === 'email' || /\b(email|e-mail)\b/.test(key)) {
-            if (setInputVal(input, p.email || 'gsaikrishna150@gmail.com')) filled.push('Email');
-          }
-          // Phone
-          else if (input.type === 'tel' || /\b(phone|mobile|contact\s*no|contact\s*number)\b/.test(key)) {
-            if (setInputVal(input, p.phoneDigits || '8688373517')) filled.push('Phone');
-          }
-          // City / Location
-          else if (/\b(city|current\s*city|current\s*location)\b/.test(key)) {
-            if (setInputVal(input, p.city || 'Hyderabad')) filled.push('City');
-          }
-          // LinkedIn
-          else if (/\b(linkedin)\b/.test(key)) {
-            if (setInputVal(input, p.linkedInUrl || 'https://linkedin.com')) filled.push('LinkedIn');
-          }
-          // GitHub
-          else if (/\b(github)\b/.test(key)) {
-            if (setInputVal(input, p.githubUrl || 'https://github.com')) filled.push('GitHub');
-          }
-          // Portfolio / Website
-          else if (/\b(portfolio|website)\b/.test(key)) {
-            if (setInputVal(input, p.portfolioUrl || 'https://indianmetroguide.in')) filled.push('Portfolio');
-          }
-          // Total Experience
-          else if (/\b(total\s*experience|years\s*of\s*experience|exp)\b/.test(key)) {
-            if (setInputVal(input, String(c.totalYearsExperience || 3))) filled.push('Experience');
-          }
-          // Notice Period
-          else if (/\b(notice\s*period|days\s*to\s*join)\b/.test(key)) {
-            if (setInputVal(input, String(c.noticePeriodDays || 30))) filled.push('Notice Period');
-          }
-          // Current CTC
-          else if (/\b(current\s*ctc|current\s*salary)\b/.test(key)) {
-            if (setInputVal(input, '4.10')) filled.push('Current CTC');
-          }
-          // Expected CTC
-          else if (/\b(expected\s*ctc|expected\s*salary)\b/.test(key)) {
-            if (setInputVal(input, '10')) filled.push('Expected CTC');
-          }
-        }
-
-        return filled;
-      }, personal, career);
-
-      // Handle resume file upload if input[type="file"] exists
-      const resumePath = personal.resumePath || 'D:\\Downloads\\Sai_Krishna_G_Resume.pdf';
-      const fileInput = await page.$('input[type="file"]');
-      if (fileInput && resumePath) {
-        try {
-          const fs = require('fs');
-          if (fs.existsSync(resumePath)) {
-            await fileInput.uploadFile(resumePath);
-            filledFields.push('Resume File Upload');
-          }
-        } catch (fErr) {}
-      }
-
-      if (filledFields.length > 0) {
-        this.logger('success', 'Naukri', `External portal autofilled fields: ${filledFields.join(', ')}`);
-      }
-    } catch (e) {
-      this.logger('info', 'Naukri', `External portal scan complete.`);
-    }
+    this.logger('info', 'Naukri', 'External career portal autofill is strictly disabled for Naukri.');
+    return [];
   }
 }
 

@@ -96,7 +96,7 @@ test('Manual Shortlisting, Deduplication & Ultra-Fresh Time Filters', async (t) 
     assert.ok(keys.has('https://www.linkedin.com/jobs/view/41987654321'));
   });
 
-  await t.test('Naukri un-applied high-match jobs auto-enqueue into Manual Apply Queue', () => {
+  await t.test('Strict Manual Queue isolation: Naukri external jobs excluded, LinkedIn jobs admitted', () => {
     const naukriJob = {
       id: 'nk-manual-998877',
       platform: 'Naukri',
@@ -109,14 +109,34 @@ test('Manual Shortlisting, Deduplication & Ultra-Fresh Time Filters', async (t) 
       status: 'MANUAL_ACTION_REQUIRED',
       actionRequired: true,
       applicationMethod: 'naukri_manual_detail',
-      reason: 'High match (82%) on Naukri - requires manual application or external employer redirect'
+      reason: 'High match (82%) on Naukri'
     };
 
     dataStore.saveApplication(naukriJob);
-    assert.equal(manualQueue.items.length, 2);
-    const item = manualQueue.items.find(i => i.company === 'Infosys Limited');
-    assert.ok(item);
-    assert.equal(item.overallFitScore, 82);
-    assert.equal(item.status, ApplicationStates.MANUAL_ACTION_REQUIRED);
+    // When linkedinOnlyManualQueue is active, Naukri job must NOT be enqueued into manual queue
+    assert.equal(manualQueue.items.length, 1, 'Manual queue should still have only 1 item (LinkedIn job from previous test)');
+    const nkItem = manualQueue.items.find(i => i.company === 'Infosys Limited');
+    assert.equal(nkItem, undefined, 'Naukri job must NOT exist in manual queue');
+
+    // But a high-match LinkedIn external job MUST enter the manual queue
+    const linkedInExternalJob = {
+      id: 'li-manual-554433',
+      platform: 'LinkedIn',
+      title: 'Full Stack Engineer (Java & Angular)',
+      company: 'Atlassian',
+      location: 'Bengaluru / Remote',
+      url: 'https://www.linkedin.com/jobs/view/5544332211',
+      directApplicationUrl: 'https://careers.atlassian.com/jobs/554433',
+      matchScore: 94,
+      status: 'MANUAL_ACTION_REQUIRED',
+      actionRequired: true,
+      applicationMethod: 'manual_shortlist',
+      reason: 'High match (94%) on LinkedIn external apply'
+    };
+    dataStore.saveApplication(linkedInExternalJob);
+    assert.equal(manualQueue.items.length, 2, 'LinkedIn external job must be added to manual queue');
+    const liItem = manualQueue.items.find(i => i.company === 'Atlassian');
+    assert.ok(liItem, 'LinkedIn external job must exist in manual queue');
+    assert.equal(liItem.overallFitScore, 94);
   });
 });

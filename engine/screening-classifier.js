@@ -155,18 +155,22 @@ class ScreeningClassifier {
     const isExpectedCTC = /\b(?:expected\s*ctc|expected\s*salary|desired\s*salary|salary\s*expectation|ectc|expected\s*package)\b/i.test(norm) ||
       (norm.includes('expected') && (norm.includes('ctc') || norm.includes('salary') || norm.includes('compensation') || norm.includes('package')));
 
+    const isINR = /\b(?:in\s*inr|in\s*rupees|inr|rupees|annual\s*compensation|annual\s*ctc|annual\s*salary)\b/i.test(norm) || /\b(?:example\s*:\s*\d{5,})\b/i.test(raw);
+    const isLPA = /\b(?:in\s*lpa|in\s*lakhs?|lpa|lakhs?)\b/i.test(norm);
+    const compParams = { isINR: isINR && !isLPA, isLPA };
+
     if (isExpectedCTC && !isCurrentCTC) {
-      return { intent: this.INTENTS.EXPECTED_CTC, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+      return { intent: this.INTENTS.EXPECTED_CTC, confidence: this.CONFIDENCE_LEVELS.HIGH, params: compParams };
     }
     if (isCurrentCTC && !isExpectedCTC) {
-      return { intent: this.INTENTS.CURRENT_CTC, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+      return { intent: this.INTENTS.CURRENT_CTC, confidence: this.CONFIDENCE_LEVELS.HIGH, params: compParams };
     }
     if (isExpectedCTC && isCurrentCTC) {
       // If both appear in the same prompt string, evaluate which is the primary subject
       if (norm.startsWith('expected') || norm.includes('your expected')) {
-        return { intent: this.INTENTS.EXPECTED_CTC, confidence: this.CONFIDENCE_LEVELS.MEDIUM, params: {} };
+        return { intent: this.INTENTS.EXPECTED_CTC, confidence: this.CONFIDENCE_LEVELS.MEDIUM, params: compParams };
       }
-      return { intent: this.INTENTS.CURRENT_CTC, confidence: this.CONFIDENCE_LEVELS.MEDIUM, params: {} };
+      return { intent: this.INTENTS.CURRENT_CTC, confidence: this.CONFIDENCE_LEVELS.MEDIUM, params: compParams };
     }
 
     // 5. NOTICE PERIOD & JOINING TIME
@@ -470,7 +474,9 @@ class ScreeningClassifier {
 
       case this.INTENTS.CURRENT_CTC: {
         const curLPA = typeof career.currentSalaryLPA === 'number' ? career.currentSalaryLPA : 3.8;
-        if (inputType === 'number') {
+        if (params && params.isINR) {
+          proposedAnswer = String(Math.round(curLPA * 100000));
+        } else if (inputType === 'number') {
           proposedAnswer = String(curLPA);
         } else {
           proposedAnswer = `${curLPA.toFixed(2)} LPA`;
@@ -481,7 +487,9 @@ class ScreeningClassifier {
 
       case this.INTENTS.EXPECTED_CTC: {
         const expLPA = typeof career.expectedSalaryLPA === 'number' ? career.expectedSalaryLPA : 10.0;
-        if (inputType === 'number') {
+        if (params && params.isINR) {
+          proposedAnswer = String(Math.round(expLPA * 100000));
+        } else if (inputType === 'number') {
           proposedAnswer = String(expLPA);
         } else {
           proposedAnswer = `${expLPA.toFixed(2)} LPA`;
@@ -491,7 +499,7 @@ class ScreeningClassifier {
       }
 
       case this.INTENTS.OFFICIAL_NOTICE_PERIOD:
-        proposedAnswer = String(career.officialNoticePeriodDays || 90);
+        proposedAnswer = String(career.officialNoticePeriodDays || career.noticePeriodDays || 90);
         sourceField = 'career.officialNoticePeriodDays';
         break;
 

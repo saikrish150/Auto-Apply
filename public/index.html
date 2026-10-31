@@ -116,6 +116,22 @@
         </div>
       </div>
 
+      <div class="stat-card" id="card-recruiter-emails" style="cursor: pointer;" title="Click to view discovered recruiter emails">
+        <div class="stat-icon-wrapper icon-email" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Recruiter Outreach</span>
+          <div class="stat-value-group">
+            <span class="stat-number" id="stat-recruiter-emails">0</span>
+            <span class="stat-sub" id="stat-recruiter-emails-sub">Direct Contacts</span>
+          </div>
+        </div>
+      </div>
+
       <div class="stat-card" id="card-mode">
         <div class="stat-icon-wrapper icon-mode">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -227,6 +243,14 @@
           <line x1="16" y1="17" x2="8" y2="17"></line>
         </svg>
         Application History (<span id="history-badge-count">0</span>)
+      </button>
+
+      <button class="tab-btn" id="tab-btn-emails" role="tab">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+          <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        Recruiter Outreach (<span id="emails-badge-count">0</span>)
       </button>
 
       <button class="tab-btn" id="tab-btn-qa-audit" role="tab">
@@ -734,6 +758,107 @@
               <tbody id="history-table-body">
                 <tr class="empty-row">
                   <td colspan="8">No applications recorded yet. Start a session to see history.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2.5 RECRUITER OUTREACH & EMAILS TAB -->
+      <section class="tab-pane" id="pane-emails">
+        <div class="glass-card full-card">
+          <!-- Header Bar -->
+          <div class="table-header-bar">
+            <div>
+              <div class="header-with-badge">
+                <h3>Recruiter Contacts & Follow-Up Outreach</h3>
+                <span class="data-file-badge" title="Data is permanently stored in data/recruiter_emails.json">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                  data/recruiter_emails.json
+                </span>
+              </div>
+              <p class="subtitle">Recruiter and HR emails discovered across LinkedIn, Naukri, Foundit, and Career websites for direct personal follow-up.</p>
+            </div>
+            <div class="table-actions">
+              <button class="btn btn-secondary btn-sm" id="btn-add-recruiter-email">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                + Add Recruiter Email
+              </button>
+              <button class="btn btn-secondary btn-sm" id="btn-refresh-emails">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Outreach Mini KPI Cards -->
+          <div class="emails-kpi-bar">
+            <div class="email-kpi-item">
+              <span class="email-kpi-label">Total Contacts</span>
+              <span class="email-kpi-value" id="email-kpi-total">0</span>
+            </div>
+            <div class="email-kpi-item">
+              <span class="email-kpi-label">Pending Follow-up</span>
+              <span class="email-kpi-value" id="email-kpi-new" style="color: #60a5fa;">0</span>
+            </div>
+            <div class="email-kpi-item">
+              <span class="email-kpi-label">Contacted</span>
+              <span class="email-kpi-value" id="email-kpi-contacted" style="color: #34d399;">0</span>
+            </div>
+            <div class="email-kpi-item">
+              <span class="email-kpi-label">Replied</span>
+              <span class="email-kpi-value" id="email-kpi-replied" style="color: #a78bfa;">0</span>
+            </div>
+          </div>
+
+          <!-- Filter Toolbar -->
+          <div class="table-toolbar">
+            <div class="filter-group">
+              <label>Status:</label>
+              <select id="email-filter-status" class="filter-select">
+                <option value="all">All Statuses</option>
+                <option value="new">New (Need Follow-up)</option>
+                <option value="contacted">Contacted</option>
+                <option value="replied">Replied</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label>Platform:</label>
+              <select id="email-filter-platform" class="filter-select">
+                <option value="all">All Platforms</option>
+                <option value="all">All Platforms</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Naukri">Naukri</option>
+                <option value="Foundit">Foundit</option>
+                <option value="Career Website">Career Website</option>
+              </select>
+            </div>
+
+            <div class="search-box">
+              <input type="text" id="email-search-input" placeholder="Search by email, company, role, recruiter...">
+            </div>
+          </div>
+
+          <!-- Emails Table -->
+          <div class="table-container">
+            <table class="data-table" id="recruiter-emails-table">
+              <thead>
+                <tr>
+                  <th>Recruiter / Company</th>
+                  <th>Email & Quick Outreach</th>
+                  <th>Role & Context Snippet</th>
+                  <th>Platform</th>
+                  <th>Status</th>
+                  <th>Discovered</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="recruiter-emails-table-body">
+                <tr class="empty-row">
+                  <td colspan="7">No recruiter emails discovered yet. As you run automation or browse jobs, any emails mentioned in postings will appear here automatically.</td>
                 </tr>
               </tbody>
             </table>
@@ -1372,7 +1497,7 @@ npm start
     </div>
 
     <!-- 1. Mark Applied Interactive Modal -->
-    <div id="mq-applied-modal" class="modal-overlay" style="display: none;">
+    <div id="mq-applied-modal" class="modal-backdrop" style="display: none;">
       <div class="modal-card">
         <div class="modal-header">
           <div>
@@ -1407,7 +1532,7 @@ npm start
     </div>
 
     <!-- 2. Add Opportunity Modal -->
-    <div id="mq-add-modal" class="modal-overlay" style="display: none;">
+    <div id="mq-add-modal" class="modal-backdrop" style="display: none;">
       <div class="modal-card">
         <div class="modal-header">
           <div>
@@ -1433,11 +1558,9 @@ npm start
             <div class="form-group">
               <label for="mq-add-platform">Source Platform:</label>
               <select id="mq-add-platform" class="form-input">
-                <option value="LinkedIn">LinkedIn</option>
-                <option value="Naukri">Naukri</option>
-                <option value="Career Website" selected>Career Website</option>
-                <option value="Foundit">Foundit</option>
-                <option value="Recruiter Outreach">Recruiter Outreach</option>
+                <option value="LinkedIn" selected>LinkedIn</option>
+                <option value="Direct Career Site">Direct Career Site</option>
+                <option value="Other">Other</option>
               </select>
             </div>
           </div>
@@ -1472,7 +1595,7 @@ npm start
     </div>
 
     <!-- 3. Notes Modal -->
-    <div id="mq-notes-modal" class="modal-overlay" style="display: none;">
+    <div id="mq-notes-modal" class="modal-backdrop" style="display: none;">
       <div class="modal-card">
         <div class="modal-header">
           <div>
@@ -1490,6 +1613,105 @@ npm start
         <div class="modal-footer">
           <button class="btn btn-secondary" id="btn-cancel-mq-notes-modal">Cancel</button>
           <button class="btn btn-primary" id="btn-confirm-mq-notes">Save Notes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Recruiter Outreach Composer Modal -->
+    <div id="email-outreach-modal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card modal-card-lg">
+        <div class="modal-header">
+          <div>
+            <h3>Recruiter Follow-Up Outreach Pitch</h3>
+            <p class="modal-subtitle" id="email-modal-subtitle">Direct candidate outreach tailored for Sai Krishna G</p>
+          </div>
+          <button class="modal-close-btn" id="btn-close-email-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Recipient:</label>
+            <div class="input-with-copy">
+              <input type="text" id="email-modal-recipient" class="form-input" readonly>
+              <button class="btn btn-micro" id="btn-copy-recipient" title="Copy email address">Copy</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Subject Line:</label>
+            <div class="input-with-copy">
+              <input type="text" id="email-modal-subject" class="form-input" readonly>
+              <button class="btn btn-micro" id="btn-copy-subject" title="Copy subject line">Copy</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Cold Email Body (Tailored Candidate Pitch):</label>
+            <textarea id="email-modal-body" class="form-input" rows="12" readonly style="font-family: inherit; font-size: 0.9rem; line-height: 1.5;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <button class="btn btn-secondary btn-sm" id="btn-mark-contacted-from-modal">Mark as Contacted</button>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary" id="btn-copy-full-pitch">Copy Full Pitch</button>
+            <a class="btn btn-primary" id="btn-open-mailto" target="_blank" rel="noopener">Open in Email App</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Manual Add Recruiter Email Modal -->
+    <div id="email-add-modal" class="modal-backdrop" style="display: none;">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h3>Add Recruiter Email Contact</h3>
+            <p class="modal-subtitle">Save a recruiter contact for automated follow-up tracking</p>
+          </div>
+          <button class="modal-close-btn" id="btn-close-email-add-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="email-add-input">Recruiter Email Address *:</label>
+            <input type="email" id="email-add-input" class="form-input" placeholder="e.g. recruiter@company.com" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email-add-name">Recruiter Name:</label>
+              <input type="text" id="email-add-name" class="form-input" placeholder="e.g. Priya Sharma">
+            </div>
+            <div class="form-group">
+              <label for="email-add-company">Company Name *:</label>
+              <input type="text" id="email-add-company" class="form-input" placeholder="e.g. Acme Corp" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email-add-job-title">Job Title:</label>
+              <input type="text" id="email-add-job-title" class="form-input" placeholder="e.g. Angular Developer">
+            </div>
+            <div class="form-group">
+              <label for="email-add-platform">Platform / Source:</label>
+              <select id="email-add-platform" class="form-input">
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Naukri">Naukri</option>
+                <option value="Foundit">Foundit</option>
+                <option value="Career Website">Career Website</option>
+                <option value="Direct Outreach">Direct Outreach</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email-add-url">Job Listing / Career Page URL:</label>
+            <input type="url" id="email-add-url" class="form-input" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label for="email-add-context">Context / How you found this contact:</label>
+            <textarea id="email-add-context" class="form-input" rows="2" placeholder="e.g. Found in job description requirements: 'share profile at...'"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-cancel-email-add-modal">Cancel</button>
+          <button class="btn btn-primary" id="btn-confirm-email-add">Save Contact</button>
         </div>
       </div>
     </div>

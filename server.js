@@ -165,6 +165,14 @@ if (orchestrator.manualQueue) {
   };
 }
 
+// Forward Recruiter Email events in real-time
+orchestrator.on('recruiter_email_found', (email) => {
+  broadcast('recruiter_email_found', email);
+});
+orchestrator.on('recruiter_email_updated', (email) => {
+  broadcast('recruiter_email_updated', email);
+});
+
 // REST API Endpoints
 
 // 1. System & Chrome Status
@@ -599,6 +607,8 @@ app.post('/api/manual-queue/update-status', (req, res) => {
     const result = orchestrator.manualQueue.updateStatus(id, status, reason);
     if (result.success) {
       broadcast('manual_queue_updated', { id, action: 'status_updated', item: result.item });
+      orchestrator.dataStore.recalculateSummary();
+      broadcast('state_changed', orchestrator.getSnapshot());
       res.json(result);
     } else {
       res.status(404).json(result);
@@ -635,7 +645,7 @@ app.post('/api/manual-queue/add', (req, res) => {
 
 // 12. Direct Career Site Automation Endpoint (PHASE 7 UPGRADES)
 const CareerSiteBot = require('./engine/career-site-bot');
-const careerSiteBot = new CareerSiteBot(orchestrator.chromeManager, orchestrator.aiAgent, settingsData, (lvl, tag, msg) => orchestrator.log(lvl, tag, msg));
+const careerSiteBot = new CareerSiteBot(orchestrator.chromeManager, orchestrator.aiAgent, settingsData, (lvl, tag, msg) => orchestrator.log(lvl, tag, msg), orchestrator.dataStore);
 
 app.post('/api/career-site/apply', async (req, res) => {
   try {
@@ -727,6 +737,91 @@ app.post('/api/career-site/apply', async (req, res) => {
     }
 
     res.json({ success: true, result, jobRecord });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 13. Recruiter Outreach & Email Tracking Endpoints
+app.get('/api/recruiter-emails', (req, res) => {
+  try {
+    const filters = {
+      status: req.query.status,
+      platform: req.query.platform,
+      search: req.query.search
+    };
+    const emails = orchestrator.dataStore.recruiterEmails.getAll(filters);
+    const stats = orchestrator.dataStore.recruiterEmails.getStats();
+    res.json({ success: true, emails, stats });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/recruiter-emails', (req, res) => {
+  try {
+    const { email, recruiterName, company, jobTitle, jobUrl, platform, context, notes } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email is required' });
+    }
+    const item = orchestrator.dataStore.recruiterEmails.addOrUpdate({
+      email,
+      recruiterName,
+      company,
+      jobTitle,
+      jobUrl,
+      platform: platform || 'Manual Entry',
+      context: context || 'Added manually by candidate',
+      notes
+    });
+    if (!item) {
+      return res.status(400).json({ success: false, error: 'Invalid or disallowed email address' });
+    }
+    broadcast('recruiter_email_found', item);
+    res.json({ success: true, item });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.patch('/api/recruiter-emails/:id', (req, res) => {
+  try {
+    const item = orchestrator.dataStore.recruiterEmails.update(req.params.id, req.body);
+    if (!item) {
+      return res.status(404).json({ success: false, error: 'Recruiter email not found' });
+    }
+    broadcast('recruiter_email_updated', item);
+    res.json({ success: true, item });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/recruiter-emails/:id', (req, res) => {
+  try {
+    const deleted = orchestrator.dataStore.recruiterEmails.delete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ success: false, error: 'Recruiter email not found' });
+    }
+    broadcast('recruiter_email_deleted', { id: req.params.id });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/recruiter-emails/:id/template', (req, res) => {
+  try {
+    const item = orchestrator.dataStore.recruiterEmails.getById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ success: false, error: 'Recruiter email not found' });
+    }
+    const templates = orchestrator.dataStore.recruiterEmails.generateOutreachTemplate({
+      jobTitle: item.jobTitle,
+      company: item.company,
+      recruiterName: item.recruiterName
+    });
+    res.json({ success: true, templates, template: templates, item });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

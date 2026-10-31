@@ -51,16 +51,18 @@ class ChromeManager {
       throw new Error(`Chrome executable not found at: ${execPath}`);
     }
 
-    // Dedicated automation profile in user home directory (guaranteed zero spaces)
+    // Dedicated profile from settings or user home directory
     const userHome = process.env.USERPROFILE || 'C:\\Users\\91868';
-    const automationProfileDir = path.join(userHome, '.autoapply-chrome-profile');
-    if (!fs.existsSync(automationProfileDir)) {
-      fs.mkdirSync(automationProfileDir, { recursive: true });
+    const profileDir = (this.settings.chrome?.userDataDir && fs.existsSync(this.settings.chrome.userDataDir))
+      ? this.settings.chrome.userDataDir
+      : path.join(userHome, '.autoapply-chrome-profile');
+    if (!fs.existsSync(profileDir)) {
+      fs.mkdirSync(profileDir, { recursive: true });
     }
 
     const args = [
       `--remote-debugging-port=${port}`,
-      `--user-data-dir=${automationProfileDir}`,
+      `--user-data-dir=${profileDir}`,
       '--no-first-run',
       '--no-default-browser-check',
       '--disable-background-timer-throttling',

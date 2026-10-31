@@ -47,9 +47,17 @@ test('ScreeningClassifier - Typed Question Classification & Answer Engine', asyn
     assert.equal(currentResult.intent, ScreeningClassifier.INTENTS.CURRENT_CTC);
     assert.ok(currentResult.answer.includes('3.8'));
 
+    const inrCurrent = ScreeningClassifier.classifyAndAnswer('Please enter your current ctc in INR* Please enter your current annual compensation in INR. Example: 200000', profile);
+    assert.equal(inrCurrent.intent, ScreeningClassifier.INTENTS.CURRENT_CTC);
+    assert.equal(inrCurrent.answer, '380000');
+
     const expectedResult = ScreeningClassifier.classifyAndAnswer('What is your expected CTC in LPA?', profile);
     assert.equal(expectedResult.intent, ScreeningClassifier.INTENTS.EXPECTED_CTC);
     assert.ok(expectedResult.answer.includes('10'));
+
+    const inrExpected = ScreeningClassifier.classifyAndAnswer('Please enter your expected ctc in INR* Please enter your expected annual compensation in INR. Example: 350000', profile);
+    assert.equal(inrExpected.intent, ScreeningClassifier.INTENTS.EXPECTED_CTC);
+    assert.equal(inrExpected.answer, '1000000');
 
     const numericExpected = ScreeningClassifier.classifyAndAnswer('Expected salary (numeric only)', profile, [], 'number');
     assert.equal(numericExpected.answer, '10');

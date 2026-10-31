@@ -16,6 +16,7 @@ class AIAgent {
     this.aiUnavailableUntil = 0;
     this.apiKeyIndex = 0;
     this.apiKeys = [];
+    this.keyCooldowns = new Map(); // apiKey -> timestampMs when cooldown expires
     this.answerCache = new Map(); // Cache to avoid duplicate API calls
     this.auditLogPath = path.join(__dirname, '..', 'config', 'qa_audit_log.json');
     this.unfilledQuestionsPath = path.join(__dirname, '..', 'config', 'unfilled_questions.json');
@@ -26,7 +27,9 @@ class AIAgent {
     this.onAuditCallback = null; // Callback for real-time WebSocket broadcast
     this.onUnfilledCallback = null; // Callback for real-time unfilled questions broadcast
     this.onTelemetryCallback = null; // Callback for real-time live Gemini API telemetry broadcast
-    this.activeModelName = this.settings?.ai?.model || 'gemini-3.5-flash';
+    this.activeModelName = (this.settings?.ai?.model && this.settings.ai.model !== 'gemini-2.5-flash')
+      ? this.settings.ai.model
+      : 'gemini-3.5-flash';
 
     // Live Gemini API Telemetry State for Real-Time Dashboard Visibility
     this.apiLiveTelemetry = {
@@ -55,6 +58,38 @@ class AIAgent {
     this.initializeGemini();
   }
 
+  isKeyAvailable(key) {
+    if (!key) return false;
+    const cooldownUntil = this.keyCooldowns.get(key);
+    if (!cooldownUntil) return true;
+    return Date.now() >= cooldownUntil;
+  }
+
+  markKeyThrottled(key, error) {
+    if (!key) return;
+    const retrySeconds = Number((error?.message || '').match(/retryDelay[^\d]*(\d+)s/i)?.[1]);
+    // Cap cooldown to 10 minutes max per key so it auto-recovers quickly instead of waiting 13+ hours
+    const cooldownMs = (retrySeconds > 0 && retrySeconds < 600)
+      ? retrySeconds * 1000
+      : (retrySeconds >= 600 ? 10 * 60 * 1000 : 5 * 60 * 1000);
+
+    const until = Date.now() + cooldownMs;
+    this.keyCooldowns.set(key, until);
+    console.warn(`[AIAgent] Key ${key.slice(0, 8)}... marked cooling down for ${Math.ceil(cooldownMs / 1000)}s.`);
+
+    // If ALL keys in pool are cooling down, calculate soonest available time for telemetry
+    if (!this.hasAnyAvailableKey()) {
+      const expiries = Array.from(this.keyCooldowns.values());
+      this.aiUnavailableUntil = Math.min(...expiries);
+      this._updateTelemetry({ status: 'throttled' });
+    }
+  }
+
+  hasAnyAvailableKey() {
+    if (!this.apiKeys || this.apiKeys.length === 0) return false;
+    return this.apiKeys.some(key => this.isKeyAvailable(key));
+  }
+
   _updateTelemetry(patch = {}, emit = true) {
     if (patch.status) this.apiLiveTelemetry.status = patch.status;
     if (patch.stats) Object.assign(this.apiLiveTelemetry.stats, patch.stats);
@@ -76,7 +111,8 @@ class AIAgent {
     this.apiLiveTelemetry.activeKeySnippet = currentKey ? `${currentKey.slice(0, 8)}...${currentKey.slice(-4)}` : 'None';
 
     const now = Date.now();
-    if (this.aiUnavailableUntil > now) {
+    const anyAvailable = this.hasAnyAvailableKey();
+    if (!anyAvailable && this.aiUnavailableUntil > now) {
       this.apiLiveTelemetry.isThrottled = true;
       this.apiLiveTelemetry.throttledUntil = new Date(this.aiUnavailableUntil).toISOString();
       this.apiLiveTelemetry.cooldownRemainingSeconds = Math.ceil((this.aiUnavailableUntil - now) / 1000);
@@ -97,7 +133,8 @@ class AIAgent {
 
   getLiveTelemetry() {
     const now = Date.now();
-    const isThrottled = this.aiUnavailableUntil > now;
+    const anyAvailable = this.hasAnyAvailableKey();
+    const isThrottled = !anyAvailable && this.aiUnavailableUntil > now;
     return {
       ...this.apiLiveTelemetry,
       isThrottled,
@@ -120,21 +157,31 @@ class AIAgent {
     ];
     this.apiKeys = [...new Set([...environmentKeys, ...configuredKeys]
       .map(key => String(key || '').trim()).filter(Boolean))];
-    const apiKey = this.apiKeys[this.apiKeyIndex % this.apiKeys.length];
-    if (!apiKey) {
+
+    if (this.apiKeys.length === 0) {
       console.warn('[AIAgent] No Gemini API key set. AI will use local fallback until a key is configured.');
       this.isInitialized = false;
       this._updateTelemetry({ status: 'idle' });
       return;
     }
 
+    // Auto-advance to first available healthy key if current key is cooling down
+    const currentKey = this.apiKeys[this.apiKeyIndex % this.apiKeys.length];
+    if (!this.isKeyAvailable(currentKey)) {
+      for (let i = 0; i < this.apiKeys.length; i++) {
+        if (this.isKeyAvailable(this.apiKeys[i])) {
+          this.apiKeyIndex = i;
+          break;
+        }
+      }
+    }
+
+    const apiKey = this.apiKeys[this.apiKeyIndex % this.apiKeys.length];
     try {
       this.genAI = new GoogleGenerativeAI(apiKey);
       const configuredModel = preferredModel || this.settings?.ai?.model || 'gemini-3.5-flash';
-      // If we are rotating to key 2, 3, 4, default to gemini-3.5-flash which is universally supported
-      const modelName = (this.apiKeyIndex > 0 && configuredModel === 'gemini-2.5-flash')
-        ? 'gemini-3.5-flash'
-        : configuredModel;
+      // Upgrade any gemini-2.5-flash to gemini-3.5-flash
+      const modelName = configuredModel === 'gemini-2.5-flash' ? 'gemini-3.5-flash' : configuredModel;
       this.activeModelName = modelName;
 
       this.model = this.genAI.getGenerativeModel({
@@ -164,50 +211,93 @@ class AIAgent {
     return /\b(?:wsarecv|connection.*closed|forcibly closed|socket hang up|ECONNRESET|ETIMEDOUT|stream reading error|fetch failed|network|ENOTFOUND|unreachable)\b/i.test(error?.message || '');
   }
 
-  _rotateGeminiKey() {
-    if (this.apiKeys.length < 2) return false;
-    this.apiKeyIndex = (this.apiKeyIndex + 1) % this.apiKeys.length;
+  _rotateGeminiKey(targetIndex = null) {
+    if (!this.apiKeys || this.apiKeys.length === 0) return false;
+    if (this.apiKeys.length === 1 && targetIndex === null) return false;
+
+    if (targetIndex !== null && targetIndex >= 0 && targetIndex < this.apiKeys.length) {
+      this.apiKeyIndex = targetIndex;
+    } else {
+      // Find the next available key that isn't cooling down
+      let nextIdx = (this.apiKeyIndex + 1) % this.apiKeys.length;
+      for (let i = 0; i < this.apiKeys.length; i++) {
+        const candidateIdx = (this.apiKeyIndex + 1 + i) % this.apiKeys.length;
+        if (this.isKeyAvailable(this.apiKeys[candidateIdx])) {
+          nextIdx = candidateIdx;
+          break;
+        }
+      }
+      this.apiKeyIndex = nextIdx;
+    }
+
     this.chatSession = null;
     this.isInitialized = false;
     this.initializeGemini();
     return this.isInitialized;
   }
 
-  async _sendGeminiMessage(prompt, retryCount = 0) {
-    try {
-      const chat = await this._getChatSession();
-      return await chat.sendMessage(prompt);
-    } catch (error) {
-      console.warn(`[AIAgent] Gemini API send error (attempt ${retryCount + 1}):`, error.message);
+  async _sendGeminiMessage(prompt) {
+    const totalKeys = Math.max(1, this.apiKeys.length);
+    let lastError = null;
 
-      // 1. If socket connection was closed / stream reading error / wsarecv:
-      // Reset chatSession so a clean TLS connection is established, and retry
-      if (this._isNetworkOrConnectionError(error) && retryCount < 2) {
-        console.warn('[AIAgent] Transient socket/network reset by remote host (wsarecv). Rebuilding session and retrying in 1.5s...');
-        this.chatSession = null;
-        await new Promise(r => setTimeout(r, 1500));
-        return this._sendGeminiMessage(prompt, retryCount + 1);
+    for (let keyAttempt = 0; keyAttempt < totalKeys; keyAttempt++) {
+      const currentKey = this.apiKeys[this.apiKeyIndex % this.apiKeys.length];
+
+      // If current key is cooling down, advance to next available key
+      if (!this.isKeyAvailable(currentKey)) {
+        const rotated = this._rotateGeminiKey();
+        if (!rotated && !this.hasAnyAvailableKey()) {
+          break; // All keys cooling down
+        }
       }
 
-      // 2. If 503 high demand or 404 model not found, try the alternate model
-      const altModel = this.activeModelName === 'gemini-2.5-flash' ? 'gemini-3.5-flash' : 'gemini-2.5-flash';
-      if ((/503|high demand|temporarily unavailable|unreachable/i.test(error?.message || '') ||
-           /404|no longer available|not found/i.test(error?.message || '')) && retryCount < 2) {
-        console.warn(`[AIAgent] Model ${this.activeModelName} unavailable (${(error.message || '').slice(0, 50)}); auto-switching to alternate ${altModel}...`);
-        this.chatSession = null;
-        this.initializeGemini(altModel);
-        return this._sendGeminiMessage(prompt, retryCount + 1);
-      }
+      const activeKeyToUse = this.apiKeys[this.apiKeyIndex % this.apiKeys.length];
 
-      // 3. If quota or throttle error, attempt rotating to next key in pool
-      if (this._isGeminiThrottleError(error) && this._rotateGeminiKey()) {
-        console.warn('[AIAgent] Gemini quota/capacity issue; retrying with the next configured key.');
-        const chat = await this._getChatSession();
-        return await chat.sendMessage(prompt);
-      }
+      // Try calling with current key (allow 1 quick retry for transient socket reset)
+      let networkRetryCount = 0;
+      while (networkRetryCount <= 1) {
+        try {
+          const chat = await this._getChatSession();
+          if (!chat) throw new Error('Chat session not initialized');
+          return await chat.sendMessage(prompt);
+        } catch (error) {
+          lastError = error;
+          this.chatSession = null; // Clear session so next attempt starts clean
 
-      throw error;
+          const isThrottle = this._isGeminiThrottleError(error);
+          const isNetwork = this._isNetworkOrConnectionError(error);
+          const isModelNotFound = /404|no longer available|not found/i.test(error?.message || '');
+
+          if (isNetwork && networkRetryCount === 0) {
+            networkRetryCount++;
+            console.warn(`[AIAgent] Transient socket reset on key ${this.apiKeyIndex + 1}. Rebuilding session and retrying in 500ms...`);
+            await new Promise(r => setTimeout(r, 500));
+            continue;
+          }
+
+          if (isThrottle) {
+            this.markKeyThrottled(activeKeyToUse, error);
+            console.warn(`[AIAgent] Gemini key ${this.apiKeyIndex + 1}/${this.apiKeys.length} throttled (429/quota). Rotating to next key immediately...`);
+          } else if (isModelNotFound) {
+            console.warn(`[AIAgent] Model ${this.activeModelName} not supported on key ${this.apiKeyIndex + 1}. Upgrading to gemini-3.5-flash...`);
+            this.activeModelName = 'gemini-3.5-flash';
+            this.markKeyThrottled(activeKeyToUse, error);
+          } else {
+            console.warn(`[AIAgent] Gemini call failed on key ${this.apiKeyIndex + 1}: ${error.message.slice(0, 80)}. Trying next key...`);
+          }
+
+          // If there are more keys to try, rotate to the next key and break inner loop
+          if (this.apiKeys.length > 1 && keyAttempt < totalKeys - 1) {
+            this._rotateGeminiKey();
+            break;
+          }
+
+          break;
+        }
+      }
     }
+
+    throw lastError || new Error('All Gemini API keys exhausted or cooling down');
   }
 
   updateProfileAndSettings(profile, settings) {
@@ -421,7 +511,7 @@ Always respond in this exact JSON format only, no markdown, no extra text:
       finalResult = localResult;
       engine = hasProfileRule ? 'Verified Memory Rule' : 'Local Rule';
       reasoning = localResult.source;
-    } else if (this.isInitialized && Date.now() >= this.aiUnavailableUntil) {
+    } else if (this.isInitialized && (this.hasAnyAvailableKey() || Date.now() >= this.aiUnavailableUntil)) {
       // 4. Low-confidence or unknown question → Escalate to Gemini AI
       const callStart = Date.now();
       const candidateKb = this.loadCandidateKnowledgeBase();
@@ -535,12 +625,15 @@ Always respond in this exact JSON format only, no markdown, no extra text:
         if (isThrottle) this.apiLiveTelemetry.stats.throttledCalls++;
 
         if (isThrottle) {
-          const retrySeconds = Number((aiErr.message || '').match(/retryDelay[^\d]*(\d+)s/i)?.[1]);
-          const cooldownMs = retrySeconds > 0
-            ? Math.min(retrySeconds * 1000, 24 * 60 * 60 * 1000)
-            : 10 * 60 * 1000;
-          this.aiUnavailableUntil = Date.now() + cooldownMs;
-          console.warn(`[AIAgent] Gemini temporarily paused for ${Math.ceil(cooldownMs / 60000)} minutes.`);
+          // If all keys are cooling down, compute the soonest remaining cooldown
+          let minCooldownMs = 5 * 60 * 1000;
+          if (this.keyCooldowns.size > 0) {
+            const expiries = Array.from(this.keyCooldowns.values());
+            const soonest = Math.min(...expiries);
+            minCooldownMs = Math.max(5000, soonest - Date.now());
+          }
+          this.aiUnavailableUntil = Date.now() + minCooldownMs;
+          console.warn(`[AIAgent] All Gemini keys cooling down. Resuming immediately with local knowledge base fallback (cooldown: ${Math.ceil(minCooldownMs / 1000)}s).`);
         }
 
         this._updateTelemetry({
@@ -1802,14 +1895,22 @@ Respond in this JSON format only:
 
   // Reset rate-limit cooldown so user can force immediate retry
   resetCooldown() {
+    this.keyCooldowns.clear();
     this.aiUnavailableUntil = 0;
+    this.apiKeyIndex = 0;
+    this.chatSession = null;
+    this.initializeGemini('gemini-3.5-flash');
     this._updateTelemetry({
       status: 'idle',
       isThrottled: false,
-      throttledUntil: null
+      throttledUntil: null,
+      cooldownRemainingSeconds: 0
     });
-    console.log('[AIAgent] Gemini API rate-limit cooldown manually reset.');
-    return { success: true, message: 'Gemini rate-limit cooldown reset. Ready for next call.' };
+    console.log(`[AIAgent] Gemini API rate-limit cooldown reset across all ${this.apiKeys.length} keys.`);
+    return {
+      success: true,
+      message: `Gemini rate-limit cooldown reset across all ${this.apiKeys.length} keys. Active key: 1/${this.apiKeys.length} (${this.activeModelName}).`
+    };
   }
 
   // Interactive diagnostic test to verify Gemini API connection and view prompt/response
@@ -1817,6 +1918,16 @@ Respond in this JSON format only:
     const q = (sampleQuestion || '').trim() || 'How many years of experience do you have with Angular and Java?';
     this.aiUnavailableUntil = 0; // Clear throttle for intentional user tests
     
+    // If active key is currently marked cooling down, advance to next available key or clear cooldown
+    const currentKey = this.apiKeys[this.apiKeyIndex % this.apiKeys.length];
+    if (!this.isKeyAvailable(currentKey)) {
+      if (this.hasAnyAvailableKey()) {
+        this._rotateGeminiKey();
+      } else {
+        this.keyCooldowns.clear();
+      }
+    }
+
     // Clear cache for this test so it always hits Gemini
     const cacheKeyPattern = q.toLowerCase();
     for (const k of this.answerCache.keys()) {

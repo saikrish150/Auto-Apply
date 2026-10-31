@@ -32,6 +32,10 @@
       "Angular Developer",
       "Java Developer",
       "Java Full Stack Developer",
+      "Java Backend Developer",
+      "Backend Developer",
+      "Software Engineer",
+      "Software Developer",
       "Frontend Developer",
       "Full Stack Developer"
     ],
@@ -41,15 +45,15 @@
     "currentDesignation": "Full Stack Developer",
     "currentSalaryLPA": 4.1,
     "currentSalaryFormatted": "4.10 LPA",
-    "expectedSalaryLPA": 10.0,
-    "expectedSalaryFormatted": "10.00 LPA - 11.00 LPA",
-    "minimumSalaryLPA": 9.0,
+    "expectedSalaryLPA": 10,
+    "expectedSalaryFormatted": "10.00 LPA",
+    "minimumSalaryLPA": 9,
     "monthlyInHandExpectation": 80000,
     "officialNoticePeriodDays": 30,
     "negotiableNoticePeriodDays": 30,
     "noticePeriodDays": 30,
     "currentlyServingNotice": true,
-    "noticePeriodDescription": "30 days official notice (Currently serving notice)",
+    "noticePeriodDescription": "30 days official (30 days negotiable)",
     "willingToRelocate": true,
     "preferredLocations": [
       "Hyderabad",
@@ -195,6 +199,69 @@
     "Certified in Angular & Spring Boot Development (Udemy)"
   ],
   "screeningQA": [
+    {
+      "pattern": "financial.*expectations.*monthly.*gross",
+      "answerType": "fixed",
+      "defaultAnswer": "80000",
+      "notes": "Learned from screening Q: \"What are your financial expectations (monthly gross)?\"",
+      "updatedAt": "2026-10-31T06:55:45.804Z"
+    },
+    {
+      "pattern": "scale.*1–10.*how.*would",
+      "answerType": "fixed",
+      "defaultAnswer": "2",
+      "notes": "Learned from screening Q: \"On a scale of 1–10, how would you rate your expertise in Pyt\"",
+      "updatedAt": "2026-10-31T06:55:37.005Z"
+    },
+    {
+      "pattern": "how.*many.*projects.*from",
+      "answerType": "fixed",
+      "defaultAnswer": "2",
+      "notes": "Learned from screening Q: \"How many projects from scratch have you built?\"",
+      "updatedAt": "2026-10-31T06:55:33.083Z"
+    },
+    {
+      "pattern": "preferred.*job.*location",
+      "answerType": "fixed",
+      "defaultAnswer": "Hyderabad",
+      "notes": "Learned from screening Q: \"Your Preferred Job Location\"",
+      "updatedAt": "2026-10-31T06:55:28.070Z"
+    },
+    {
+      "pattern": "official",
+      "answerType": "fixed",
+      "defaultAnswer": "30",
+      "notes": "Learned from screening Q: \"What is your official NP?\"",
+      "updatedAt": "2026-10-31T06:55:21.426Z"
+    },
+    {
+      "pattern": "available.*interview.*virtual",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes",
+      "notes": "Learned from screening Q: \"Are you available for a interview?(virtual)\"",
+      "updatedAt": "2026-10-29T16:31:57.956Z"
+    },
+    {
+      "pattern": "did.*work.*with.*infosys",
+      "answerType": "fixed",
+      "defaultAnswer": "No",
+      "notes": "Learned from screening Q: \"Did You work with Infosys?\"",
+      "updatedAt": "2026-10-29T16:31:47.422Z"
+    },
+    {
+      "pattern": "select.*city.*currently.*residing",
+      "answerType": "fixed",
+      "defaultAnswer": "Hyderabad",
+      "notes": "Learned from screening Q: \"Please select the city you are currently residing or willing\"",
+      "updatedAt": "2026-10-29T16:31:31.287Z"
+    },
+    {
+      "pattern": "(?:years|experience).*(?:with|in|using|on)?\\s*react|react.*(?:years|experience)",
+      "answerType": "fixed",
+      "defaultAnswer": "3",
+      "notes": "Learned from screening Q: \"How many years of experience do you have in React/Angular?\"",
+      "updatedAt": "2026-10-29T16:31:18.170Z"
+    },
     {
       "pattern": "example.*https//www.linkedin.com/in/your-name",
       "answerType": "fixed",
