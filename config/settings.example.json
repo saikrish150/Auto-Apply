@@ -2,7 +2,8 @@
   "platforms": {
     "linkedin": true,
     "naukri": true,
-    "foundit": true
+    "foundit": true,
+    "instahyre": true
   },
   "search": {
     "keywords": "Full Stack Developer, Java Spring Boot Developer, Angular Developer",

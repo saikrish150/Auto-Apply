@@ -31,6 +31,7 @@ class DataStore {
         LinkedIn: 0,
         Naukri: 0,
         Foundit: 0,
+        Instahyre: 0,
         'Career Website': 0
       },
       byStatus: {},
@@ -425,6 +426,10 @@ class DataStore {
       const st = String(app.status || app.normalizedStatus || '').toLowerCase();
       const isAppliedStatus = st.includes('applied') || st.includes('submitted') || st.includes('confirmed');
       if (!isAppliedStatus) continue;
+
+      if (app.id) {
+        keys.add(app.id);
+      }
 
       if (app.url) {
         const norm = ManualQueueService.normalizeJobUrl(app.url);

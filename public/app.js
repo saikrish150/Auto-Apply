@@ -41,6 +41,7 @@ class AutoApplyApp {
     this.chipLinkedIn = document.getElementById('chip-linkedin');
     this.chipNaukri = document.getElementById('chip-naukri');
     this.chipFoundit = document.getElementById('chip-foundit');
+    this.chipInstahyre = document.getElementById('chip-instahyre');
     this.btnCareerAutofill = document.getElementById('btn-career-autofill');
 
     // Stats
@@ -471,6 +472,17 @@ class AutoApplyApp {
         this.chipFoundit.classList.toggle('active');
         if (this.settings) {
           this.settings.platforms.foundit = this.chipFoundit.classList.contains('active');
+          this.updateSettingsOnServer();
+        }
+      });
+    }
+
+    if (this.chipInstahyre) {
+      this.chipInstahyre.addEventListener('click', () => {
+        this.chipInstahyre.classList.toggle('active');
+        if (this.settings) {
+          if (!this.settings.platforms) this.settings.platforms = {};
+          this.settings.platforms.instahyre = this.chipInstahyre.classList.contains('active');
           this.updateSettingsOnServer();
         }
       });
@@ -1595,6 +1607,9 @@ class AutoApplyApp {
     if (s.platforms?.foundit) this.chipFoundit?.classList.add('active');
     else this.chipFoundit?.classList.remove('active');
 
+    if (s.platforms?.instahyre) this.chipInstahyre?.classList.add('active');
+    else this.chipInstahyre?.classList.remove('active');
+
     if (this.selectDatePosted) {
       this.selectDatePosted.value = s.search?.datePosted || 'past_24h';
     }
@@ -1644,7 +1659,8 @@ class AutoApplyApp {
       platforms: {
         linkedin: this.chipLinkedIn.classList.contains('active'),
         naukri: this.chipNaukri.classList.contains('active'),
-        foundit: this.chipFoundit ? this.chipFoundit.classList.contains('active') : false
+        foundit: this.chipFoundit ? this.chipFoundit.classList.contains('active') : false,
+        instahyre: this.chipInstahyre ? this.chipInstahyre.classList.contains('active') : false
       },
       search: {
         keywords: document.getElementById('sett-keywords').value.trim(),
@@ -2036,6 +2052,7 @@ class AutoApplyApp {
       if (platLower.includes('linkedin')) platClass = 'platform-linkedin';
       else if (platLower.includes('naukri')) platClass = 'platform-naukri';
       else if (platLower.includes('foundit')) platClass = 'platform-foundit';
+      else if (platLower.includes('instahyre')) platClass = 'platform-instahyre';
 
       // Format time
       const timeStr = item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent';

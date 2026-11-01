@@ -26,6 +26,7 @@ class RecruiterEmailsService extends EventEmitter {
       'linkedin.com',
       'naukri.com',
       'foundit.in',
+      'instahyre.com',
       'cloudflare.com',
       'facebook.com',
       'twitter.com',

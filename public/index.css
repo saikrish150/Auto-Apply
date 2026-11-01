@@ -31,6 +31,7 @@
   --linkedin-color: #0a66c2;
   --naukri-color: #275df5;
   --foundit-color: #f97316;
+  --instahyre-color: #00c07c;
 
   /* Shadows & Glassmorphism */
   --glass-blur: blur(16px);
@@ -221,6 +222,7 @@ body {
 .dot-linkedin { background-color: var(--linkedin-color); }
 .dot-naukri { background-color: var(--naukri-color); }
 .dot-foundit { background-color: var(--foundit-color); }
+.dot-instahyre { background-color: var(--instahyre-color); box-shadow: 0 0 8px rgba(0, 192, 124, 0.4); }
 .dot-career-website { background-color: #ec4899; box-shadow: 0 0 8px rgba(236, 72, 153, 0.4); }
 
 @keyframes pulse-glow {
@@ -1693,6 +1695,15 @@ input:checked + .slider:before {
   background: rgba(249, 115, 22, 0.2);
   color: #fb923c;
   border: 1px solid rgba(249, 115, 22, 0.4);
+}
+
+.qa-platform-badge.platform-instahyre,
+.qa-platform-badge.qa-platform-instahyre,
+.platform-badge.platform-instahyre,
+.modal-badge-platform.platform-instahyre {
+  background: rgba(0, 192, 124, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(0, 192, 124, 0.4);
 }
 
 .qa-platform-badge.platform-tester {

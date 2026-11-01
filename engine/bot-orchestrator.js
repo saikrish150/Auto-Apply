@@ -3,6 +3,7 @@ const AIAgent = require('./ai-agent');
 const LinkedInBot = require('./linkedin-bot');
 const NaukriBot = require('./naukri-bot');
 const FounditBot = require('./foundit-bot');
+const InstahyreBot = require('./instahyre-bot');
 const DataStore = require('./data-store');
 const EventEmitter = require('events');
 
@@ -62,6 +63,7 @@ class BotOrchestrator extends EventEmitter {
     this.linkedInBot = null;
     this.naukriBot = null;
     this.founditBot = null;
+    this.instahyreBot = null;
   }
 
   updateConfig(profile, settings) {
@@ -130,6 +132,7 @@ class BotOrchestrator extends EventEmitter {
     if (this.linkedInBot) this.linkedInBot.stop();
     if (this.naukriBot) this.naukriBot.stop();
     if (this.founditBot) this.founditBot.stop();
+    if (this.instahyreBot) this.instahyreBot.stop();
     this.emit('state_changed', { state: this.state });
     this.log('warning', 'Orchestrator', 'Stopping automation session...');
     
@@ -201,6 +204,20 @@ class BotOrchestrator extends EventEmitter {
       );
 
       await this.founditBot.run((job) => this.handleJobProcessed(job));
+    }
+
+    // 4. Run Instahyre if enabled
+    if (this.settings.platforms?.instahyre && this.state === 'running') {
+      this.log('info', 'Instahyre', 'Starting Instahyre Curated Tech 1-Click Apply automation...');
+      this.instahyreBot = new InstahyreBot(
+        this.chromeManager,
+        this.aiAgent,
+        this.settings,
+        (lvl, tag, msg) => this.log(lvl, tag, msg),
+        this.dataStore
+      );
+
+      await this.instahyreBot.run((job) => this.handleJobProcessed(job));
     }
 
     this.log('success', 'Orchestrator', 'AutoApply session completed all target platforms.');
@@ -293,6 +310,14 @@ class BotOrchestrator extends EventEmitter {
           { q: 'Why are you interested in this role?', type: 'text' },
           { q: 'Do you require visa sponsorship?', type: 'radio', options: ['Yes', 'No'] }
         ]
+      },
+      {
+        platform: 'Instahyre',
+        title: 'Full Stack Engineer - Java & Angular',
+        company: 'PhonePe',
+        location: 'Bengaluru / Hyderabad',
+        description: 'Building high throughput payments platform. Core stack: Java 17, Spring Boot, Microservices, Angular, MySQL, Kafka, Redis. 1-4 years experience.',
+        questions: []
       }
     ];
 
