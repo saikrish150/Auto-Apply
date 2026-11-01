@@ -845,6 +845,25 @@ app.get('/api/recruiter-emails/:id/template', (req, res) => {
   }
 });
 
+// Scan LinkedIn Hiring Posts for Recruiter Outreach
+app.post('/api/recruiter-emails/scan-posts', async (req, res) => {
+  try {
+    const { queries } = req.body || {};
+    const result = await orchestrator.scanLinkedInPosts(queries);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/recruiter-emails/scan-posts/status', (req, res) => {
+  res.json({
+    success: true,
+    isScanning: !!orchestrator.linkedInPostsScanner,
+    stats: orchestrator.dataStore.recruiterEmails ? orchestrator.dataStore.recruiterEmails.getStats() : {}
+  });
+});
+
 // Start Server on loopback interface
 server.listen(PORT, HOST, () => {
   console.log(`======================================================`);

@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const CareerSiteBot = require('./career-site-bot');
+const LinkedInPostsScanner = require('./linkedin-posts-scanner');
 
 class LinkedInBot {
   constructor(chromeManager, aiAgent, settings, logger, dataStore = null) {
@@ -12,6 +13,7 @@ class LinkedInBot {
     this.shouldStop = false;
     this.seenJobKeys = new Set();
     this.careerSiteBot = new CareerSiteBot(chromeManager, aiAgent, settings, logger, dataStore);
+    this.postsScanner = null;
     this.resumePath = this.resolveResumePath();
   }
 
@@ -95,6 +97,21 @@ class LinkedInBot {
 
   stop() {
     this.shouldStop = true;
+    if (this.postsScanner) {
+      this.postsScanner.stop();
+    }
+  }
+
+  async scanHiringPosts(page = null) {
+    this.postsScanner = new LinkedInPostsScanner(
+      this.chrome,
+      this.ai,
+      this.settings,
+      this.logger,
+      this.dataStore,
+      this.dataStore?.recruiterEmails
+    );
+    return await this.postsScanner.scanPosts(page);
   }
 
   // Helper for human-like delay
@@ -723,6 +740,20 @@ class LinkedInBot {
             }
           }
         }
+      }
+
+      // Phase 3: LinkedIn Hiring Posts Recruiter Outreach Scanner
+      if (!this.shouldStop && this.settings.automation?.scanLinkedInPosts !== false) {
+        this.logger('info', 'LinkedIn', 'Starting LinkedIn Hiring Posts Recruiter Outreach Scanner phase...');
+        this.postsScanner = new LinkedInPostsScanner(
+          this.chrome,
+          this.ai,
+          this.settings,
+          this.logger,
+          this.dataStore,
+          this.dataStore?.recruiterEmails
+        );
+        await this.postsScanner.scanPosts(page);
       }
 
       return { success: true, totalProcessedCount };

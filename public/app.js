@@ -258,6 +258,7 @@ class AutoApplyApp {
     this.emailSearchInput = document.getElementById('email-search-input');
     this.btnRefreshEmails = document.getElementById('btn-refresh-emails');
     this.btnAddRecruiterEmail = document.getElementById('btn-add-recruiter-email');
+    this.btnScanLinkedInPosts = document.getElementById('btn-scan-linkedin-posts');
 
     // Email Outreach Modal
     this.emailOutreachModal = document.getElementById('email-outreach-modal');
@@ -369,6 +370,9 @@ class AutoApplyApp {
     });
 
     // Recruiter Outreach Toolbar & Modal Events
+    if (this.btnScanLinkedInPosts) {
+      this.btnScanLinkedInPosts.addEventListener('click', () => this.scanLinkedInHiringPosts());
+    }
     if (this.btnRefreshEmails) {
       this.btnRefreshEmails.addEventListener('click', () => this.loadRecruiterEmails());
     }
@@ -812,6 +816,15 @@ class AutoApplyApp {
 
       case 'ai_telemetry_updated':
         this.updateAiTelemetryUI(data);
+        break;
+
+      case 'recruiter_email_found':
+        this.loadRecruiterEmails();
+        this.showToast(`✨ Found recruiter contact: ${data.email} (${data.company || 'Employer'})!`, 'success');
+        break;
+
+      case 'recruiter_email_updated':
+        this.loadRecruiterEmails();
         break;
     }
   }
@@ -3245,6 +3258,47 @@ class AutoApplyApp {
       }
     } catch (err) {
       this.showToast(`Error updating status: ${err.message}`, 'error');
+    }
+  }
+
+  async scanLinkedInHiringPosts() {
+    if (!this.btnScanLinkedInPosts) return;
+    const btn = this.btnScanLinkedInPosts;
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:6px;"></span> Scanning LinkedIn Posts...`;
+    this.showToast('🔍 Scanning latest LinkedIn posts for Angular & Java recruiter emails...', 'info');
+
+    try {
+      const res = await fetch('/api/recruiter-emails/scan-posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      }).then(r => r.json());
+
+      if (res.success) {
+        this.showToast('✅ LinkedIn hiring posts scan initiated! Live emails will appear below as found.', 'success');
+        let pollCount = 0;
+        const pollTimer = setInterval(async () => {
+          pollCount++;
+          const statusRes = await fetch('/api/recruiter-emails/scan-posts/status').then(r => r.json()).catch(() => ({}));
+          await this.loadRecruiterEmails();
+          if (!statusRes?.isScanning || pollCount >= 30) {
+            clearInterval(pollTimer);
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+            this.showToast('LinkedIn posts scanner completed.', 'info');
+          }
+        }, 3000);
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+        this.showToast(`Error: ${res.message || res.error}`, 'error');
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+      this.showToast(`Error starting scanner: ${err.message}`, 'error');
     }
   }
 

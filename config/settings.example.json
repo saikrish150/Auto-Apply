@@ -31,7 +31,8 @@
     "humanDelayMinMs": 1800,
     "humanDelayMaxMs": 3500,
     "skipAlreadyApplied": true,
-    "requireResumeUpload": false
+    "requireResumeUpload": false,
+    "scanLinkedInPosts": true
   },
   "chrome": {
     "port": 9222,

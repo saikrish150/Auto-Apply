@@ -64,6 +64,7 @@ class BotOrchestrator extends EventEmitter {
     this.naukriBot = null;
     this.founditBot = null;
     this.instahyreBot = null;
+    this.linkedInPostsScanner = null;
   }
 
   updateConfig(profile, settings) {
@@ -133,6 +134,7 @@ class BotOrchestrator extends EventEmitter {
     if (this.naukriBot) this.naukriBot.stop();
     if (this.founditBot) this.founditBot.stop();
     if (this.instahyreBot) this.instahyreBot.stop();
+    if (this.linkedInPostsScanner) this.linkedInPostsScanner.stop();
     this.emit('state_changed', { state: this.state });
     this.log('warning', 'Orchestrator', 'Stopping automation session...');
     
@@ -140,6 +142,43 @@ class BotOrchestrator extends EventEmitter {
       this.state = 'idle';
       this.emit('state_changed', { state: this.state });
     }, 1000);
+  }
+
+  async scanLinkedInPosts(customQueries = null) {
+    const isSim = this.settings.automation?.simulationMode;
+
+    if (!isSim && !this.chromeManager.isConnected) {
+      try {
+        await this.chromeManager.connect();
+      } catch (err) {
+        return { success: false, message: `Could not connect to Chrome on port 9222: ${err.message}` };
+      }
+    }
+
+    const LinkedInPostsScanner = require('./linkedin-posts-scanner');
+    this.linkedInPostsScanner = new LinkedInPostsScanner(
+      this.chromeManager,
+      this.aiAgent,
+      this.settings,
+      (lvl, tag, msg) => this.log(lvl, tag, msg),
+      this.dataStore,
+      this.recruiterEmails
+    );
+
+    if (customQueries && Array.isArray(customQueries) && customQueries.length > 0) {
+      this.linkedInPostsScanner.getTargetQueries = () => customQueries;
+    }
+
+    // Run scanner asynchronously
+    this.linkedInPostsScanner.scanPosts().then((emails) => {
+      this.log('success', 'RecruiterOutreach', `Finished LinkedIn posts scan. Discovered ${emails.length} recruiter contacts.`);
+      this.linkedInPostsScanner = null;
+    }).catch(err => {
+      this.log('error', 'RecruiterOutreach', `LinkedIn posts scanner error: ${err.message}`);
+      this.linkedInPostsScanner = null;
+    });
+
+    return { success: true, message: 'LinkedIn hiring posts scan initiated.' };
   }
 
   async runPipeline() {
@@ -383,11 +422,22 @@ class BotOrchestrator extends EventEmitter {
       await new Promise(r => setTimeout(r, 1200));
       jobRecord.status = 'applied (simulated)';
       this.log('success', mock.platform, `Application successfully simulated for "${mock.title}" at ${mock.company}!`);
-      this.handleJobProcessed(jobRecord);
       await new Promise(r => setTimeout(r, 2000));
     }
 
-    this.log('success', 'Simulation', 'Completed simulation sequence. Review results in the Job History tab.');
+    // In simulation mode, also simulate LinkedIn hiring posts scanner
+    const LinkedInPostsScanner = require('./linkedin-posts-scanner');
+    const simScanner = new LinkedInPostsScanner(
+      this.chromeManager,
+      this.aiAgent,
+      { ...this.settings, automation: { ...this.settings.automation, simulationMode: true } },
+      (lvl, tag, msg) => this.log(lvl, tag, msg),
+      this.dataStore,
+      this.recruiterEmails
+    );
+    await simScanner.scanPosts();
+
+    this.log('success', 'Simulation', 'Completed simulation sequence. Review results in the Job History and Recruiter Outreach tabs.');
     this.state = 'idle';
     this.emit('state_changed', { state: this.state });
   }
