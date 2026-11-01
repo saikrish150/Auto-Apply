@@ -129,11 +129,17 @@ class AutoApplyApp {
     this.inputScenarios = document.getElementById('sett-scenarios');
 
     // AI Configuration & Status
+    this.selectAiProvider = document.getElementById('sett-ai-provider');
+    this.selectGroqModel = document.getElementById('sett-groq-model');
+    this.selectGeminiModel = document.getElementById('sett-gemini-model');
+    this.inputGroqKey = document.getElementById('sett-groq-key');
     this.inputGeminiKey = document.getElementById('sett-gemini-key');
     this.btnSaveAiKey = document.getElementById('btn-save-ai-key');
     this.aiStatusBadge = document.getElementById('ai-status-badge');
     this.aiTesterBadge = document.getElementById('ai-tester-badge');
     this.aiStatStatus = document.getElementById('ai-stat-status');
+    this.aiStatProvider = document.getElementById('ai-stat-provider');
+    this.aiStatModel = document.getElementById('ai-stat-model');
     this.testAnswerEngine = document.getElementById('test-answer-engine');
 
     // Q&A Audit & Learning Controls
@@ -173,6 +179,7 @@ class AutoApplyApp {
 
     // Live Gemini API Telemetry Controls & Elements
     this.geminiTelemetryCard = document.getElementById('gemini-telemetry-card');
+    this.aiProviderBadge = document.getElementById('ai-provider-badge');
     this.aiModelBadge = document.getElementById('ai-model-badge');
     this.aiKeyBadge = document.getElementById('ai-key-badge');
     this.aiStatusPill = document.getElementById('ai-status-pill');
@@ -200,6 +207,7 @@ class AutoApplyApp {
 
     // Manual Apply Queue Controls (PHASE 5)
     this.mqFilterFit = document.getElementById('mq-filter-fit');
+    this.mqFilterExp = document.getElementById('mq-filter-exp');
     this.mqFilterPlatform = document.getElementById('mq-filter-platform');
     this.mqFilterStatus = document.getElementById('mq-filter-status');
     this.mqSortBy = document.getElementById('mq-sort-by');
@@ -327,6 +335,7 @@ class AutoApplyApp {
       this.btnAddManualJob.addEventListener('click', () => this.openAddManualJobModal());
     }
     if (this.mqFilterFit) this.mqFilterFit.addEventListener('change', () => this.loadManualQueue());
+    if (this.mqFilterExp) this.mqFilterExp.addEventListener('change', () => this.loadManualQueue());
     if (this.mqFilterPlatform) this.mqFilterPlatform.addEventListener('change', () => this.loadManualQueue());
     if (this.mqFilterStatus) this.mqFilterStatus.addEventListener('change', () => this.loadManualQueue());
     if (this.mqSortBy) this.mqSortBy.addEventListener('change', () => this.loadManualQueue());
@@ -1601,6 +1610,18 @@ class AutoApplyApp {
         : (s.search?.keywords || '');
     }
 
+    if (this.selectAiProvider && s.ai?.provider) {
+      this.selectAiProvider.value = s.ai.provider;
+    }
+    if (this.selectGroqModel && s.ai?.groqModel) {
+      this.selectGroqModel.value = s.ai.groqModel;
+    }
+    if (this.selectGeminiModel && s.ai?.model) {
+      this.selectGeminiModel.value = s.ai.model;
+    }
+    if (this.inputGroqKey) {
+      this.inputGroqKey.value = s.ai?.groqApiKey || '';
+    }
     if (this.inputGeminiKey) {
       this.inputGeminiKey.value = s.ai?.apiKey || '';
     }
@@ -1647,6 +1668,14 @@ class AutoApplyApp {
         ...this.settings.chrome,
         port: parseInt(document.getElementById('sett-chromePort').value, 10),
         executablePath: document.getElementById('sett-chromePath').value.trim()
+      },
+      ai: {
+        ...(this.settings.ai || {}),
+        provider: this.selectAiProvider ? this.selectAiProvider.value : (this.settings.ai?.provider || 'auto'),
+        groqModel: this.selectGroqModel ? this.selectGroqModel.value : (this.settings.ai?.groqModel || 'openai/gpt-oss-120b'),
+        model: this.selectGeminiModel ? this.selectGeminiModel.value : (this.settings.ai?.model || 'gemini-3.5-flash'),
+        groqApiKey: this.inputGroqKey ? this.inputGroqKey.value.trim() : (this.settings.ai?.groqApiKey || ''),
+        apiKey: this.inputGeminiKey ? this.inputGeminiKey.value.trim() : (this.settings.ai?.apiKey || '')
       }
     };
 
@@ -1678,9 +1707,14 @@ class AutoApplyApp {
   }
 
   async saveAiApiKey() {
+    const groqApiKey = this.inputGroqKey ? this.inputGroqKey.value.trim() : '';
     const apiKey = this.inputGeminiKey ? this.inputGeminiKey.value.trim() : '';
-    if (!apiKey) {
-      this.showToast('Please enter a valid Gemini API key.', 'warning');
+    const provider = this.selectAiProvider ? this.selectAiProvider.value : 'auto';
+    const groqModel = this.selectGroqModel ? this.selectGroqModel.value : 'openai/gpt-oss-120b';
+    const model = this.selectGeminiModel ? this.selectGeminiModel.value : 'gemini-3.5-flash';
+
+    if (!groqApiKey && !apiKey) {
+      this.showToast('Please enter a Groq or Gemini API key.', 'warning');
       return;
     }
 
@@ -1690,11 +1724,11 @@ class AutoApplyApp {
       const res = await fetch('/api/ai/set-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey })
+        body: JSON.stringify({ apiKey, groqApiKey, provider, groqModel, model })
       }).then(r => r.json());
 
       if (res.success) {
-        this.showToast('Gemini AI connected successfully!', 'success');
+        this.showToast('AI Provider configuration saved successfully!', 'success');
         if (res.status) {
           this.renderAiStatus(res.status);
         }
@@ -1715,7 +1749,7 @@ class AutoApplyApp {
     if (this.aiStatusBadge) {
       if (status.initialized) {
         this.aiStatusBadge.className = 'ai-status-badge badge-active';
-        this.aiStatusBadge.textContent = 'Active (Gemini 2.5 Flash)';
+        this.aiStatusBadge.textContent = `Active (${status.activeProvider || 'AI Ready'})`;
       } else {
         this.aiStatusBadge.className = 'ai-status-badge badge-inactive';
         this.aiStatusBadge.textContent = 'Not Connected';
@@ -1725,11 +1759,21 @@ class AutoApplyApp {
     if (this.aiTesterBadge) {
       if (status.initialized) {
         this.aiTesterBadge.className = 'ai-status-badge badge-active';
-        this.aiTesterBadge.textContent = 'Hybrid: Local + Gemini AI';
+        this.aiTesterBadge.textContent = `Hybrid: Local + ${status.activeProvider || 'AI'}`;
       } else {
         this.aiTesterBadge.className = 'ai-status-badge badge-inactive';
         this.aiTesterBadge.textContent = 'Local Only';
       }
+    }
+
+    if (this.aiStatProvider) {
+      this.aiStatProvider.textContent = status.provider === 'auto'
+        ? `Auto (${status.activeProvider || 'Groq 1st → Gemini'})`
+        : (status.provider === 'groq' ? 'Groq Cloud' : 'Google Gemini');
+    }
+
+    if (this.aiStatModel) {
+      this.aiStatModel.textContent = status.model || 'openai/gpt-oss-120b';
     }
 
     if (this.aiStatStatus) {
@@ -2492,15 +2536,23 @@ class AutoApplyApp {
   updateAiTelemetryUI(telemetry) {
     if (!telemetry) return;
 
-    // 1. Model & Key Badges
+    // 1. Model & Provider Badges
+    if (this.aiProviderBadge && telemetry.provider) {
+      this.aiProviderBadge.textContent = telemetry.provider;
+    }
     if (this.aiModelBadge && telemetry.model) {
       this.aiModelBadge.textContent = telemetry.model;
     }
     if (this.aiKeyBadge) {
-      const idx = (telemetry.activeKeyIndex || 0) + 1;
-      const total = telemetry.totalKeys || 1;
-      this.aiKeyBadge.textContent = `Key ${idx}/${total}`;
-      this.aiKeyBadge.title = `Active key pool snippet: ${telemetry.activeKeySnippet || 'None'}`;
+      if (telemetry.provider && telemetry.provider.includes('Groq')) {
+        this.aiKeyBadge.textContent = 'Groq Cloud';
+        this.aiKeyBadge.title = `Groq API Key: ${telemetry.activeGroqKeySnippet || telemetry.activeKeySnippet || 'Active'}`;
+      } else {
+        const idx = (telemetry.activeKeyIndex || 0) + 1;
+        const total = telemetry.totalKeys || 1;
+        this.aiKeyBadge.textContent = `Key ${idx}/${total}`;
+        this.aiKeyBadge.title = `Active key pool snippet: ${telemetry.activeKeySnippet || 'None'}`;
+      }
     }
 
     // 2. Status Dot & Text
@@ -2508,7 +2560,7 @@ class AutoApplyApp {
       this.aiStatusDot.className = 'status-dot';
       if (telemetry.status === 'calling') {
         this.aiStatusDot.classList.add('dot-calling');
-        this.aiStatusText.textContent = 'Calling Gemini API...';
+        this.aiStatusText.textContent = `Calling ${telemetry.provider || 'AI'}...`;
       } else if (telemetry.status === 'throttled' || telemetry.isThrottled) {
         this.aiStatusDot.classList.add('dot-throttled');
         const rem = telemetry.cooldownRemainingSeconds || 0;
@@ -2526,12 +2578,12 @@ class AutoApplyApp {
     if (this.aiErrorBanner) {
       if (telemetry.isThrottled) {
         this.aiErrorBanner.style.display = 'flex';
-        if (this.aiErrorTitle) this.aiErrorTitle.textContent = 'Gemini Quota / Rate-Limit (429 Cooldown)';
+        if (this.aiErrorTitle) this.aiErrorTitle.textContent = `${telemetry.provider || 'AI'} Quota / Rate-Limit (Cooldown)`;
         if (this.aiCooldownTimer) this.aiCooldownTimer.textContent = telemetry.cooldownRemainingSeconds || 0;
         if (this.btnResetCooldown) this.btnResetCooldown.style.display = 'inline-flex';
       } else if (telemetry.status === 'error' && telemetry.lastCall?.error) {
         this.aiErrorBanner.style.display = 'flex';
-        if (this.aiErrorTitle) this.aiErrorTitle.textContent = 'Gemini API Error';
+        if (this.aiErrorTitle) this.aiErrorTitle.textContent = `${telemetry.provider || 'AI'} API Error`;
         if (this.aiErrorMessage) this.aiErrorMessage.textContent = telemetry.lastCall.error;
         if (this.btnResetCooldown) this.btnResetCooldown.style.display = 'none';
       } else {
@@ -2563,7 +2615,7 @@ class AutoApplyApp {
       if (this.telemetryLastMeta) {
         this.telemetryLastMeta.textContent = `Platform: ${activeCall.context?.platform || 'General'} • Company: ${activeCall.context?.company || 'N/A'} • Type: ${activeCall.inputType || 'text'}`;
       }
-      if (this.telemetryFullPrompt) this.telemetryFullPrompt.textContent = activeCall.promptSnippet || 'Sending to Gemini API...';
+      if (this.telemetryFullPrompt) this.telemetryFullPrompt.textContent = activeCall.promptSnippet || `Sending to ${telemetry.provider || 'AI'}...`;
       if (this.telemetryReqTime) this.telemetryReqTime.textContent = 'Now (In Progress)';
       if (this.telemetryResStatus) this.telemetryResStatus.textContent = 'Streaming response...';
       if (this.telemetryParsedAnswer) this.telemetryParsedAnswer.textContent = 'Waiting for response...';
@@ -2608,7 +2660,7 @@ class AutoApplyApp {
     this.btnTestGeminiApi.innerHTML = '<span class="status-dot dot-calling"></span> Testing...';
 
     const testQuestion = 'How many years of experience do you have with Angular and Java?';
-    this.showToast('🚀 Sending test question to Gemini API...', 'info');
+    this.showToast('🚀 Sending test question to active AI engine...', 'info');
 
     try {
       const res = await fetch('/api/ai/test-call', {
@@ -2618,10 +2670,10 @@ class AutoApplyApp {
       });
       const data = await res.json();
       if (data.success) {
-        this.showToast(`✅ Gemini responded in ${data.latencyMs}ms: "${data.answer}"`, 'success');
+        this.showToast(`✅ ${data.provider || 'AI'} (${data.model || 'active'}) responded in ${data.latencyMs}ms: "${data.answer}"`, 'success');
         if (data.telemetry) this.updateAiTelemetryUI(data.telemetry);
       } else {
-        this.showToast(`⚠️ Gemini error: ${data.error || 'Unknown error'}`, 'error');
+        this.showToast(`⚠️ AI error: ${data.error || 'Unknown error'}`, 'error');
         if (data.telemetry) this.updateAiTelemetryUI(data.telemetry);
       }
     } catch (err) {
@@ -2638,12 +2690,13 @@ class AutoApplyApp {
   async loadManualQueue() {
     try {
       const fit = this.mqFilterFit ? this.mqFilterFit.value : 0;
+      const exp = this.mqFilterExp ? this.mqFilterExp.value : 'compatible';
       const platform = this.mqFilterPlatform ? this.mqFilterPlatform.value : 'all';
       const status = this.mqFilterStatus ? this.mqFilterStatus.value : 'all';
       const sort = this.mqSortBy ? this.mqSortBy.value : 'highest_fit';
       const search = this.mqSearchInput ? encodeURIComponent(this.mqSearchInput.value.trim()) : '';
 
-      const url = `/api/manual-queue?minFitScore=${fit}&platform=${platform}&status=${status}&sort=${sort}&search=${search}&limit=100`;
+      const url = `/api/manual-queue?minFitScore=${fit}&experience=${exp}&platform=${platform}&status=${status}&sort=${sort}&search=${search}&limit=100`;
       const res = await fetch(url).then(r => r.json());
 
       if (res.success) {
@@ -3030,7 +3083,7 @@ class AutoApplyApp {
   // ============================================================
   async loadRecruiterEmails() {
     try {
-      const status = this.emailFilterStatus ? this.emailFilterStatus.value : 'all';
+      const status = this.emailFilterStatus ? this.emailFilterStatus.value : 'active';
       const platform = this.emailFilterPlatform ? this.emailFilterPlatform.value : 'all';
       const search = this.emailSearchInput ? encodeURIComponent(this.emailSearchInput.value.trim()) : '';
 
@@ -3105,7 +3158,7 @@ class AutoApplyApp {
           <td>
             <select class="status-badge-select ${statusClass}" onchange="window.autoApplyApp.updateEmailStatus('${this.escapeHtml(item.id)}', this.value)">
               <option value="new" ${item.status === 'new' ? 'selected' : ''}>New</option>
-              <option value="contacted" ${item.status === 'contacted' ? 'selected' : ''}>Contacted</option>
+              <option value="contacted" ${(item.status === 'contacted' || item.status === 'completed') ? 'selected' : ''}>Contacted / Completed</option>
               <option value="replied" ${item.status === 'replied' ? 'selected' : ''}>Replied</option>
               <option value="archived" ${item.status === 'archived' ? 'selected' : ''}>Archived</option>
             </select>
@@ -3114,7 +3167,12 @@ class AutoApplyApp {
             ${dateStr}
           </td>
           <td>
-            <div style="display: flex; gap: 4px;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+              ${item.status === 'new' ? `
+                <button class="btn btn-micro btn-success-soft" title="Mark as contacted and remove from active outreach" onclick="window.autoApplyApp.updateEmailStatus('${this.escapeHtml(item.id)}', 'contacted')">
+                  ✓ Done
+                </button>
+              ` : ''}
               <button class="btn btn-micro btn-danger-soft" title="Delete contact" onclick="window.autoApplyApp.deleteRecruiterEmail('${this.escapeHtml(item.id)}')">
                 ✕
               </button>
@@ -3146,15 +3204,27 @@ class AutoApplyApp {
 
   async updateEmailStatus(emailId, status) {
     try {
+      const isContactedOrCompleted = status === 'contacted' || status === 'completed';
+      const row = document.querySelector(`tr[data-email-id="${emailId}"]`);
+      if (row && isContactedOrCompleted) {
+        row.style.transition = 'all 0.35s ease';
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(20px)';
+      }
+
       const res = await fetch(`/api/recruiter-emails/${emailId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status: isContactedOrCompleted ? 'contacted' : status })
       }).then(r => r.json());
 
       if (res.success) {
-        this.showToast(`Status updated to "${status}"`, 'success');
-        this.loadRecruiterEmails();
+        if (isContactedOrCompleted) {
+          this.showToast('Recruiter marked as contacted and removed from active outreach', 'success');
+        } else {
+          this.showToast(`Status updated to "${status}"`, 'success');
+        }
+        await this.loadRecruiterEmails();
       }
     } catch (err) {
       this.showToast(`Error updating status: ${err.message}`, 'error');

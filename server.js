@@ -84,6 +84,10 @@ function sanitizeSettings(settings) {
       cloned.ai.apiKeyMasked = maskSecretKey(cloned.ai.apiKey);
       cloned.ai.apiKey = cloned.ai.apiKeyMasked;
     }
+    if (cloned.ai.groqApiKey) {
+      cloned.ai.groqApiKeyMasked = maskSecretKey(cloned.ai.groqApiKey);
+      cloned.ai.groqApiKey = cloned.ai.groqApiKeyMasked;
+    }
     if (Array.isArray(cloned.ai.apiKeys)) {
       cloned.ai.apiKeys = cloned.ai.apiKeys.map(k => maskSecretKey(k));
     }
@@ -252,6 +256,9 @@ app.post('/api/settings', (req, res) => {
     // Retain real API keys if frontend submitted masked string
     if (updated.ai?.apiKey && updated.ai.apiKey.includes('...')) {
       updated.ai.apiKey = settingsData.ai?.apiKey || '';
+    }
+    if (updated.ai?.groqApiKey && updated.ai.groqApiKey.includes('...')) {
+      updated.ai.groqApiKey = settingsData.ai?.groqApiKey || '';
     }
     if (Array.isArray(updated.ai?.apiKeys)) {
       updated.ai.apiKeys = updated.ai.apiKeys.map((k, idx) => {
@@ -492,22 +499,32 @@ app.get('/api/ai/status', (req, res) => {
 });
 
 app.post('/api/ai/set-key', (req, res) => {
-  const { apiKey } = req.body;
-  if (!apiKey) {
-    return res.status(400).json({ error: 'API key is required.' });
+  const { apiKey, groqApiKey, provider, groqModel, model } = req.body;
+  if (!apiKey && !groqApiKey && !provider && !groqModel) {
+    return res.status(400).json({ error: 'At least one configuration parameter (API key, model, or provider) is required.' });
   }
 
   settingsData.ai = settingsData.ai || {};
-  settingsData.ai.apiKey = apiKey;
-  settingsData.ai.provider = 'gemini';
+  if (apiKey !== undefined && !apiKey.includes('...')) {
+    settingsData.ai.apiKey = apiKey;
+  }
+  if (groqApiKey !== undefined && !groqApiKey.includes('...')) {
+    settingsData.ai.groqApiKey = groqApiKey;
+  }
+  if (provider) settingsData.ai.provider = provider;
+  if (groqModel) settingsData.ai.groqModel = groqModel;
+  if (model) settingsData.ai.model = model;
   writeJSON(SETTINGS_PATH, settingsData);
 
   orchestrator.updateConfig(null, settingsData);
-  orchestrator.aiAgent.initializeGemini();
+  if (apiKey && !apiKey.includes('...')) {
+    orchestrator.aiAgent.initializeGemini();
+  }
 
   const status = orchestrator.aiAgent.getStatus();
   broadcast('ai_status', status);
-  res.json({ success: true, message: 'Gemini API key saved and AI re-initialized.', status });
+  broadcast('ai_telemetry_updated', orchestrator.aiAgent.getLiveTelemetry());
+  res.json({ success: true, message: 'AI configuration saved successfully.', status });
 });
 
 // 10. Persistent Applications & History Endpoints
@@ -566,13 +583,14 @@ app.post('/api/bot/clear-history', (req, res) => {
 // 11. High-Match Manual Application Queue Endpoints (PHASE 5)
 app.get('/api/manual-queue', (req, res) => {
   try {
-    const { minFitScore, minTechScore, platform, status, method, search, sort, limit } = req.query;
+    const { minFitScore, minTechScore, platform, status, method, search, sort, limit, experience } = req.query;
     const items = orchestrator.manualQueue.getQueue({
       minFitScore: parseInt(minFitScore) || 0,
       minTechScore: parseInt(minTechScore) || 0,
       platform: platform || 'all',
       status: status || 'all',
       method: method || 'all',
+      experience: experience || 'compatible',
       search: search || ''
     }, sort || 'highest_fit', parseInt(limit) || 100);
     const stats = orchestrator.manualQueue.getStats();

@@ -93,6 +93,79 @@ test('AIAgent - Multi-Key Rotation & Per-Key Cooldown Resilience', async (t) => 
     assert.equal(telemetry.cooldownRemainingSeconds, 0);
   });
 
+  await t.test('Groq Integration: Initializes with Groq provider and model', () => {
+    const groqSettings = {
+      ai: {
+        provider: 'auto',
+        groqApiKey: 'gsk_test_1234567890abcdef',
+        groqModel: 'openai/gpt-oss-120b',
+        apiKey: 'TEST_KEY_ALPHA_111111111111111111111111'
+      }
+    };
+    const agent = new AIAgent(mockProfile, groqSettings);
+    assert.equal(agent.provider, 'auto');
+    assert.equal(agent.groqApiKey, 'gsk_test_1234567890abcdef');
+    assert.equal(agent.groqModel, 'openai/gpt-oss-120b');
+    assert.equal(agent.isGroqAvailable(), true);
+    assert.equal(agent.isAiAvailable(), true);
+
+    const telemetry = agent.getLiveTelemetry();
+    assert.equal(telemetry.provider, 'Groq Cloud');
+    assert.equal(telemetry.groqConfigured, true);
+    assert.equal(telemetry.activeGroqKeySnippet, 'gsk_test...cdef');
+  });
+
+  await t.test('Groq Integration: Handles Groq throttle cooldown correctly', () => {
+    const groqSettings = {
+      ai: {
+        provider: 'groq',
+        groqApiKey: 'gsk_test_1234567890abcdef',
+        groqModel: 'openai/gpt-oss-120b'
+      }
+    };
+    const agent = new AIAgent(mockProfile, groqSettings);
+    assert.equal(agent.isGroqAvailable(), true);
+
+    // Simulate 429
+    agent.markGroqThrottled(new Error('Groq 429 Rate Limit retry-after: 30s'));
+    assert.equal(agent.isGroqAvailable(), false);
+    assert.ok(agent.groqCooldownUntil > Date.now());
+
+    // Reset clears Groq cooldown
+    agent.resetCooldown();
+    assert.equal(agent.isGroqAvailable(), true);
+  });
+
+  await t.test('Auto Failover: Falls over from Groq to Gemini pool when Groq fails', async () => {
+    const hybridSettings = {
+      ai: {
+        provider: 'auto',
+        groqApiKey: 'gsk_test_invalid_failover',
+        groqModel: 'openai/gpt-oss-120b',
+        apiKey: 'TEST_KEY_ALPHA_111111111111111111111111',
+        apiKeys: ['TEST_KEY_BETA_2222222222222222222222222']
+      }
+    };
+    const agent = new AIAgent(mockProfile, hybridSettings);
+    // Mock Groq to fail with 429
+    agent._sendGroqMessage = async () => {
+      const err = new Error('Groq 429 Rate Limit');
+      agent.markGroqThrottled(err);
+      throw err;
+    };
+    // Mock Gemini to succeed
+    agent._sendGeminiMessage = async () => ({
+      response: {
+        text: () => '{"answer": "3", "confidence": 0.95, "reasoning": "Candidate has 3 years"}'
+      }
+    });
+
+    const callResult = await agent._executeAICall('Test question');
+    assert.equal(callResult.provider, 'Google Gemini');
+    assert.ok(callResult.responseText.includes('"answer": "3"'));
+    assert.equal(agent.isGroqAvailable(), false);
+  });
+
   await t.test('Instant local fallback: never stalls or pauses application process when keys are cooling down', async () => {
     const agent = new AIAgent(mockProfile, mockSettings);
     agent.apiKeys.forEach(k => agent.markKeyThrottled(k, new Error('429 Quota Exceeded retryDelay 300s')));
@@ -111,3 +184,4 @@ test('AIAgent - Multi-Key Rotation & Per-Key Cooldown Resilience', async (t) => 
     assert.ok(result.confidence >= 0.85);
   });
 });
+

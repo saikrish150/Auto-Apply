@@ -395,5 +395,109 @@ test('LinkedIn Easy Apply & Naukri External Link Prevention Verification', async
     const shouldSkipEasy = easyMeta && easyMeta.companyApplyJob === true;
     assert.equal(shouldSkipEasy, false, 'Native Easy Apply job must NOT be skipped');
   });
+
+  await t.test('14. NaukriBot.handleNaukriSaveApplyPage accurately parses HTTP 200 success and HTTP 406 incomplete', async () => {
+    const naukriBot = new NaukriBot(null, ai, settings, () => {}, dataStore);
+
+    // Mock page with HTTP 200 multiApplyResp
+    const page200 = {
+      url: () => 'https://www.naukri.com/myapply/saveApply?strJobsarr=[311026015487]&multiApplyResp=%7B%22311026015487%22%3A200%7D',
+      evaluate: async () => false,
+      $$: async () => []
+    };
+    const res200 = await naukriBot.handleNaukriSaveApplyPage(page200);
+    assert.equal(res200.success, true, 'HTTP 200 saveApply page must be treated as successful application');
+
+    // Mock page with HTTP 406 multiApplyResp
+    const page406 = {
+      url: () => 'https://www.naukri.com/myapply/saveApply?strJobsarr=[270626005217]&multiApplyResp=%7B%22270626005217%22%3A406%7D',
+      evaluate: async (fn) => {
+        // Return true for is406Error check
+        return true;
+      },
+      $$: async () => []
+    };
+    const res406 = await naukriBot.handleNaukriSaveApplyPage(page406);
+    assert.equal(res406.success, false, 'HTTP 406 saveApply page must NOT be treated as applied');
+    assert.ok(res406.reason.includes('406') || res406.reason.includes('incomplete'), 'Reason must indicate 406 rejection');
+  });
+
+  await t.test('15. NaukriBot.handleNaukriChatbot detects chatbot drawer and ignores header .nI-gNb-drawer', async () => {
+    const naukriBot = new NaukriBot(null, ai, settings, () => {}, dataStore);
+    naukriBot.randomDelay = async () => {};
+
+    let typedText = '';
+    let sendClicked = false;
+
+    // Simulate page where header .nI-gNb-drawer is present, but ._chatBotContainer is also present
+    const mockPage = {
+      url: () => 'https://www.naukri.com/job-listings-software-engineer-solvecorp-chennai-1-to-3-years-270626005217',
+      $$: async (selector) => {
+        if (selector.includes('_chatBotContainer')) {
+          return [{
+            evaluate: async (fn) => {
+              // Simulating isValidDrawer check: node is not nI-gNb, visible, and width/height > 100
+              const mockNode = {
+                className: '_chatBotContainer',
+                closest: (sel) => null,
+                offsetWidth: 380,
+                offsetHeight: 650
+              };
+              return fn(mockNode);
+            }
+          }];
+        }
+        return [];
+      },
+      $: async (selector) => {
+        if (selector.includes('div.textArea[contenteditable="true"]')) {
+          return {
+            evaluate: async (fn, ...args) => {
+              if (args.length > 0) return fn({}, ...args);
+              return true; // isContentEditable
+            }
+          };
+        }
+        return null;
+      },
+      keyboard: {
+        type: async (text) => { typedText = text; },
+        press: async (key) => {}
+      },
+      evaluate: async (fn, ...args) => {
+        const fnStr = fn.toString();
+        // Completion check in chat loop
+        if (fnStr.includes('combined.includes') || fnStr.includes('thank you for applying')) {
+          return !!typedText;
+        }
+        // Question extraction: return Solvecorp backend experience question
+        if (fnStr.includes('botMsgs') || fnStr.includes('botMsg')) {
+          if (typedText) return ''; // Finished after typing
+          return 'How many years of experience do you have in Backend Development?';
+        }
+        // Check options: no options for text question
+        if (fnStr.includes('chips')) {
+          return false;
+        }
+        // Send button click
+        if (fnStr.includes('sendBtn')) {
+          sendClicked = true;
+          return true;
+        }
+        // Final completion check object
+        if (fnStr.includes('isSuccess') && fnStr.includes('is406')) {
+          return { isSuccess: true, is406: false };
+        }
+        return false;
+      }
+    };
+
+    const outcome = await naukriBot.handleNaukriChatbot(mockPage, { title: 'Software Engineer', company: 'Solvecorp' });
+    assert.equal(outcome.success, true, 'Chatbot handler must succeed after filling questions, got reason: ' + outcome.reason);
+    assert.equal(typedText, '3', 'Backend development experience must be filled with 3 years from profile');
+    assert.equal(sendClicked, true, 'Chatbot send button must be clicked');
+    assert.equal(outcome.questionsAnswered.length, 1, 'Question must be recorded in questionsAnswered');
+  });
 });
+
 

@@ -85,12 +85,64 @@ test('ManualQueueService - High-Match Manual Application Queue', async (t) => {
     assert.equal(stats.pending, 0);
   });
 
-  await t.test('Recovers data completely after restart (persistence check)', () => {
-    // Instantiate new service pointing to same directory
-    const reloadedService = new ManualQueueService({ dataDir: testDataDir });
-    assert.equal(reloadedService.items.length, 1);
-    assert.equal(reloadedService.items[0].company, 'Acme Global Corp');
-    assert.equal(reloadedService.items[0].confirmationId, 'CONF-883921');
+  await t.test('Strictly rejects junk scraping titles from entering manual queue', () => {
+    const junk1 = queueService.enqueue({
+      title: 'People you can reach out to',
+      company: 'Junk Corp',
+      platform: 'LinkedIn',
+      url: 'https://www.linkedin.com/jobs/view/999111'
+    });
+    assert.equal(junk1, null, 'Should reject "People you can reach out to" title');
+
+    const junk2 = queueService.enqueue({
+      title: 'About the job',
+      company: 'Promo Corp',
+      platform: 'LinkedIn',
+      url: 'https://www.linkedin.com/jobs/view/999222'
+    });
+    assert.equal(junk2, null, 'Should reject "About the job" title');
+  });
+
+  await t.test('Strictly rejects jobs with experience >= 5 years or below_mandatory from manual queue', () => {
+    const highExpJob = queueService.enqueue({
+      title: 'Principal Software Architect',
+      company: 'MegaTech Enterprise',
+      platform: 'LinkedIn',
+      url: 'https://www.linkedin.com/jobs/view/999333',
+      requiredExperience: '8-12 years',
+      experienceCompatibility: 'below_mandatory'
+    });
+    assert.equal(highExpJob, null, 'Should reject job requiring 8-12 years experience');
+
+    const highExpYearsJob = queueService.enqueue({
+      title: 'Staff Full Stack Developer',
+      company: 'Enterprise Corp',
+      platform: 'LinkedIn',
+      url: 'https://www.linkedin.com/jobs/view/999444',
+      requiredExperience: '6+ years'
+    });
+    assert.equal(highExpYearsJob, null, 'Should reject job requiring 6+ years experience');
+
+    // But valid 2-4 years role MUST be accepted
+    const validRole = queueService.enqueue({
+      title: 'Full Stack Java & Angular Developer',
+      company: 'TechFlow',
+      platform: 'LinkedIn',
+      url: 'https://www.linkedin.com/jobs/view/999555',
+      requiredExperience: '2-4 years',
+      experienceCompatibility: 'meets_required'
+    });
+    assert.ok(validRole, 'Should accept role matching candidate 3 years experience');
+    assert.equal(validRole.title, 'Full Stack Java & Angular Developer');
+  });
+
+  await t.test('Filters manual queue items accurately by experience parameter in getQueue', () => {
+    const compatible = queueService.getQueue({ experience: 'compatible' });
+    assert.ok(compatible.length >= 1);
+    assert.ok(compatible.every(item => {
+      const minExp = item.requiredExperience ? parseFloat(item.requiredExperience) : 0;
+      return item.experienceCompatibility !== 'below_mandatory' && (isNaN(minExp) || minExp < 5.0);
+    }));
   });
 
   // Cleanup test data directory

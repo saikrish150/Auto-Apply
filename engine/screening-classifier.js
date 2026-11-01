@@ -55,6 +55,16 @@ class ScreeningClassifier {
       INTERVIEW_AVAILABILITY: 'INTENT_INTERVIEW_AVAILABILITY',
       BACKGROUND_CHECK_CONSENT: 'INTENT_BACKGROUND_CHECK_CONSENT',
 
+      CAREER_GAP: 'INTENT_CAREER_GAP',
+      REASON_FOR_JOB_CHANGE: 'INTENT_REASON_FOR_JOB_CHANGE',
+      LAST_WORKING_DAY: 'INTENT_LAST_WORKING_DAY',
+      MONTHLY_GROSS: 'INTENT_MONTHLY_GROSS',
+      FIVE_DAYS_OFFICE: 'INTENT_FIVE_DAYS_OFFICE',
+      SATURDAY_WORKING: 'INTENT_SATURDAY_WORKING',
+      CONTRACT_ROLES: 'INTENT_CONTRACT_ROLES',
+      THIRD_PARTY_PAYROLL: 'INTENT_THIRD_PARTY_PAYROLL',
+      GOVERNMENT_ID: 'INTENT_GOVERNMENT_ID',
+
       CONSEQUENTIAL_LEGAL: 'INTENT_CONSEQUENTIAL_LEGAL',
       UNKNOWN_OR_UNSUPPORTED: 'INTENT_UNKNOWN_OR_UNSUPPORTED'
     });
@@ -152,12 +162,13 @@ class ScreeningClassifier {
     const isCurrentCTC = /\b(?:current\s*ctc|current\s*salary|present\s*ctc|present\s*salary|current\s*annual|cctc|current\s*package)\b/i.test(norm) ||
       (norm.includes('current') && (norm.includes('ctc') || norm.includes('salary') || norm.includes('compensation') || norm.includes('package')));
 
-    const isExpectedCTC = /\b(?:expected\s*ctc|expected\s*salary|desired\s*salary|salary\s*expectation|ectc|expected\s*package)\b/i.test(norm) ||
-      (norm.includes('expected') && (norm.includes('ctc') || norm.includes('salary') || norm.includes('compensation') || norm.includes('package')));
+    const isExpectedCTC = /\b(?:expected\s*ctc|expected\s*salary|desired\s*salary|salary\s*expectation|ectc|expected\s*package|base\s*salary|salary\s*range|salary.*looking\s*for|compensation.*looking\s*for|expected\s*remuneration|salary\s*requirement)\b/i.test(norm) ||
+      (norm.includes('expected') && (norm.includes('ctc') || norm.includes('salary') || norm.includes('compensation') || norm.includes('package'))) ||
+      (/\b(?:base\s*salary|salary\s*range|salary|compensation)\b/i.test(norm) && /\b(?:looking\s*for|requirement|expect|desired|in\s*local\s*currency)\b/i.test(norm));
 
-    const isINR = /\b(?:in\s*inr|in\s*rupees|inr|rupees|annual\s*compensation|annual\s*ctc|annual\s*salary)\b/i.test(norm) || /\b(?:example\s*:\s*\d{5,})\b/i.test(raw);
+    const isINR = /\b(?:in\s*inr|in\s*rupees|inr|rupees|annual\s*compensation|annual\s*ctc|annual\s*salary|local\s*currency)\b/i.test(norm) || /\b(?:example\s*:\s*\d{5,})\b/i.test(raw);
     const isLPA = /\b(?:in\s*lpa|in\s*lakhs?|lpa|lakhs?)\b/i.test(norm);
-    const compParams = { isINR: isINR && !isLPA, isLPA };
+    const compParams = { isINR: isINR && !isLPA, isLPA, raw };
 
     if (isExpectedCTC && !isCurrentCTC) {
       return { intent: this.INTENTS.EXPECTED_CTC, confidence: this.CONFIDENCE_LEVELS.HIGH, params: compParams };
@@ -192,7 +203,7 @@ class ScreeningClassifier {
                           norm.match(/(?:with|in|using|on)\s+([a-zA-Z0-9#\+\.\s_-]+)\s*(?:experience|years)/i);
     if (skillExpMatch && skillExpMatch[1]) {
       const candidateTech = skillExpMatch[1].trim().toLowerCase().replace(/[^a-z0-9#+.]/g, '');
-      const nonSkillWords = ['total', 'overall', 'it', 'software', 'softwaredevelopment', 'fullstack', 'all', 'industry', 'field', 'role', 'programming'];
+      const nonSkillWords = ['total', 'overall', 'it', 'software', 'softwaredevelopment', 'fullstack', 'all', 'industry', 'field', 'role', 'programming', 'localcurrency', 'currency', 'salary', 'compensation', 'responsibilities', 'base', 'basesalary'];
       if (!nonSkillWords.includes(candidateTech) && candidateTech.length > 1) {
         return {
           intent: this.INTENTS.SKILL_EXPERIENCE,
@@ -231,6 +242,18 @@ class ScreeningClassifier {
     }
 
     // 8. WORK PREFERENCES & LEGAL AUTHORIZATION
+    if (/\b(?:5\s*days?\s*(?:work\s*from\s*office|wfo|in\s*office)|work\s*from\s*office\s*5\s*days)\b/i.test(norm)) {
+      return { intent: this.INTENTS.FIVE_DAYS_OFFICE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:saturday\s*working|work\s*on\s*saturdays?|6\s*days?\s*working)\b/i.test(norm)) {
+      return { intent: this.INTENTS.SATURDAY_WORKING, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:contract\s*to\s*hire|c2h|contract\s*role|contractual\s*role|fixed\s*term\s*contract)\b/i.test(norm)) {
+      return { intent: this.INTENTS.CONTRACT_ROLES, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:third[\s-]*party\s*payroll|contract\s*payroll|client\s*payroll)\b/i.test(norm)) {
+      return { intent: this.INTENTS.THIRD_PARTY_PAYROLL, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
     if (/\b(?:relocate|willing\s*to\s*move|relocation)\b/i.test(norm)) {
       return { intent: this.INTENTS.WILLING_TO_RELOCATE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
@@ -271,6 +294,52 @@ class ScreeningClassifier {
         /\b(?:disability|disabled|physical\s*or\s*mental\s*impairment)\b/i.test(norm) ||
         /\b(?:18\s*years|at\s*least\s*18|legal\s*age\s*to\s*work)\b/i.test(norm)) {
       return { intent: this.INTENTS.CONSEQUENTIAL_LEGAL, confidence: this.CONFIDENCE_LEVELS.CONSEQUENTIAL, params: { subType: norm } };
+    }
+
+    // 11. CANDIDATE KNOWLEDGE BASE V2 EXTENSIONS
+    // Government ID numbers (Aadhaar, PAN, passport number) -> Not stored / Needs Human
+    if (/\b(?:aadhaar|pan\s*(?:card|number)?|passport\s*number|government\s*id|national\s*id|ssn)\b/i.test(norm)) {
+      return { intent: this.INTENTS.GOVERNMENT_ID, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // Monthly gross compensation
+    if (/\b(?:monthly\s*(?:gross|in[\s-]*hand|salary|expectation|take[\s-]*home)|financial\s*expectations?\s*\(?monthly\s*gross\)?)\b/i.test(norm)) {
+      return { intent: this.INTENTS.MONTHLY_GROSS, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // Career gap
+    if (/\b(?:career\s*gap|gap\s*in\s*(?:career|employment|education|work)|employment\s*gap|break\s*in\s*career)\b/i.test(norm)) {
+      return { intent: this.INTENTS.CAREER_GAP, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // Reason for job change
+    if (/\b(?:reason\s*for\s*(?:job\s*)?change|why\s*(?:are\s*you\s*)?looking\s*(?:for\s*a\s*)?change|reason\s*for\s*leaving)\b/i.test(norm)) {
+      return { intent: this.INTENTS.REASON_FOR_JOB_CHANGE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // Last working day
+    if (/\b(?:last\s*working\s*day|last\s*working\s*date|lwd|end\s*date\s*of\s*notice)\b/i.test(norm)) {
+      return { intent: this.INTENTS.LAST_WORKING_DAY, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // Saturday working
+    if (/\b(?:saturday\s*working|work\s*on\s*saturdays?|6\s*days?\s*working)\b/i.test(norm)) {
+      return { intent: this.INTENTS.SATURDAY_WORKING, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // 5 days in office
+    if (/\b(?:5\s*days?\s*(?:work\s*from\s*office|wfo|in\s*office)|work\s*from\s*office\s*5\s*days)\b/i.test(norm)) {
+      return { intent: this.INTENTS.FIVE_DAYS_OFFICE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // Contract / C2H
+    if (/\b(?:contract\s*to\s*hire|c2h|contract\s*role|contractual\s*role|fixed\s*term\s*contract)\b/i.test(norm)) {
+      return { intent: this.INTENTS.CONTRACT_ROLES, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // Third party payroll
+    if (/\b(?:third[\s-]*party\s*payroll|contract\s*payroll|client\s*payroll)\b/i.test(norm)) {
+      return { intent: this.INTENTS.THIRD_PARTY_PAYROLL, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
     // Unknown or unsupported question
@@ -447,11 +516,34 @@ class ScreeningClassifier {
 
       case this.INTENTS.SKILL_EXPERIENCE: {
         const targetTech = (params.skillName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        const cleanTech = targetTech.replace(/(?:framework|frameworks|database|databases|technology|technologies|tools|tool|language|languages|development|developer|library|libraries|stack)$/i, '').trim();
         let matched = null;
+
+        // Check if candidate explicitly has zero experience in this skill
+        const zeroSkills = (career.zeroExperienceSkills || []).map(z => z.toLowerCase().replace(/[^a-z0-9]/g, ''));
+        if (zeroSkills.includes(targetTech) || (cleanTech.length >= 2 && zeroSkills.includes(cleanTech))) {
+          proposedAnswer = '0';
+          sourceField = 'career.zeroExperienceSkills';
+          break;
+        }
+
+        // Check generic role experience (backend, frontend, fullstack)
+        if (cleanTech === 'backend' || targetTech === 'backenddevelopment' || targetTech === 'backend' ||
+            cleanTech === 'frontend' || targetTech === 'frontenddevelopment' || targetTech === 'frontend' ||
+            cleanTech === 'fullstack' || targetTech === 'fullstackdevelopment') {
+          const totExp = career.totalYearsExperience !== undefined ? career.totalYearsExperience : 3;
+          proposedAnswer = inputType === 'number' ? String(totExp) : (totExp % 1 === 0 ? String(totExp) : totExp.toFixed(1));
+          sourceField = 'career.totalYearsExperience';
+          break;
+        }
 
         for (const s of skills) {
           const sClean = s.name.toLowerCase().replace(/[^a-z0-9]/g, '');
           if (sClean === targetTech || s.name.toLowerCase() === params.skillName) {
+            matched = s;
+            break;
+          }
+          if (cleanTech.length >= 2 && (sClean === cleanTech || sClean.includes(cleanTech) || cleanTech.includes(sClean))) {
             matched = s;
             break;
           }
@@ -487,7 +579,8 @@ class ScreeningClassifier {
 
       case this.INTENTS.EXPECTED_CTC: {
         const expLPA = typeof career.expectedSalaryLPA === 'number' ? career.expectedSalaryLPA : 10.0;
-        if (params && params.isINR) {
+        const rawQ = (params?.raw || '').toLowerCase();
+        if ((params && params.isINR) || rawQ.includes('local currency') || rawQ.includes('do not enter zero')) {
           proposedAnswer = String(Math.round(expLPA * 100000));
         } else if (inputType === 'number') {
           proposedAnswer = String(expLPA);
@@ -509,13 +602,63 @@ class ScreeningClassifier {
         break;
 
       case this.INTENTS.EARLIEST_JOINING_DATE:
-        proposedAnswer = 'Available within 45 to 60 days (Negotiable from 90 days official notice)';
+        if (inputType === 'number') {
+          proposedAnswer = String(career.negotiableNoticePeriodDays || 30);
+        } else {
+          proposedAnswer = 'Yes, an earlier release can be negotiated. Official notice is 30 days.';
+        }
         sourceField = 'career.negotiableNoticePeriodDays';
         break;
 
       case this.INTENTS.CURRENTLY_SERVING_NOTICE:
+        proposedAnswer = career.currentlyServingNotice !== undefined ? (career.currentlyServingNotice ? 'Yes' : 'No') : 'Yes';
+        sourceField = 'career.currentlyServingNotice';
+        break;
+
+      case this.INTENTS.LAST_WORKING_DAY:
+        proposedAnswer = career.lastWorkingDay || '30/11/2026';
+        sourceField = 'career.lastWorkingDay';
+        break;
+
+      case this.INTENTS.MONTHLY_GROSS:
+        proposedAnswer = inputType === 'number' ? '83000' : '83000';
+        sourceField = 'career.monthlyInHandExpectation';
+        break;
+
+      case this.INTENTS.CAREER_GAP:
+        proposedAnswer = (inputType === 'select' || inputType === 'radio') ? 'No' : 'No career gap';
+        sourceField = 'career.careerGap';
+        break;
+
+      case this.INTENTS.REASON_FOR_JOB_CHANGE:
+        proposedAnswer = career.reasonForChange || 'Seeking career growth and bigger responsibilities, with greater ownership of design and delivery.';
+        sourceField = 'career.reasonForChange';
+        break;
+
+      case this.INTENTS.FIVE_DAYS_OFFICE:
+        proposedAnswer = 'Yes';
+        sourceField = 'career.fiveDaysInOffice';
+        break;
+
+      case this.INTENTS.SATURDAY_WORKING:
         proposedAnswer = 'No';
-        sourceField = 'career.servingNoticePeriod';
+        sourceField = 'career.saturdayWorking';
+        break;
+
+      case this.INTENTS.CONTRACT_ROLES:
+        proposedAnswer = 'No';
+        sourceField = 'career.contractOrC2H';
+        break;
+
+      case this.INTENTS.THIRD_PARTY_PAYROLL:
+        proposedAnswer = 'Yes';
+        sourceField = 'career.thirdPartyPayroll';
+        break;
+
+      case this.INTENTS.GOVERNMENT_ID:
+        proposedAnswer = '';
+        requiresReview = true;
+        sourceField = 'security_policy_no_gov_ids';
         break;
 
       case this.INTENTS.WILLING_TO_RELOCATE:
@@ -630,15 +773,48 @@ class ScreeningClassifier {
     const exact = options.find(o => String(o).trim().toLowerCase() === cleanVal);
     if (exact) return exact;
 
-    // 2. Numeric match (e.g. "3" vs "3 years" or "30" vs "30 days")
+    // 1b. Substring match (e.g. "LinkedIn" matches "LinkedIn Job")
+    if (cleanVal.length >= 3) {
+      const sub = options.find(o => {
+        const oL = String(o).trim().toLowerCase();
+        return oL.includes(cleanVal) || (cleanVal.length > 5 && cleanVal.includes(oL));
+      });
+      if (sub) return sub;
+    }
+
+    // 2. Numeric match (e.g. "3" vs "3 years", "3" vs "Up to 4 years", "3" vs "1 - 4 years")
     const numMatch = cleanVal.match(/\d+(?:\.\d+)?/);
     if (numMatch) {
+      const candNum = parseFloat(numMatch[0]);
       const numStr = numMatch[0];
+
+      // Exact single number in option text
       const optMatch = options.find(o => {
         const oNum = String(o).match(/\d+(?:\.\d+)?/);
-        return oNum && oNum[0] === numStr;
+        return oNum && oNum[0] === numStr && !String(o).includes('-');
       });
       if (optMatch) return optMatch;
+
+      // Range matching: "Up to X", "X - Y", "X+"
+      for (const opt of options) {
+        const oStr = String(opt);
+        const upToMatch = oStr.match(/(?:up\s*to|under|less\s*than|<)\s*(\d+(?:\.\d+)?)/i);
+        if (upToMatch) {
+          const max = parseFloat(upToMatch[1]);
+          if (candNum <= max) return opt;
+        }
+        const rangeMatch = oStr.match(/(\d+(?:\.\d+)?)\s*(?:-|to)\s*(\d+(?:\.\d+)?)/i);
+        if (rangeMatch) {
+          const min = parseFloat(rangeMatch[1]);
+          const max = parseFloat(rangeMatch[2]);
+          if (candNum >= min && candNum <= max) return opt;
+        }
+        const plusMatch = oStr.match(/(\d+(?:\.\d+)?)\s*(?:\+|and\s*above|or\s*more)/i);
+        if (plusMatch) {
+          const min = parseFloat(plusMatch[1]);
+          if (candNum >= min) return opt;
+        }
+      }
     }
 
     // 3. Boolean / Affirmative match

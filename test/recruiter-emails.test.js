@@ -143,6 +143,21 @@ describe('RecruiterEmailsService - Recruiter Outreach & Follow-Up Engine', () =>
     assert.strictEqual(searchRes.length, 1);
     assert.strictEqual(searchRes[0].email, 'bob.recruiter@beta.com');
 
+    // Filter by active status (excludes contacted/completed)
+    const active = service.getAll({ status: 'active' });
+    assert.strictEqual(active.length, 1);
+    assert.strictEqual(active[0].email, 'bob.recruiter@beta.com');
+
+    // Update to completed
+    service.update(item2.id, { status: 'completed' });
+    const updated2 = service.getById(item2.id);
+    assert.strictEqual(updated2.status, 'contacted');
+    assert.ok(updated2.contactedAt);
+
+    // Active status now returns 0 since both are contacted/completed
+    const activeAfter = service.getAll({ status: 'active' });
+    assert.strictEqual(activeAfter.length, 0);
+
     // Delete
     const deleted = service.delete(item2.id);
     assert.strictEqual(deleted, true);

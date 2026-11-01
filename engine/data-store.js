@@ -278,8 +278,23 @@ class DataStore {
       (jobRecord.jobListingUrl && String(jobRecord.jobListingUrl).includes('linkedin.com'))
     );
 
+    // Filter seeing experience, ATS match, and junk scraping titles before enqueuing to manual queue
+    const titleToCheck = String(jobRecord.title || normalizedRecord.title || '').trim();
+    const isJunkTitle = /^(people you can reach out to|take the next step.*|about the job|\d+\s*notifications|notifications|unnamed job)$/i.test(titleToCheck) || titleToCheck.length < 3;
+
+    const reqExpStr = String(jobRecord.requiredExperience || normalizedRecord.requiredExperience || jobRecord.experience || '').trim();
+    let minExpYears = null;
+    const expM = reqExpStr.match(/(\d+(?:\.\d+)?)/);
+    if (expM) minExpYears = parseFloat(expM[1]);
+
+    const expComp = String(jobRecord.experienceCompatibility || normalizedRecord.experienceCompatibility || (jobRecord.evaluation?.experienceCompatibility) || '').toLowerCase();
+    const isMismatchedExp = expComp === 'below_mandatory' || (minExpYears !== null && minExpYears >= 5.0);
+    const isLowMatch = (jobRecord.evaluation && jobRecord.evaluation.isRecommended === false && (jobRecord.evaluation.score || 0) < 55);
+
     if (this.linkedinOnlyManualQueue && !isLinkedIn && !jobRecord.isUserManualEntry) {
       // Strictly skip non-LinkedIn spam/agency jobs
+    } else if ((isJunkTitle || isMismatchedExp || isLowMatch) && !jobRecord.isUserManualEntry) {
+      // Strictly skip jobs with junk titles, mismatched experience (>4 yrs or below_mandatory), or very low ATS scores
     } else if (
       normalizedStatus === ApplicationStates.MANUAL_ACTION_REQUIRED ||
       jobRecord.status === 'MANUAL_ACTION_REQUIRED' ||

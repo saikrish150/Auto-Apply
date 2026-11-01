@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const CareerSiteBot = require('./career-site-bot');
 
 class NaukriBot {
@@ -10,6 +12,20 @@ class NaukriBot {
     this.shouldStop = false;
     this.seenJobKeys = new Set();
     this.careerSiteBot = new CareerSiteBot(chromeManager, aiAgent, settings, logger, dataStore);
+    this.resumePath = this.resolveResumePath();
+  }
+
+  resolveResumePath() {
+    const candidates = [
+      path.join(__dirname, '..', 'config', 'resume.pdf'),
+      path.join(__dirname, '..', 'config', 'Sai_Krishna_Resume.pdf'),
+      this.ai?.profile?.personal?.resumePath,
+      'D:\\Downloads\\Sai_Krishna_G_Resume.pdf'
+    ];
+    for (const c of candidates) {
+      if (c && fs.existsSync(c)) return c;
+    }
+    return null;
   }
 
   stop() {
@@ -357,20 +373,25 @@ class NaukriBot {
                     await applyResult.button.evaluate(b => b.click());
                     await this.randomDelay(2200, 3500);
 
-                    // Guard 2: Check if an external company careers tab opened unexpectedly
+                    // Guard 2: Check if an external company careers tab or dedicated Naukri tab opened
                     const pagesAfter = await this.chrome.browser.pages();
-                    const newExternalTab = pagesAfter.find(p => !pagesBefore.includes(p));
+                    const newTab = pagesAfter.find(p => !pagesBefore.includes(p));
 
-                    if (newExternalTab) {
-                      const extUrl = newExternalTab.url();
-                      try {
-                        if (!newExternalTab.isClosed()) await newExternalTab.close();
-                      } catch (e) {}
-                      this.logger('info', 'Naukri', `Closed external tab: ${extUrl} (Naukri external apply links disabled).`);
-                      jobRecord.status = 'skipped';
-                      jobRecord.skipReason = 'External company site link (Naukri external applies disabled)';
-                      if (onJobProcessed) onJobProcessed(jobRecord);
-                      continue;
+                    if (newTab) {
+                      const newUrl = (newTab.url() || '').toLowerCase();
+                      if (newUrl.includes('naukri.com')) {
+                        this.logger('info', 'Naukri', `Naukri apply opened dedicated page: ${newUrl}. Processing application on this tab...`);
+                        jobTab = newTab;
+                      } else {
+                        try {
+                          if (!newTab.isClosed()) await newTab.close();
+                        } catch (e) {}
+                        this.logger('info', 'Naukri', `Closed external tab: ${newUrl} (Naukri external apply links disabled).`);
+                        jobRecord.status = 'skipped';
+                        jobRecord.skipReason = 'External company site link (Naukri external applies disabled)';
+                        if (onJobProcessed) onJobProcessed(jobRecord);
+                        continue;
+                      }
                     }
 
                     // Guard 3: Check if the current jobTab redirected to an external domain
@@ -408,12 +429,18 @@ class NaukriBot {
                       jobRecord.skipReason = 'Naukri account login required';
                     } else {
                       // Check if questionnaire chatbot or modal appeared
-                      const answeredQuestions = await this.handleNaukriChatbot(jobTab, jobMeta);
-                      jobRecord.questionsAnswered = answeredQuestions || [];
+                      const applyOutcome = await this.handleNaukriChatbot(jobTab, jobMeta);
+                      jobRecord.questionsAnswered = applyOutcome.questionsAnswered || [];
 
-                      jobRecord.status = 'applied';
-                      totalProcessedCount++;
-                      this.logger('success', 'Naukri', `Successfully applied to "${jobMeta.title}" at ${jobMeta.company}! (${jobRecord.questionsAnswered.length} screening questions answered)`);
+                      if (applyOutcome.success) {
+                        jobRecord.status = 'applied';
+                        totalProcessedCount++;
+                        this.logger('success', 'Naukri', `Successfully applied to "${jobMeta.title}" at ${jobMeta.company}! (${jobRecord.questionsAnswered.length} screening questions answered)`);
+                      } else {
+                        jobRecord.status = 'skipped';
+                        jobRecord.skipReason = applyOutcome.reason || 'Screening questions incomplete or application not accepted';
+                        this.logger('warning', 'Naukri', `Naukri application not accepted for "${jobMeta.title}": ${jobRecord.skipReason}`);
+                      }
                     }
                   } else {
                     // Guard 4: No 1-Click apply button found on Naukri detail page
@@ -508,42 +535,133 @@ class NaukriBot {
     return null;
   }
 
+  // Handle dedicated full-page saveApply flow (e.g. https://www.naukri.com/myapply/saveApply)
+  async handleNaukriSaveApplyPage(page, jobMeta = {}) {
+    const questionsAnswered = [];
+    try {
+      const url = page.url() || '';
+      this.logger('action', 'Naukri', `Evaluating Naukri full-page apply: ${url.slice(0, 85)}...`);
+
+      // Check URL multiApplyResp parameter
+      if (url.includes('multiApplyResp')) {
+        const respMatch = url.match(/multiApplyResp=(?:%7B|\{)(.*?)(?:%7D|\})/i);
+        if (respMatch) {
+          const decoded = decodeURIComponent(respMatch[0]);
+          if (decoded.includes(':200')) {
+            this.logger('success', 'Naukri', 'Naukri full-page confirmation verified (HTTP 200 Success).');
+            return { success: true, questionsAnswered };
+          }
+          if (decoded.includes(':406')) {
+            this.logger('warning', 'Naukri', 'Naukri full-page returned 406 (Incomplete mandatory questions).');
+          }
+        }
+      }
+
+      // Check if page contains the incomplete error message
+      const is406Error = await page.evaluate(() => {
+        const txt = (document.body ? document.body.innerText : '').toLowerCase();
+        return txt.includes('incomplete information') || txt.includes('please answer all mandatory questions');
+      });
+
+      if (is406Error) {
+        // Check if there are questionnaire fields on this page
+        const fields = await page.$$('.form-group, .field, [class*="question"], .question-wrap, .radio-wrap');
+        if (fields.length === 0) {
+          return {
+            success: false,
+            questionsAnswered,
+            reason: 'Naukri application was not accepted due to incomplete information (HTTP 406)'
+          };
+        }
+      }
+
+      // Check for success banners or keywords on page
+      const isSuccess = await page.evaluate(() => {
+        const txt = (document.body ? document.body.innerText : '').toLowerCase();
+        return txt.includes('application submitted') || txt.includes('successfully applied') || txt.includes('thank you for applying');
+      });
+
+      if (isSuccess) {
+        return { success: true, questionsAnswered };
+      }
+
+      return {
+        success: !is406Error,
+        questionsAnswered,
+        reason: is406Error ? 'Naukri application rejected (HTTP 406)' : undefined
+      };
+    } catch (err) {
+      this.logger('warning', 'Naukri', `Error checking saveApply page: ${err.message}`);
+      return { success: false, questionsAnswered, reason: err.message };
+    }
+  }
+
   // Answer Naukri questionnaire drawer (conversational chatbot OR standard form drawer)
   async handleNaukriChatbot(page, jobMeta = {}) {
     const questionsAnswered = [];
     try {
-      // 1. Wait for Naukri drawer or chatbot to animate in (up to 4.5 seconds)
+      // If already on saveApply full page, handle directly
+      if ((page.url() || '').includes('myapply/saveApply')) {
+        return await this.handleNaukriSaveApplyPage(page, jobMeta);
+      }
+
+      // 1. Wait for Naukri drawer or chatbot container to animate in (polling up to 6 seconds)
+      // CRITICAL: Exclude .nI-gNb* to prevent matching the global header navbar drawer
       let drawer = null;
       const drawerSelectors = [
-        '.drawer-wrapper',
-        '.apply-drawer',
+        '._chatBotContainer',
         '.chatbot_Drawer',
-        '.chat-container',
-        '.apply-message',
-        '.layerWrap',
-        '[class*="chatbot"]',
-        '[class*="drawer"]',
-        '[class*="Drawer"]',
-        '[class*="applyDrawer"]',
-        '[role="dialog"]',
-        '.styles_drawer-wrapper__j2b_u'
+        '[id$="ChatbotContainer"]',
+        '[id$="Drawer"]:not([class*="nI-gNb"])',
+        '.chatbot_MessageContainer',
+        '.chatbot_DrawerContentWrapper',
+        '.styles_drawer-wrapper__j2b_u',
+        '.layerWrap:not([class*="nI-gNb"])'
       ];
 
-      for (let attempt = 0; attempt < 9; attempt++) {
-        drawer = await page.$(drawerSelectors.join(', '));
-        if (drawer) {
-          const isVisible = await drawer.evaluate(el => el.offsetParent !== null && window.getComputedStyle(el).display !== 'none');
-          if (isVisible) break;
+      for (let attempt = 0; attempt < 12; attempt++) {
+        const elements = await page.$$(drawerSelectors.join(', '));
+        for (const el of elements) {
+          const isValidDrawer = await el.evaluate(node => {
+            const cls = (node.className || '').toString();
+            if (node.closest && node.closest('.nI-gNb-header, .nI-gNb-drawer')) return false;
+            const style = typeof window !== 'undefined' && window.getComputedStyle ? window.getComputedStyle(node) : {};
+            const isVisible = (node.offsetParent !== null || style.display !== 'none') && style.visibility !== 'hidden';
+            return isVisible && (node.offsetWidth || 300) > 100 && (node.offsetHeight || 300) > 100;
+          });
+          if (isValidDrawer) {
+            drawer = el;
+            break;
+          }
         }
+        if (drawer) break;
         await new Promise(r => setTimeout(r, 500));
       }
 
+      // If no drawer detected, check if application succeeded directly (no questions required)
       if (!drawer) {
+        // Check if page redirected to saveApply
+        if ((page.url() || '').includes('myapply/saveApply')) {
+          return await this.handleNaukriSaveApplyPage(page, jobMeta);
+        }
+
+        const directSuccess = await page.evaluate(() => {
+          const bodyTxt = (document.body ? document.body.innerText : '').toLowerCase();
+          const btn = document.querySelector('#apply-button, .apply-button, [class*="apply-button"]');
+          const btnTxt = (btn ? btn.innerText : '').toLowerCase();
+          return btnTxt.includes('applied') || bodyTxt.includes('application submitted') || bodyTxt.includes('successfully applied');
+        });
+
+        if (directSuccess) {
+          this.logger('success', 'Naukri', 'No questionnaire required. Application submitted directly!');
+          return { success: true, questionsAnswered };
+        }
+
         this.logger('info', 'Naukri', 'No screening questionnaire drawer detected. Application submitted directly.');
-        return questionsAnswered;
+        return { success: true, questionsAnswered };
       }
 
-      this.logger('action', 'Naukri', '🤖 Naukri screening drawer detected! Processing questions with Candidate Profile + Gemini AI...');
+      this.logger('action', 'Naukri', '🤖 Naukri screening chatbot drawer detected! Processing questions with Candidate Profile + AI...');
       const qaContext = {
         platform: 'Naukri',
         jobTitle: jobMeta?.title || 'Unknown Title',
@@ -574,223 +692,241 @@ class NaukriBot {
         }
       };
 
-      // A. Check for standard form fields in drawer (Form Mode)
-      const formFields = await page.$$([
-        '.drawer-wrapper .form-group',
-        '.drawer-wrapper .field',
-        '.drawer-wrapper .form-row',
-        '.drawer-wrapper [class*="group"]',
-        '.apply-drawer .form-group',
-        '.apply-drawer .field',
-        '[role="dialog"] .form-group',
-        '[role="dialog"] .field',
-        '[class*="drawer"] [class*="field"]',
-        '[class*="drawer"] [class*="question"]'
-      ].join(', '));
-
-      if (formFields.length > 0) {
-        this.logger('action', 'Naukri', `Found ${formFields.length} screening form fields in drawer. Filling...`);
-        for (const field of formFields) {
-          try {
-            const labelText = await field.evaluate(el => {
-              const lbl = el.querySelector('label, .label, .field-label, span[class*="label"], .title, [class*="title"], p');
-              return lbl ? lbl.innerText.trim() : '';
-            });
-            if (!labelText) continue;
-
-            // 1. Radio / chips in field
-            const radioChips = await field.$$('.radio-btn, input[type="radio"], .chip-btn, .option-chip, [class*="radio"], [class*="chip"]');
-            if (radioChips.length > 0) {
-              const opts = await field.evaluate(el => {
-                return Array.from(el.querySelectorAll('label, .chip-btn, .option-chip, span, [class*="chip"]'))
-                  .map(s => s.innerText.trim())
-                  .filter(Boolean);
-              });
-              const ans = await this.ai.answerScreeningQuestionAI(labelText, opts, 'radio', qaContext);
-              const clicked = await field.evaluate((el, targetAns) => {
-                const clickables = Array.from(el.querySelectorAll('label, .chip-btn, .option-chip, input[type="radio"], [class*="chip"]'));
-                const tLower = targetAns.toLowerCase();
-                let match = clickables.find(c => {
-                  const txt = (c.innerText || c.value || '').trim().toLowerCase();
-                  return txt === tLower || txt.includes(tLower) || tLower.includes(txt);
-                });
-                if (!match && /yes/i.test(tLower)) match = clickables.find(c => /yes/i.test(c.innerText || c.value));
-                if (!match && /no/i.test(tLower)) match = clickables.find(c => /no/i.test(c.innerText || c.value));
-                if (match) {
-                  match.click();
-                  return true;
-                }
-                return false;
-              }, ans.answer);
-
-              if (clicked) {
-                questionsAnswered.push({ question: labelText, answer: ans.answer, inputType: 'radio', source: ans.source });
-                this.logger('action', 'Naukri', `Option chosen: "${ans.answer}" for "${labelText.slice(0, 35)}..." (${ans.source})`);
-              }
-              continue;
-            }
-
-            // 2. Select dropdown (Native or custom Naukri dropdown)
-            const select = await field.$('select');
-            if (select) {
-              const opts = await select.evaluate(s => Array.from(s.options).map(o => o.text.trim()).filter(Boolean));
-              const ans = await this.ai.answerScreeningQuestionAI(labelText, opts, 'select', qaContext);
-              await select.evaluate((s, targetAns) => {
-                const opt = Array.from(s.options).find(o => o.text.toLowerCase().includes(targetAns.toLowerCase()) || targetAns.toLowerCase().includes(o.text.toLowerCase()));
-                if (opt) s.value = opt.value;
-                s.dispatchEvent(new Event('change', { bubbles: true }));
-              }, ans.answer);
-              questionsAnswered.push({ question: labelText, answer: ans.answer, inputType: 'select', source: ans.source });
-              continue;
-            }
-
-            // Custom dropdown container
-            const customDropdown = await field.$('.custom-select, .typeahead, .dropdown-container, [class*="custom-select"], [class*="dropdown"]');
-            if (customDropdown) {
-              await customDropdown.click();
-              await this.randomDelay(400, 800);
-              const dropOptions = await page.evaluate(() => {
-                const items = Array.from(document.querySelectorAll('.dropdown-item, .select-options li, .option-item, ul[class*="dropdown"] li'));
-                return items.map(i => i.innerText.trim()).filter(Boolean);
-              });
-              if (dropOptions.length > 0) {
-                const ans = await this.ai.answerScreeningQuestionAI(labelText, dropOptions, 'select', qaContext);
-                await page.evaluate((targetAns) => {
-                  const items = Array.from(document.querySelectorAll('.dropdown-item, .select-options li, .option-item, ul[class*="dropdown"] li'));
-                  const tLower = targetAns.toLowerCase();
-                  const match = items.find(i => i.innerText.trim().toLowerCase().includes(tLower) || tLower.includes(i.innerText.trim().toLowerCase()));
-                  if (match) match.click();
-                }, ans.answer);
-                questionsAnswered.push({ question: labelText, answer: ans.answer, inputType: 'select', source: ans.source });
-                continue;
-              }
-            }
-
-            // 3. Text / numeric input
-            const input = await field.$('input[type="text"], input[type="number"], textarea, input:not([type="hidden"])');
-            if (input) {
-              const isNum = await input.evaluate(el => el.type === 'number' || el.inputMode === 'numeric');
-              const inputType = isNum || /years|experience|notice|days|ctc|salary|lakhs/i.test(labelText) ? 'number' : 'text';
-              const ans = await this.ai.answerScreeningQuestionAI(labelText, [], inputType, qaContext);
-              await setInputReactValue(input, ans.answer);
-              questionsAnswered.push({ question: labelText, answer: ans.answer, inputType, source: ans.source });
-              this.logger('action', 'Naukri', `Filled [${inputType}]: "${ans.answer}" for "${labelText.slice(0, 35)}..." (${ans.source})`);
-            }
-          } catch (e) {}
-        }
-      }
-
-      // B. Also handle conversational chat messages (Naukri Fast Forward Chatbot)
-      let chatTurns = 12;
+      // Conversational Q&A Loop
+      let chatTurns = 15;
       let lastAnsweredQuestion = '';
+      let repeatCount = 0;
 
       while (chatTurns > 0) {
         chatTurns--;
-        await this.randomDelay(1400, 2200);
+        await this.randomDelay(1200, 2000);
 
-        // Detect latest unanswered bot question
-        const questionText = await page.evaluate(() => {
-          const msgs = document.querySelectorAll('.bot-msg, .botText, .question-text, .msg-text, li[class*="bot"], div[class*="bot-message"], [class*="bot_msg"], [class*="chat-msg"]');
-          if (msgs.length === 0) return '';
-          return (msgs[msgs.length - 1].innerText || msgs[msgs.length - 1].textContent || '').trim();
-        });
-
-        // Check for submission completion keywords
+        // A. Check for completion or success keywords
         const isDone = await page.evaluate(() => {
-          const text = (document.body ? document.body.innerText : '').toLowerCase();
-          return text.includes('application submitted') || text.includes('successfully applied') || text.includes('thank you for applying');
+          const bodyTxt = (document.body ? document.body.innerText : '').toLowerCase();
+          const drawerTxt = Array.from(document.querySelectorAll('._chatBotContainer, .chatbot_Drawer, .botMsg, .botItem'))
+            .map(el => el.innerText.toLowerCase())
+            .join(' ');
+          const combined = bodyTxt + ' ' + drawerTxt;
+          return combined.includes('application submitted') ||
+                 combined.includes('successfully applied') ||
+                 combined.includes('thank you for applying') ||
+                 combined.includes('your application has been sent');
         });
+
         if (isDone) {
           this.logger('success', 'Naukri', 'Chatbot confirmed application submitted successfully!');
-          break;
+          return { success: true, questionsAnswered };
         }
 
-        if (!questionText || questionText === lastAnsweredQuestion) {
-          // Check if drawer is already closing or submit button is ready
-          break;
+        // B. Check for chatbot error
+        const hasError = await page.evaluate(() => {
+          const drawerEl = document.querySelector('._chatBotContainer, .chatbot_Drawer');
+          if (!drawerEl) return false;
+          const txt = (drawerEl.innerText || '').toLowerCase();
+          return txt.includes('something went wrong');
+        });
+
+        if (hasError) {
+          this.logger('warning', 'Naukri', 'Naukri chatbot reported "Something went wrong".');
+          return { success: false, questionsAnswered, reason: 'Chatbot reported "Something went wrong"' };
         }
 
+        // C. Detect latest unanswered bot question inside chatbot container
+        const questionText = await page.evaluate(() => {
+          const botMsgs = Array.from(document.querySelectorAll('._chatBotContainer li.botItem .botMsg, ._chatBotContainer li.botItem, ._chatBotContainer .botMsg, .chatbot_Drawer li.botItem .botMsg, .chatbot_Drawer li.botItem, .chatbot_Drawer .botMsg, [class*="botMsg"], [class*="question-text"]'))
+            .filter(b => !b.closest('.nI-gNb-header, .nI-gNb-drawer'))
+            .map(el => (el.innerText || el.textContent || '').trim())
+            .filter(t => t.length > 5 && !t.includes('naukriLogo'));
+          return botMsgs.length > 0 ? botMsgs[botMsgs.length - 1] : '';
+        });
+
+        if (!questionText) {
+          // If no question text is found, check if drawer closed or if Save button is ready
+          const drawerStillVisible = await page.evaluate(() => {
+            const d = document.querySelector('._chatBotContainer, .chatbot_Drawer');
+            const style = d && typeof window !== 'undefined' && window.getComputedStyle ? window.getComputedStyle(d) : {};
+            return d && (d.offsetParent !== null || style.display !== 'none');
+          });
+          if (!drawerStillVisible) {
+            break;
+          }
+          await this.randomDelay(1000, 1500);
+          continue;
+        }
+
+        if (questionText === lastAnsweredQuestion) {
+          repeatCount++;
+          if (repeatCount >= 3) {
+            this.logger('info', 'Naukri', 'Question already answered 3 times without advancing. Exiting chat loop.');
+            break;
+          }
+          await this.randomDelay(1000, 1500);
+        } else {
+          repeatCount = 0;
+        }
         lastAnsweredQuestion = questionText;
 
-        // Multiple-choice options / chips
-        const optionButtons = await page.$$('.option-chip, .chat-option, .chip-btn, .choice-btn, .bot-chip, .chips-container button, .chips-container span, [class*="chip"]');
-        if (optionButtons.length > 0) {
+        // D. Check for Multiple-Choice / Radio / Chips Options INSIDE Chatbot Container
+        const hasOptions = await page.evaluate(() => {
+          const chips = Array.from(document.querySelectorAll('._chatBotContainer [class*="chip"], ._chatBotContainer [class*="radio"], ._chatBotContainer [class*="choice"], ._chatBotContainer [class*="option"], ._chatBotContainer .bot-chip, ._chatBotContainer ul.list li:not(.botItem):not(.userItem), .chatbot_Drawer [class*="chip"], .chatbot_Drawer [class*="radio"], .chatbot_Drawer [class*="choice"], .chatbot_Drawer [class*="option"], .chatbot_Drawer .bot-chip'))
+            .filter(c => !c.closest('.nI-gNb-header, .nI-gNb-drawer') && c.offsetParent !== null)
+            .map(c => (c.innerText || c.textContent || '').trim())
+            .filter(t => t.length > 0 && t.length < 60 && !t.toLowerCase().includes('save') && !t.toLowerCase().includes('submit'));
+          return chips.length > 0;
+        });
+
+        if (hasOptions) {
           const chatOptions = await page.evaluate(() => {
-            const btns = Array.from(document.querySelectorAll('.option-chip, .chat-option, .chip-btn, .choice-btn, .bot-chip, .chips-container button, .chips-container span, [class*="chip"]'));
-            return btns.map(b => (b.innerText || b.textContent || '').trim()).filter(Boolean);
+            const chips = Array.from(document.querySelectorAll('._chatBotContainer [class*="chip"], ._chatBotContainer [class*="radio"], ._chatBotContainer [class*="choice"], ._chatBotContainer [class*="option"], ._chatBotContainer .bot-chip, ._chatBotContainer ul.list li:not(.botItem):not(.userItem), .chatbot_Drawer [class*="chip"], .chatbot_Drawer [class*="radio"], .chatbot_Drawer [class*="choice"], .chatbot_Drawer [class*="option"], .chatbot_Drawer .bot-chip'))
+              .filter(c => !c.closest('.nI-gNb-header, .nI-gNb-drawer') && c.offsetParent !== null)
+              .map(c => (c.innerText || c.textContent || '').trim())
+              .filter(t => t.length > 0 && t.length < 60 && !t.toLowerCase().includes('save') && !t.toLowerCase().includes('submit'));
+            return [...new Set(chips)];
           });
 
+          this.logger('action', 'Naukri', `Chatbot question: "${questionText.slice(0, 45)}..." with options: [${chatOptions.join(', ')}]`);
           const answer = await this.ai.answerScreeningQuestionAI(questionText, chatOptions, 'radio', qaContext);
-          await page.evaluate((targetAns) => {
-            const btns = Array.from(document.querySelectorAll('.option-chip, .chat-option, .chip-btn, .choice-btn, .bot-chip, .chips-container button, .chips-container span, [class*="chip"]'));
-            const tLower = targetAns.toLowerCase();
-            let match = btns.find(b => {
+
+          const clicked = await page.evaluate((targetAns) => {
+            const chips = Array.from(document.querySelectorAll('._chatBotContainer [class*="chip"], ._chatBotContainer [class*="radio"], ._chatBotContainer [class*="choice"], ._chatBotContainer [class*="option"], ._chatBotContainer .bot-chip, ._chatBotContainer ul.list li:not(.botItem):not(.userItem), .chatbot_Drawer [class*="chip"], .chatbot_Drawer [class*="radio"], .chatbot_Drawer [class*="choice"], .chatbot_Drawer [class*="option"], .chatbot_Drawer .bot-chip'))
+              .filter(c => !c.closest('.nI-gNb-header, .nI-gNb-drawer') && c.offsetParent !== null);
+
+            const tLower = targetAns.toLowerCase().trim();
+            let match = chips.find(b => {
               const text = (b.innerText || '').trim().toLowerCase();
               return text === tLower || text.includes(tLower) || tLower.includes(text);
             });
-            if (!match && /yes/i.test(tLower)) match = btns.find(b => /yes/i.test(b.innerText));
-            if (!match && /no/i.test(tLower)) match = btns.find(b => /no/i.test(b.innerText));
-            if (match) match.click();
-            else if (btns[0]) btns[0].click();
+            if (!match && /yes/i.test(tLower)) match = chips.find(b => /yes/i.test(b.innerText));
+            if (!match && /no/i.test(tLower)) match = chips.find(b => /no/i.test(b.innerText));
+            if (match) {
+              match.click();
+              return true;
+            }
+            if (chips.length > 0) {
+              chips[0].click();
+              return true;
+            }
+            return false;
           }, answer.answer);
 
-          questionsAnswered.push({ question: questionText, answer: answer.answer, inputType: 'radio', source: answer.source });
-          this.logger('action', 'Naukri', `Chat chip selected: "${answer.answer}" for "${questionText.slice(0, 35)}..." (${answer.source})`);
-          await this.randomDelay(1500, 2500);
+          if (clicked) {
+            questionsAnswered.push({ question: questionText, answer: answer.answer, inputType: 'radio', source: answer.source });
+            this.logger('action', 'Naukri', `Option chosen: "${answer.answer}" for "${questionText.slice(0, 35)}..." (${answer.source})`);
+            await this.randomDelay(1800, 2600);
+            continue;
+          }
+        }
+
+        // E. Check for Text / Numeric Input INSIDE Chatbot Container
+        // Modern Naukri uses: div.textArea[contenteditable="true"]
+        const inputDiv = await page.$('._chatBotContainer div.textArea[contenteditable="true"], ._chatBotContainer [contenteditable="true"], ._chatBotContainer input.chat-input, ._chatBotContainer input[type="text"], ._chatBotContainer input[type="number"], ._chatBotContainer textarea, ._chatBotContainer [id*="userInput"], .chatbot_Drawer div.textArea[contenteditable="true"], .chatbot_Drawer [contenteditable="true"], .chatbot_Drawer input[type="text"], .chatbot_Drawer input[type="number"], .chatbot_Drawer textarea');
+
+        if (inputDiv) {
+          const isContentEditable = await inputDiv.evaluate(el => el.contentEditable === 'true' || el.getAttribute('contenteditable') === 'true');
+          const isNumericQuestion = /how many years|years of experience|notice period|days to join|current ctc|expected ctc|annual salary|in lakhs|in days|ctc|experience/i.test(questionText);
+          const inputType = isNumericQuestion ? 'number' : 'text';
+
+          const answer = await this.ai.answerScreeningQuestionAI(questionText, [], inputType, qaContext);
+          this.logger('action', 'Naukri', `Chat answering [${inputType}]: "${answer.answer}" for "${questionText.slice(0, 45)}..." (${answer.source})`);
+
+          if (isContentEditable) {
+            // Type into contenteditable div
+            await inputDiv.evaluate(el => {
+              if (el && typeof el.focus === 'function') el.focus();
+              if (el) el.innerText = '';
+            });
+            await page.keyboard.type(String(answer.answer), { delay: 30 });
+            await inputDiv.evaluate((el, val) => {
+              if (el && typeof el.dispatchEvent === 'function' && typeof Event !== 'undefined') {
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+            }, answer.answer);
+          } else {
+            await setInputReactValue(inputDiv, answer.answer);
+          }
+
+          await this.randomDelay(300, 600);
+
+          // Click the Save / Send button inside the drawer
+          const sendClicked = await page.evaluate(() => {
+            const sendBtn = document.querySelector('._chatBotContainer [id*="sendMsg"], ._chatBotContainer .sendMsg, ._chatBotContainer .send:not(.disabled), ._chatBotContainer button[type="submit"], .chatbot_Drawer [id*="sendMsg"], .chatbot_Drawer .sendMsg, .chatbot_Drawer .send:not(.disabled)');
+            if (sendBtn) {
+              sendBtn.click();
+              const inner = sendBtn.querySelector('.sendMsg');
+              if (inner) inner.click();
+              return true;
+            }
+            return false;
+          });
+
+          if (!sendClicked) {
+            // Fallback: Press Enter key
+            await page.keyboard.press('Enter');
+          }
+
+          questionsAnswered.push({ question: questionText, answer: answer.answer, inputType, source: answer.source });
+          await this.randomDelay(2000, 3000);
           continue;
         }
 
-        // Chat text / number input
-        const chatInput = await page.$('.chat-input, input.chat-input, input[type="text"], input[type="number"], textarea');
-        if (chatInput) {
-          const isInputNumber = await chatInput.evaluate(el => el.type === 'number' || el.inputMode === 'numeric');
-          const isNumericQuestion = isInputNumber || /how many years|years of experience|notice period|days to join|current ctc|expected ctc|annual salary|in lakhs|in days/i.test(questionText);
-          const inputType = isNumericQuestion ? 'number' : 'text';
-          const answer = await this.ai.answerScreeningQuestionAI(questionText, [], inputType, qaContext);
-
-          await setInputReactValue(chatInput, answer.answer);
-          await page.keyboard.press('Enter');
-
-          const sendBtn = await page.$('.send-btn, button[type="submit"], .send-icon, button[class*="send"], [class*="send-btn"]');
-          if (sendBtn) await sendBtn.click().catch(() => {});
-
-          questionsAnswered.push({ question: questionText, answer: answer.answer, inputType, source: answer.source });
-          this.logger('action', 'Naukri', `Chat typed [${inputType}]: "${answer.answer}" for "${questionText.slice(0, 35)}..." (${answer.source})`);
-          await this.randomDelay(1800, 2800);
-          continue;
+        // F. Check for Resume Upload field
+        const fileInput = await page.$('._chatBotContainer input[type="file"], .chatbot_Drawer input[type="file"], input.chatbot_Uploader');
+        if (fileInput) {
+          try {
+            const resumePath = this.resolveResumePath ? this.resolveResumePath() : path.join(__dirname, '..', 'config', 'resume.pdf');
+            if (fs.existsSync(resumePath)) {
+              await fileInput.uploadFile(resumePath);
+              questionsAnswered.push({ question: 'Resume Upload', answer: 'resume.pdf', inputType: 'file', source: 'candidate.resume' });
+              this.logger('action', 'Naukri', 'Uploaded candidate resume PDF to chatbot.');
+              await this.randomDelay(1800, 2800);
+              continue;
+            }
+          } catch (uploadErr) {
+            this.logger('warning', 'Naukri', `Resume upload failed: ${uploadErr.message}`);
+          }
         }
 
         break;
       }
 
-      // C. Click any final Save / Submit / Continue button in the drawer if present
-      await page.evaluate(() => {
-        const btns = Array.from(document.querySelectorAll([
-          '.drawer-wrapper button',
-          '.apply-drawer button',
-          'button[type="submit"]',
-          '.save-btn',
-          '.submit-btn',
-          '.apply-button',
-          'button[class*="submit"]',
-          'button[class*="save"]',
-          'button[class*="apply"]'
-        ].join(', ')));
+      // 4. Final Verification: Check application status after drawer interactions
+      await this.randomDelay(2000, 3200);
 
-        const subBtn = btns.find(b => {
-          const txt = (b.innerText || '').toLowerCase().trim();
-          return (txt.includes('submit') || txt.includes('save') || txt.includes('apply') || txt.includes('continue') || txt.includes('done')) &&
-                 !txt.includes('cancel') && b.offsetParent !== null;
-        });
-        if (subBtn) subBtn.click();
+      if ((page.url() || '').includes('myapply/saveApply')) {
+        return await this.handleNaukriSaveApplyPage(page, jobMeta);
+      }
+
+      const finalOutcome = await page.evaluate(() => {
+        const bodyTxt = (document.body ? document.body.innerText : '').toLowerCase();
+        const btn = document.querySelector('#apply-button, .apply-button, [class*="apply-button"]');
+        const btnTxt = (btn ? btn.innerText : '').toLowerCase();
+        const isSuccess = btnTxt.includes('applied') ||
+                          bodyTxt.includes('application submitted') ||
+                          bodyTxt.includes('successfully applied') ||
+                          bodyTxt.includes('thank you for applying');
+        const is406 = bodyTxt.includes('incomplete information') || bodyTxt.includes('please answer all mandatory questions');
+        return { isSuccess, is406 };
       });
-      await this.randomDelay(1500, 2500);
+
+      if (finalOutcome.is406) {
+        return {
+          success: false,
+          questionsAnswered,
+          reason: 'Application rejected by Naukri with HTTP 406 (incomplete mandatory questions)'
+        };
+      }
+
+      return {
+        success: true,
+        questionsAnswered
+      };
 
     } catch (chatErr) {
       this.logger('warning', 'Naukri', `Naukri questionnaire error: ${chatErr.message}`);
+      return { success: false, questionsAnswered, reason: chatErr.message };
     }
-
-    return questionsAnswered;
   }
 
   // External career portal filling is strictly disabled on Naukri

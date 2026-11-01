@@ -40,6 +40,12 @@
       "Full Stack Developer"
     ],
     "totalYearsExperience": 3,
+    "experienceInteger": 3,
+    "experienceDecimal": "2.10",
+    "dateOfJoining": "28/12/2023",
+    "lastWorkingDay": "30/11/2026",
+    "careerGap": "No",
+    "reasonForChange": "Seeking career growth and bigger responsibilities, with greater ownership of design and delivery.",
     "currentCompany": "Tech Mahindra",
     "currentClient": "GE Aerospace",
     "currentDesignation": "Full Stack Developer",
@@ -48,13 +54,17 @@
     "expectedSalaryLPA": 10,
     "expectedSalaryFormatted": "10.00 LPA",
     "minimumSalaryLPA": 9,
-    "monthlyInHandExpectation": 80000,
+    "monthlyInHandExpectation": 83000,
     "officialNoticePeriodDays": 30,
     "negotiableNoticePeriodDays": 30,
     "noticePeriodDays": 30,
     "currentlyServingNotice": true,
     "noticePeriodDescription": "30 days official (30 days negotiable)",
     "willingToRelocate": true,
+    "fiveDaysInOffice": true,
+    "saturdayWorking": false,
+    "contractOrC2H": false,
+    "thirdPartyPayroll": true,
     "preferredLocations": [
       "Hyderabad",
       "Bengaluru",
@@ -70,8 +80,31 @@
     "needsVisaSponsorship": false,
     "workAuthorization": "Indian Citizen / Authorized to work without restriction",
     "shiftPreference": "Flexible / Day, Rotational or US Overlap / Night Shifts",
-    "offersInHand": "None (Actively interviewing)",
-    "interviewAvailability": "Available for both Virtual and In-Person interviews on any dates immediately"
+    "offersInHand": "None",
+    "interviewAvailability": "Available for both Virtual and In-Person interviews on any dates immediately",
+    "zeroExperienceSkills": [
+      "JUnit",
+      "Mockito",
+      "React.js",
+      "React",
+      "Kubernetes",
+      "Kafka",
+      "RabbitMQ",
+      "Redis",
+      "MongoDB",
+      "Swagger",
+      "OpenAPI",
+      "Linux",
+      "Python",
+      "Django",
+      "Flask",
+      "C#",
+      ".NET",
+      "PHP",
+      "Ruby",
+      "Go",
+      "Rust"
+    ]
   },
   "skills": [
     {
@@ -83,6 +116,36 @@
       "name": "Spring Boot",
       "years": 3,
       "proficiency": "Expert"
+    },
+    {
+      "name": "Spring MVC",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Spring Security / JWT",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Hibernate / JPA",
+      "years": 3,
+      "proficiency": "Advanced"
+    },
+    {
+      "name": "Microservices",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "REST APIs",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Maven",
+      "years": 3,
+      "proficiency": "Advanced"
     },
     {
       "name": "Angular",
@@ -100,48 +163,43 @@
       "proficiency": "Expert"
     },
     {
-      "name": "RESTful APIs & Microservices",
-      "years": 3,
-      "proficiency": "Expert"
-    },
-    {
-      "name": "Hibernate",
-      "years": 2.5,
-      "proficiency": "Advanced"
-    },
-    {
-      "name": "PostgreSQL & SQL",
-      "years": 3,
-      "proficiency": "Advanced"
-    },
-    {
-      "name": "AWS (Lambda)",
-      "years": 2,
-      "proficiency": "Intermediate"
-    },
-    {
-      "name": "Docker & Jenkins CI/CD",
-      "years": 2,
-      "proficiency": "Intermediate"
-    },
-    {
-      "name": "Git & GitHub",
-      "years": 3,
-      "proficiency": "Expert"
-    },
-    {
-      "name": "Supabase",
-      "years": 2,
-      "proficiency": "Advanced"
-    },
-    {
       "name": "HTML5 & CSS3",
       "years": 3,
       "proficiency": "Expert"
     },
     {
-      "name": "Agentic AI Dev (Antigravity, Copilot)",
-      "years": 1.5,
+      "name": "NgRx, RxJS, Signals",
+      "years": 3,
+      "proficiency": "Advanced"
+    },
+    {
+      "name": "SQL, PostgreSQL, MySQL",
+      "years": 3,
+      "proficiency": "Advanced"
+    },
+    {
+      "name": "Git / GitHub, Postman",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Agile / Scrum / Jira",
+      "years": 3,
+      "proficiency": "Advanced"
+    },
+    {
+      "name": "AWS (Lambda, S3)",
+      "years": 2,
+      "proficiency": "Intermediate"
+    },
+    {
+      "name": "Docker, Jenkins, CI/CD",
+      "years": 2,
+      "proficiency": "Intermediate"
+    },
+    {
+      "name": "Supabase",
+      "years": 2,
       "proficiency": "Advanced"
     }
   ],
@@ -200,9 +258,16 @@
   ],
   "screeningQA": [
     {
+      "pattern": "ever.*been.*employed.*precisely",
+      "answerType": "fixed",
+      "defaultAnswer": "No",
+      "notes": "Learned from screening Q: \"Have you ever been employed at Precisely?\"",
+      "updatedAt": "2026-11-01T06:35:21.841Z"
+    },
+    {
       "pattern": "financial.*expectations.*monthly.*gross",
       "answerType": "fixed",
-      "defaultAnswer": "80000",
+      "defaultAnswer": "83000",
       "notes": "Learned from screening Q: \"What are your financial expectations (monthly gross)?\"",
       "updatedAt": "2026-10-31T06:55:45.804Z"
     },
@@ -300,7 +365,7 @@
     {
       "pattern": "how.*did.*hear.*about",
       "answerType": "fixed",
-      "defaultAnswer": "Linked In",
+      "defaultAnswer": "LinkedIn",
       "notes": "Learned from screening Q: \"How did you hear about our company\"",
       "updatedAt": "2026-10-27T11:00:03.249Z"
     },
@@ -587,6 +652,42 @@
       "proficiency": "Expert",
       "verified": true
     },
+    "spring mvc": {
+      "name": "Spring MVC",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "spring security / jwt": {
+      "name": "Spring Security / JWT",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "hibernate / jpa": {
+      "name": "Hibernate / JPA",
+      "years": 3,
+      "proficiency": "Advanced",
+      "verified": true
+    },
+    "microservices": {
+      "name": "Microservices",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "rest apis": {
+      "name": "REST APIs",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "maven": {
+      "name": "Maven",
+      "years": 3,
+      "proficiency": "Advanced",
+      "verified": true
+    },
     "angular": {
       "name": "Angular",
       "years": 3,
@@ -605,57 +706,51 @@
       "proficiency": "Expert",
       "verified": true
     },
-    "restful apis & microservices": {
-      "name": "RESTful APIs & Microservices",
-      "years": 3,
-      "proficiency": "Expert",
-      "verified": true
-    },
-    "hibernate": {
-      "name": "Hibernate",
-      "years": 2.5,
-      "proficiency": "Advanced",
-      "verified": true
-    },
-    "postgresql & sql": {
-      "name": "PostgreSQL & SQL",
-      "years": 3,
-      "proficiency": "Advanced",
-      "verified": true
-    },
-    "aws (lambda)": {
-      "name": "AWS (Lambda)",
-      "years": 2,
-      "proficiency": "Intermediate",
-      "verified": true
-    },
-    "docker & jenkins ci/cd": {
-      "name": "Docker & Jenkins CI/CD",
-      "years": 2,
-      "proficiency": "Intermediate",
-      "verified": true
-    },
-    "git & github": {
-      "name": "Git & GitHub",
-      "years": 3,
-      "proficiency": "Expert",
-      "verified": true
-    },
-    "supabase": {
-      "name": "Supabase",
-      "years": 2,
-      "proficiency": "Advanced",
-      "verified": true
-    },
     "html5 & css3": {
       "name": "HTML5 & CSS3",
       "years": 3,
       "proficiency": "Expert",
       "verified": true
     },
-    "agentic ai dev (antigravity, copilot)": {
-      "name": "Agentic AI Dev (Antigravity, Copilot)",
-      "years": 1.5,
+    "ngrx, rxjs, signals": {
+      "name": "NgRx, RxJS, Signals",
+      "years": 3,
+      "proficiency": "Advanced",
+      "verified": true
+    },
+    "sql, postgresql, mysql": {
+      "name": "SQL, PostgreSQL, MySQL",
+      "years": 3,
+      "proficiency": "Advanced",
+      "verified": true
+    },
+    "git / github, postman": {
+      "name": "Git / GitHub, Postman",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "agile / scrum / jira": {
+      "name": "Agile / Scrum / Jira",
+      "years": 3,
+      "proficiency": "Advanced",
+      "verified": true
+    },
+    "aws (lambda, s3)": {
+      "name": "AWS (Lambda, S3)",
+      "years": 2,
+      "proficiency": "Intermediate",
+      "verified": true
+    },
+    "docker, jenkins, ci/cd": {
+      "name": "Docker, Jenkins, CI/CD",
+      "years": 2,
+      "proficiency": "Intermediate",
+      "verified": true
+    },
+    "supabase": {
+      "name": "Supabase",
+      "years": 2,
       "proficiency": "Advanced",
       "verified": true
     }

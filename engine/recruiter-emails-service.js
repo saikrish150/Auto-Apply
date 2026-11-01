@@ -129,7 +129,14 @@ class RecruiterEmailsService extends EventEmitter {
     let result = [...this.emails];
 
     if (filters.status && filters.status !== 'all') {
-      result = result.filter(e => e.status === filters.status);
+      const s = String(filters.status).toLowerCase();
+      if (s === 'active' || s === 'new' || s === 'need_action' || s === 'pending') {
+        result = result.filter(e => e.status === 'new');
+      } else if (s === 'contacted' || s === 'completed') {
+        result = result.filter(e => e.status === 'contacted' || e.status === 'completed');
+      } else {
+        result = result.filter(e => (e.status || '').toLowerCase() === s);
+      }
     }
 
     if (filters.platform && filters.platform !== 'all') {
@@ -349,9 +356,9 @@ Email: gsaikrishna150@gmail.com`;
 
     if (updates.status) {
       const statusNormalized = String(updates.status).trim().toLowerCase();
-      if (['new', 'contacted', 'replied', 'archived'].includes(statusNormalized)) {
-        record.status = statusNormalized;
-        if (statusNormalized === 'contacted' && !record.contactedAt) {
+      if (['new', 'contacted', 'completed', 'replied', 'archived'].includes(statusNormalized)) {
+        record.status = statusNormalized === 'completed' ? 'contacted' : statusNormalized;
+        if ((record.status === 'contacted') && !record.contactedAt) {
           record.contactedAt = new Date().toISOString();
         }
       }

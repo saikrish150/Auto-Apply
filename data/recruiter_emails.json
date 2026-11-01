@@ -1,20 +1,41 @@
 {
   "summary": {
-    "totalEmails": 13,
-    "newCount": 1,
-    "contactedCount": 12,
+    "totalEmails": 14,
+    "newCount": 0,
+    "contactedCount": 14,
     "repliedCount": 0,
     "archivedCount": 0,
     "byPlatform": {
       "LinkedIn": 1,
-      "Naukri": 2,
+      "Naukri": 3,
       "Foundit": 0,
       "Career Website": 10,
       "Other": 0
     },
-    "lastUpdated": "2026-10-31T07:28:11.668Z"
+    "lastUpdated": "2026-11-01T06:09:01.577Z"
   },
   "emails": [
+    {
+      "id": "recruiter-1793434261286-f1q4h",
+      "email": "peddollu.d@honeybeetechsolutions.com",
+      "recruiterName": "Hiring Team",
+      "company": "Honeybee Tech Solutions",
+      "jobTitle": "Java Full Stack Developer - L1 Support",
+      "jobTitles": [
+        "Java Full Stack Developer - L1 Support"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-java-full-stack-developer-l1-support-honeybee-tech-solutions-pune-1-to-4-years-121026011503",
+      "platform": "Naukri",
+      "context": "...alent Acquisition Manager Honeybee Tech Solutions Pvt. Ltd. peddollu.d@honeybeetechsolutions.com Role: Full Stack Developer Industry Type: IT Services & Co...",
+      "status": "contacted",
+      "notes": "",
+      "subjectTemplate": "Application for Java Full Stack Developer - L1 Support - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Java Full Stack Developer - L1 Support opening at Honeybee Tech Solutions and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Honeybee Tech Solutions.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-10-31T08:11:01.297Z",
+      "lastSeenAt": "2026-10-31T08:11:18.814Z",
+      "contactedAt": "2026-11-01T06:08:42.744Z",
+      "updatedAt": "2026-11-01T06:08:42.744Z"
+    },
     {
       "id": "recruiter-1793431672717-64iq6",
       "email": "akshay.p@netconnectglobal.com",
@@ -27,12 +48,14 @@
       "jobUrl": "https://www.naukri.com/job-listings-quality-engineer-full-stack-tester-net-connect-hyderabad-chennai-1-to-5-years-091026025117",
       "platform": "Naukri",
       "context": "...e period, current location, and preferred work location akshay.p@netconnectglobal.com. Apply now and be part of this exciting opportunity!...",
-      "status": "new",
+      "status": "contacted",
       "notes": "",
       "subjectTemplate": "Application for Quality Engineer Full Stack Tester - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
       "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Quality Engineer Full Stack Tester opening at Net Connect and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Net Connect.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
       "foundAt": "2026-10-31T07:27:52.764Z",
-      "lastSeenAt": "2026-10-31T07:28:11.668Z"
+      "lastSeenAt": "2026-10-31T07:28:11.668Z",
+      "contactedAt": "2026-11-01T06:09:01.577Z",
+      "updatedAt": "2026-11-01T06:09:01.577Z"
     },
     {
       "id": "recruiter-1793372925726-tue1j",

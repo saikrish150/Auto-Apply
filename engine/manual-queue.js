@@ -116,6 +116,24 @@ class ManualQueueService {
       return null;
     }
 
+    // Reject junk scraping artifact titles
+    const isJunkTitle = /^(people you can reach out to|take the next step.*|about the job|\d+\s*notifications|notifications|unnamed job)$/i.test(title) || title.length < 3;
+    if (isJunkTitle && !jobData.isUserManualEntry) {
+      return null;
+    }
+
+    // Filter seeing experience: strictly skip jobs with mismatched experience (>4 yrs or below_mandatory)
+    const reqExp = String(jobData.requiredExperience || jobData.experienceRequiredRange || jobData.experience || '').trim();
+    let minExp = null;
+    const expMatch = reqExp.match(/(\d+(?:\.\d+)?)/);
+    if (expMatch) minExp = parseFloat(expMatch[1]);
+    const expComp = String(jobData.experienceCompatibility || (jobData.evaluation?.experienceCompatibility) || '').toLowerCase();
+    const isMismatchedExp = expComp === 'below_mandatory' || (minExp !== null && minExp >= 5.0);
+
+    if (isMismatchedExp && !jobData.isUserManualEntry) {
+      return null;
+    }
+
     const now = new Date().toISOString();
     const overallFit = jobData.overallScore || jobData.overallFitScore || jobData.matchScore || jobData.score || 85;
     const techScore = jobData.technicalScore || Math.round(overallFit * 0.95);
@@ -196,6 +214,7 @@ class ManualQueueService {
       platform = 'all',
       status = 'all',
       method = 'all',
+      experience = 'all',
       search = ''
     } = filters;
 
@@ -222,6 +241,26 @@ class ManualQueueService {
       if (method !== 'all') {
         const itemMethod = (item.applicationMethod || '').toLowerCase();
         if (itemMethod !== method.toLowerCase()) return false;
+      }
+
+      if (experience && experience !== 'all') {
+        const itemExpComp = (item.experienceCompatibility || '').toLowerCase();
+        const itemReqExp = (item.requiredExperience || '').toLowerCase();
+        let minYears = null;
+        const m = itemReqExp.match(/(\d+(?:\.\d+)?)/);
+        if (m) minYears = parseFloat(m[1]);
+
+        if (experience === 'compatible' || experience === 'matches_experience') {
+          // Strictly match candidate experience (3 years, target range 1-4 years)
+          if (itemExpComp === 'below_mandatory') return false;
+          if (minYears !== null && minYears >= 5.0) return false;
+        } else if (experience === 'meets_required') {
+          if (itemExpComp !== 'meets_required') return false;
+        } else if (experience === 'compatible_adjacent') {
+          if (itemExpComp !== 'compatible_adjacent') return false;
+        } else if (experience === 'senior') {
+          if (itemExpComp !== 'below_mandatory' && (minYears === null || minYears < 5.0)) return false;
+        }
       }
 
       if (search) {

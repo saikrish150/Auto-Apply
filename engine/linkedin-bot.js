@@ -361,8 +361,9 @@ class LinkedInBot {
                     '#job-details, .jobs-description__content, .jobs-description-content__text, .show-more-less-html__markup, [class*="description"]'
                   ) || document.querySelector('#job-details, .jobs-description__content');
 
-                  let title = (titleEl && titleEl.innerText.trim().length > 2) ? titleEl.innerText.trim() : '';
-                  if (!title && fallbackMeta.title && fallbackMeta.title.length > 2) {
+                  const isJunkScrape = (t) => /^(people you can reach out to|take the next step.*|about the job|\d+\s*notifications|notifications|more jobs|jobs you may be interested in)$/i.test((t || '').trim());
+                  let title = (titleEl && titleEl.innerText.trim().length > 2 && !isJunkScrape(titleEl.innerText)) ? titleEl.innerText.trim() : '';
+                  if (!title && fallbackMeta.title && fallbackMeta.title.length > 2 && !isJunkScrape(fallbackMeta.title)) {
                     title = fallbackMeta.title;
                   }
                   if (!title) {
@@ -1000,9 +1001,26 @@ class LinkedInBot {
               inputType = 'radio';
               const rGroup = Array.from(dialog.querySelectorAll(`input[type="radio"][name="${el.name}"]`));
               options = rGroup.map(r => {
-                const l = r.id ? dialog.querySelector(`label[for="${r.id}"]`) : null;
-                return (l?.innerText || r.value || '').trim();
+                let lText = '';
+                if (r.labels && r.labels[0]) lText = r.labels[0].innerText || '';
+                if (!lText && r.id) {
+                  try {
+                    const esc = (window.CSS && CSS.escape) ? CSS.escape(r.id) : r.id.replace(/([:.\(\)\[\],])/g, '\\$1');
+                    const l = dialog.querySelector(`label[for="${esc}"]`);
+                    if (l) lText = l.innerText || '';
+                  } catch (e) {}
+                }
+                if (!lText) {
+                  const pL = r.closest('label');
+                  if (pL) lText = pL.innerText || '';
+                }
+                if (!lText && r.value && r.value.toLowerCase() !== 'on') lText = r.value;
+                if (labelText && (lText.toLowerCase() === labelText.toLowerCase() || lText.toLowerCase().includes(labelText.toLowerCase()))) {
+                  lText = (r.value && r.value.toLowerCase() !== 'on') ? r.value : '';
+                }
+                return (lText || '').trim();
               }).filter(Boolean);
+              if (options.length === 0 && rGroup.length === 2) options = ['Yes', 'No'];
             } else if (el.type === 'number' || el.inputMode === 'numeric') {
               inputType = 'number';
             } else if (el.getAttribute('role') === 'combobox') {
@@ -1095,6 +1113,29 @@ class LinkedInBot {
         return false;
       };
 
+      window.__extractHelperText = function(el) {
+        if (!el) return '';
+        let helper = '';
+        const describedBy = el.getAttribute('aria-describedby');
+        if (describedBy) {
+          const ids = describedBy.split(/\s+/);
+          for (const id of ids) {
+            const hEl = document.getElementById(id);
+            if (hEl && !window.__isErrorText(hEl.innerText)) {
+              helper += ' ' + window.__cleanText(hEl.innerText);
+            }
+          }
+        }
+        const container = el.closest('.fb-dash-form-element, .jobs-easy-apply-form-section__grouping, div[data-test-form-builder-component]');
+        if (container) {
+          const subEl = container.querySelector('.artdeco-text-input--sub-label, [class*="sub-label"], [class*="helper"], p.t-12');
+          if (subEl && !window.__isErrorText(subEl.innerText)) {
+            helper += ' ' + window.__cleanText(subEl.innerText);
+          }
+        }
+        return helper.trim();
+      };
+
       window.__extractQuestion = function(el) {
         if (!el) return '';
         // For radio buttons, the question is the group legend or container header, not the individual option label
@@ -1117,32 +1158,61 @@ class LinkedInBot {
           }
         }
 
-        if (el.id) {
-          const l = document.querySelector(`label[for="${el.id}"]`);
-          if (l && l.innerText.trim() && !window.__isErrorText(window.__cleanText(l.innerText))) return window.__cleanText(l.innerText);
+        // 1. Native HTMLInputElement labels collection
+        if (el.labels && el.labels.length > 0) {
+          for (let i = 0; i < el.labels.length; i++) {
+            const lt = window.__cleanText(el.labels[i].innerText);
+            if (lt && !window.__isErrorText(lt)) return lt;
+          }
         }
+
+        // 2. aria-labelledby
+        const labelledBy = el.getAttribute('aria-labelledby');
+        if (labelledBy) {
+          const ids = labelledBy.split(/\s+/);
+          for (const id of ids) {
+            const lEl = document.getElementById(id);
+            if (lEl) {
+              const lt = window.__cleanText(lEl.innerText);
+              if (lt && !window.__isErrorText(lt)) return lt;
+            }
+          }
+        }
+
+        // 3. label[for=id] with CSS.escape for colons and special characters in URNs
+        if (el.id) {
+          try {
+            const escapedId = (window.CSS && CSS.escape) ? CSS.escape(el.id) : el.id.replace(/([:.\(\)\[\],])/g, '\\$1');
+            const l = document.querySelector(`label[for="${escapedId}"]`);
+            if (l && l.innerText.trim() && !window.__isErrorText(window.__cleanText(l.innerText))) {
+              return window.__cleanText(l.innerText);
+            }
+          } catch (e) {}
+        }
+
+        // 4. Closest label parent
         const parentLabel = el.closest('label');
-        if (parentLabel && parentLabel.innerText.trim() && !window.__isErrorText(window.__cleanText(parentLabel.innerText))) return window.__cleanText(parentLabel.innerText);
+        if (parentLabel && parentLabel.innerText.trim() && !window.__isErrorText(window.__cleanText(parentLabel.innerText))) {
+          return window.__cleanText(parentLabel.innerText);
+        }
+
+        // 5. Container grouping (LinkedIn form builder element)
+        const container = el.closest('.fb-dash-form-element, .jobs-easy-apply-form-section__grouping, div[data-test-form-builder-component]');
+        if (container) {
+          const l = container.querySelector('label:not([class*="error"]), span.t-14, .artdeco-text-input--label');
+          if (l && l !== el && l.innerText.trim() && !window.__isErrorText(window.__cleanText(l.innerText))) {
+            return window.__cleanText(l.innerText);
+          }
+        }
+
+        // 6. Closest fieldset legend
         const fieldset = el.closest('fieldset');
         if (fieldset) {
           const legend = fieldset.querySelector('legend');
           if (legend && legend.innerText.trim()) return window.__cleanText(legend.innerText);
         }
-        let curr = el.parentElement;
-        for (let depth = 0; depth < 5 && curr; depth++) {
-          const headerEl = curr.querySelector('label:not([class*="error"]), legend, h3, h4, span[class*="label"]:not([class*="error"]), span[class*="title"], p:not([class*="error"]):not([class*="feedback"])');
-          if (headerEl && headerEl !== el && headerEl.innerText.trim()) {
-            const t = window.__cleanText(headerEl.innerText);
-            if (t.length > 3 && !/^\d+\/\d+/.test(t) && !/of \d+ characters/i.test(t) && !window.__isErrorText(t)) {
-              return t;
-            }
-          }
-          const lines = (curr.innerText || '').split('\n').map(s => window.__cleanText(s)).filter(s => s.length > 2 && !/^\d+\/\d+/.test(s) && !/of \d+ characters/i.test(s) && !window.__isErrorText(s));
-          if (lines.length > 0) {
-            return lines[0];
-          }
-          curr = curr.parentElement;
-        }
+
+        // 7. Direct aria-label or placeholder
         const fallback = window.__cleanText(el.getAttribute('aria-label') || el.placeholder || el.name || '');
         return window.__isErrorText(fallback) ? '' : fallback;
       };
@@ -1293,15 +1363,50 @@ class LinkedInBot {
           const qText = window.__extractQuestion ? window.__extractQuestion(el) : '';
           const groupEls = Array.from(document.querySelectorAll(`input[type="radio"][name="${el.name}"]`));
           const options = groupEls.map(r => {
-            const l = r.id ? document.querySelector(`label[for="${r.id}"]`) : null;
-            const parentL = r.closest('label');
-            const aria = r.getAttribute('aria-label');
-            const nearby = r.parentElement?.innerText;
-            // Never use the native default value "on" as an option label.
-            return (l?.innerText || parentL?.innerText || aria || nearby || '').trim();
+            let labelText = '';
+            if (r.labels && r.labels.length > 0) {
+              labelText = (r.labels[0].innerText || '').trim();
+            }
+            if (!labelText && r.id) {
+              try {
+                const esc = (window.CSS && CSS.escape) ? CSS.escape(r.id) : r.id.replace(/([:.\(\)\[\],])/g, '\\$1');
+                const l = document.querySelector(`label[for="${esc}"]`);
+                if (l) labelText = (l.innerText || '').trim();
+              } catch (e) {}
+            }
+            if (!labelText) {
+              const parentL = r.closest('label');
+              if (parentL) labelText = (parentL.innerText || '').trim();
+            }
+            if (!labelText && r.parentElement) {
+              const sib = r.parentElement.querySelector('label, span[class*="label"], .fb-radio-label');
+              if (sib) labelText = (sib.innerText || '').trim();
+            }
+            // CRITICAL: If the extracted label matches or contains the whole question text, it accidentally captured the fieldset legend!
+            if (qText && labelText && (labelText.toLowerCase() === qText.toLowerCase() || labelText.toLowerCase().includes(qText.toLowerCase()))) {
+              labelText = '';
+            }
+            if (!labelText && r.value && r.value.toLowerCase() !== 'on' && r.value.length < 50) {
+              labelText = r.value.trim();
+            }
+            if (!labelText) {
+              const aria = r.getAttribute('aria-label');
+              if (aria && aria.toLowerCase() !== qText.toLowerCase()) labelText = aria.trim();
+            }
+            return labelText;
           }).filter(Boolean);
+
+          let finalOptions = options;
+          if (finalOptions.length === 0 || finalOptions.every(o => o.toLowerCase() === qText.toLowerCase())) {
+            const vals = groupEls.map(r => (r.value || '').trim()).filter(v => v && v.toLowerCase() !== 'on');
+            if (vals.length === groupEls.length) {
+              finalOptions = vals;
+            } else if (groupEls.length === 2) {
+              finalOptions = ['Yes', 'No'];
+            }
+          }
           const checked = groupEls.some(r => r.checked);
-          return { qText, options, checked };
+          return { qText, options: finalOptions, checked };
         });
 
         if (!groupInfo || !groupInfo.qText || groupInfo.checked) continue;
@@ -1315,20 +1420,41 @@ class LinkedInBot {
           const radios = Array.from(document.querySelectorAll(`input[type="radio"][name="${rName}"]`));
           let chosen = null;
           for (const r of radios) {
-            const l = r.id ? document.querySelector(`label[for="${r.id}"]`) : null;
-            const parentL = r.closest('label');
-            const txt = (l?.innerText || parentL?.innerText || r.getAttribute('aria-label') || r.parentElement?.innerText || '').trim().toLowerCase();
-            if (txt === tLower || txt.includes(tLower) || tLower.includes(txt)) {
+            let txt = '';
+            if (r.labels && r.labels[0]) txt = r.labels[0].innerText || '';
+            if (!txt && r.id) {
+              try {
+                const esc = (window.CSS && CSS.escape) ? CSS.escape(r.id) : r.id.replace(/([:.\(\)\[\],])/g, '\\$1');
+                const l = document.querySelector(`label[for="${esc}"]`);
+                if (l) txt = l.innerText || '';
+              } catch (e) {}
+            }
+            if (!txt) txt = r.closest('label')?.innerText || r.getAttribute('aria-label') || r.value || '';
+            txt = txt.trim().toLowerCase();
+            if (txt === tLower || txt.includes(tLower) || tLower.includes(txt) || (r.value && r.value.toLowerCase() === tLower)) {
               chosen = r;
               break;
             }
           }
-          if (!chosen && /yes/i.test(tLower)) chosen = radios.find(r => /yes/i.test(r.getAttribute('aria-label') || r.parentElement?.innerText || ''));
-          if (!chosen && /no/i.test(tLower)) chosen = radios.find(r => /no/i.test(r.getAttribute('aria-label') || r.parentElement?.innerText || ''));
+          if (!chosen && /yes/i.test(tLower)) {
+            chosen = radios.find(r => /yes/i.test(r.value || r.getAttribute('aria-label') || r.closest('label')?.innerText || r.parentElement?.innerText || ''));
+            if (!chosen && radios.length === 2) chosen = radios[0];
+          }
+          if (!chosen && /no/i.test(tLower)) {
+            chosen = radios.find(r => /no/i.test(r.value || r.getAttribute('aria-label') || r.closest('label')?.innerText || r.parentElement?.innerText || ''));
+            if (!chosen && radios.length === 2) chosen = radios[1];
+          }
           if (chosen) {
             chosen.click();
             chosen.checked = true;
-            const l = chosen.id ? document.querySelector(`label[for="${chosen.id}"]`) : null;
+            let l = null;
+            if (chosen.labels && chosen.labels[0]) l = chosen.labels[0];
+            if (!l && chosen.id) {
+              try {
+                const esc = (window.CSS && CSS.escape) ? CSS.escape(chosen.id) : chosen.id.replace(/([:.\(\)\[\],])/g, '\\$1');
+                l = document.querySelector(`label[for="${esc}"]`);
+              } catch (e) {}
+            }
             if (l) l.click();
             chosen.dispatchEvent(new Event('change', { bubbles: true }));
             chosen.dispatchEvent(new Event('input', { bubbles: true }));
@@ -1540,11 +1666,23 @@ class LinkedInBot {
         const fieldInfo = await input.evaluate(el => {
           if (el.closest('footer') || el.closest('header')) return null;
           const q = window.__extractQuestion ? window.__extractQuestion(el) : '';
+          const helper = window.__extractHelperText ? window.__extractHelperText(el) : '';
+
+          const container = el.closest('.fb-dash-form-element, .jobs-easy-apply-form-section__grouping, div[data-test-form-builder-component], div');
+          const errEl = container ? container.querySelector('.artdeco-inline-feedback--error, [class*="error"], [aria-invalid="true"]') : null;
+          const isErrVisible = errEl ? ((errEl.getBoundingClientRect().width > 0 && errEl.getBoundingClientRect().height > 0) || errEl.getClientRects().length > 0) : false;
+          const isInvalid = el.getAttribute('aria-invalid') === 'true' || isErrVisible;
+
           return {
             qText: q,
+            helperText: helper,
             val: el.value?.trim() || '',
             tag: el.tagName.toLowerCase(),
-            type: el.type?.toLowerCase() || 'text'
+            type: el.type?.toLowerCase() || 'text',
+            inputMode: el.inputMode || el.getAttribute('inputmode') || '',
+            pattern: el.pattern || el.getAttribute('pattern') || '',
+            placeholder: el.placeholder || '',
+            isInvalid
           };
         });
 
@@ -1552,16 +1690,36 @@ class LinkedInBot {
         const qText = fieldInfo.qText;
         if (qText === 'Search' || qText.includes('Premium') || qText.includes('language')) continue;
 
-        const isWholeNumber = /whole number|integer/i.test(qText);
-        const isNoticePeriod = /notice period|days to join/i.test(qText);
-        const isCompensation = /compensation|salary|ctc|package/i.test(qText);
-        const isNumeric = isWholeNumber || isNoticePeriod || isCompensation || /how many years|years of experience|work experience|gpa|percentage/i.test(qText) || fieldInfo.type === 'number';
+        const fullQ = (qText + ' ' + (fieldInfo.helperText || '') + ' ' + (fieldInfo.placeholder || '')).trim();
+        const isWholeNumber = /whole number|integer/i.test(fullQ);
+        const isNoticePeriod = /notice period|days to join|joining time/i.test(fullQ);
+        const isCompensation = /compensation|salary|ctc|package|gross/i.test(fullQ);
+        const isNumeric = isWholeNumber ||
+                          isNoticePeriod ||
+                          isCompensation ||
+                          /how many years|years of experience|work experience|gpa|percentage/i.test(fullQ) ||
+                          fieldInfo.type === 'number' ||
+                          fieldInfo.inputMode === 'numeric' ||
+                          fieldInfo.pattern === '[0-9]*' ||
+                          /^\s*e\.?g\.?\s*\d+/i.test(fieldInfo.placeholder);
         const inferredType = isNumeric ? 'number' : 'text';
 
         // Check if we need to refill or fill
-        const isSkillQuestion = /angular|java|spring|javascript|typescript|front[\s-]*end|developer|c#|dot net|\.net|python|react|node|sql|gen ai|ai/i.test(qText);
-        const isExperienceQuestion = /years of experience|work experience|how many years|experience with/i.test(qText);
-        const shouldFill = !fieldInfo.val || ((fieldInfo.val === '0' || fieldInfo.val === '') && (isSkillQuestion || isExperienceQuestion)) || /select|choose|--/i.test(fieldInfo.val);
+        const isSkillQuestion = /angular|java|spring|javascript|typescript|front[\s-]*end|developer|c#|dot net|\.net|python|react|node|sql|gen ai|ai/i.test(fullQ);
+        const isExperienceQuestion = /years of experience|work experience|how many years|experience with/i.test(fullQ);
+        
+        // Strict refill check:
+        // 1. empty value
+        // 2. field has an active error (e.g. "Invalid input")
+        // 3. field is numeric, but currently contains non-digits (e.g. "Yes", "No", "Invalid input", "true", "false")
+        // 4. field contains placeholder-like strings ("select", "choose", "--")
+        // 5. skill/experience field contains "0"
+        const hasInvalidNumericVal = isNumeric && (fieldInfo.val.length > 0 && (!/^-?\d+(?:\.\d+)?$/.test(fieldInfo.val) || /^(yes|no|invalid|true|false)$/i.test(fieldInfo.val)));
+        const shouldFill = !fieldInfo.val ||
+                           fieldInfo.isInvalid ||
+                           hasInvalidNumericVal ||
+                           ((fieldInfo.val === '0' || fieldInfo.val === '') && (isSkillQuestion || isExperienceQuestion)) ||
+                           /select|choose|--/i.test(fieldInfo.val);
 
         if (shouldFill) {
           const answerObj = await this.ai.answerScreeningQuestionAI(qText, [], inferredType, qaContext);
@@ -1571,9 +1729,9 @@ class LinkedInBot {
             const d = String(finalVal).match(/\d+/);
             finalVal = d ? d[0] : String(this.ai?.profile?.career?.noticePeriodDays || 30);
           } else if (isCompensation) {
-            const isINR = /in\s*inr|in\s*rupees|rupees|annual.*compensation|\bexample\s*:\s*\d{5,}/i.test(qText);
-            const isLPA = /in\s*lpa|in\s*lakhs|\blpa\b/i.test(qText);
-            const isExpected = /expected|desired/i.test(qText);
+            const isINR = /in\s*inr|in\s*rupees|rupees|annual.*compensation|\bexample\s*:\s*\d{5,}/i.test(fullQ);
+            const isLPA = /in\s*lpa|in\s*lakhs|\blpa\b/i.test(fullQ);
+            const isExpected = /expected|desired/i.test(fullQ);
             if (isINR && !isLPA) {
               const num = String(finalVal).match(/\d+/);
               if (num && parseInt(num[0], 10) >= 10000) {
@@ -1587,8 +1745,15 @@ class LinkedInBot {
               finalVal = num ? num[0] : (isExpected ? '10' : '4.1');
             }
           } else if (isNumeric) {
+            // STRICT NUMERIC GUARD: NEVER allow Yes or No in numeric fields!
             const num = String(finalVal).match(/-?\d+(?:\.\d+)?/);
-            finalVal = num ? num[0] : '0';
+            if (num) {
+              finalVal = num[0];
+            } else if (isExperienceQuestion || isSkillQuestion) {
+              finalVal = '3';
+            } else {
+              finalVal = '0';
+            }
           } else if (/portfolio|website/i.test(qText)) {
             if (/^(yes|no|true|false)$/i.test(String(finalVal).trim())) {
               finalVal = this.ai?.profile?.personal?.portfolioUrl || 'https://gsaikrishna-portfolio.netlify.app/';

@@ -65,9 +65,9 @@ class FounditBot {
         const currentScenario = scenarios[sIdx];
         const dateFilter = dateParam ? `&${dateParam}` : '';
         const expFilter = '&experienceRanges=1~4';
-        const searchUrl = `https://www.foundit.in/srp/results?query=${encodeURIComponent(currentScenario)}${expFilter}${dateFilter}`;
+        const searchUrl = `https://www.foundit.in/srp/results?query=${encodeURIComponent(currentScenario)}${expFilter}${dateFilter}&quickApplyJobs=true&sort=1`;
 
-        this.logger('action', 'Foundit', `[Scenario ${sIdx + 1}/${scenarios.length}] Searching: "${currentScenario}" (All Locations | Fresh jobs: ${this.settings.search?.datePosted || '24h'})...`);
+        this.logger('action', 'Foundit', `[Scenario ${sIdx + 1}/${scenarios.length}] Searching: "${currentScenario}" (1-Click Quick Apply | All Locations | Fresh jobs: ${this.settings.search?.datePosted || '24h'})...`);
         
         try {
           await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
@@ -147,7 +147,10 @@ class FounditBot {
                 const desc = document.querySelector('.jdContent, .job-description, .jobDescription, #job-details, body');
                 const description = (desc?.innerText || '').slice(0, 1500).trim();
 
-                return { title, company, location, experience, description };
+                const linkEl = cardEl?.querySelector('a[href*="/job-description/"], a[href*="/seeker/job/"], a[href*="job"], a');
+                const jobUrl = linkEl ? linkEl.href : '';
+
+                return { title, company, location, experience, description, jobUrl };
               }, card);
 
               this.logger('info', 'Foundit', `[${currentScenario}] Evaluating: "${jobDetails.title}" at ${jobDetails.company}...`);
@@ -157,7 +160,7 @@ class FounditBot {
                 const extracted = this.dataStore.recruiterEmails.extractEmailsFromText(jobDetails.description, {
                   title: jobDetails.title,
                   company: jobDetails.company,
-                  url: page.url(),
+                  url: jobDetails.jobUrl || page.url(),
                   platform: 'Foundit'
                 });
                 if (extracted.length > 0) {
@@ -175,7 +178,7 @@ class FounditBot {
                 title: jobDetails.title,
                 company: jobDetails.company,
                 location: jobDetails.location,
-                url: page.url(),
+                url: jobDetails.jobUrl || page.url(),
                 matchScore: evaluation.score,
                 evaluation,
                 status: 'evaluating',
@@ -205,6 +208,14 @@ class FounditBot {
               );
 
               if (applyBtn) {
+                const btnTextBefore = await applyBtn.evaluate(b => (b.innerText || '').trim().toLowerCase());
+                if (btnTextBefore === 'applied') {
+                  this.logger('info', 'Foundit', `Already applied to "${jobDetails.title}".`);
+                  jobRecord.status = 'already_applied';
+                  if (onJobProcessed) onJobProcessed(jobRecord);
+                  continue;
+                }
+
                 this.logger('action', 'Foundit', `Clicking Apply Now for "${jobDetails.title}"...`);
                 await applyBtn.evaluate(b => b.click());
                 await this.randomDelay(2200, 3200);
@@ -225,9 +236,32 @@ class FounditBot {
                 // Handle any screening modal / questionnaire if present
                 await this.handleFounditQuestionnaire(page, jobDetails);
 
-                jobRecord.status = 'applied';
-                totalProcessedCount++;
-                this.logger('success', 'Foundit', `Successfully applied to "${jobDetails.title}" at ${jobDetails.company}!`);
+                // Inspect application feedback (toast, banner, or button text)
+                const applyResult = await page.evaluate(() => {
+                  const toastEl = document.querySelector('.toast, [class*="toast"], .snack-bar, [class*="banner"], [class*="notification"]');
+                  const toastText = (toastEl?.innerText || '').toLowerCase();
+                  const currentBtn = document.querySelector('#applyNowBtn, button[id*="apply"], button.applyBtn');
+                  const currentBtnText = (currentBtn?.innerText || '').toLowerCase();
+                  
+                  const isSuccess = toastText.includes('applied successfully') || 
+                                    toastText.includes('application submitted') || 
+                                    currentBtnText === 'applied';
+
+                  const isExternal = toastText.includes('redirecting') || 
+                                     toastText.includes('company site') || 
+                                     toastText.includes('external');
+
+                  return { isSuccess, isExternal, toastText, currentBtnText };
+                });
+
+                if (applyResult.isExternal) {
+                  this.logger('info', 'Foundit', `Job "${jobDetails.title}" is an external company portal redirect.`);
+                  jobRecord.status = 'already_applied_or_external';
+                } else {
+                  jobRecord.status = 'applied';
+                  totalProcessedCount++;
+                  this.logger('success', 'Foundit', `Successfully applied to "${jobDetails.title}" at ${jobDetails.company}!`);
+                }
               } else {
                 this.logger('info', 'Foundit', `No 1-Click apply found for "${jobDetails.title}".`);
                 jobRecord.status = 'already_applied_or_external';
