@@ -64,6 +64,7 @@ class ScreeningClassifier {
       CONTRACT_ROLES: 'INTENT_CONTRACT_ROLES',
       THIRD_PARTY_PAYROLL: 'INTENT_THIRD_PARTY_PAYROLL',
       GOVERNMENT_ID: 'INTENT_GOVERNMENT_ID',
+      SERVICE_BOND: 'INTENT_SERVICE_BOND',
 
       CONSEQUENTIAL_LEGAL: 'INTENT_CONSEQUENTIAL_LEGAL',
       UNKNOWN_OR_UNSUPPORTED: 'INTENT_UNKNOWN_OR_UNSUPPORTED'
@@ -340,6 +341,11 @@ class ScreeningClassifier {
     // Third party payroll
     if (/\b(?:third[\s-]*party\s*payroll|contract\s*payroll|client\s*payroll)\b/i.test(norm)) {
       return { intent: this.INTENTS.THIRD_PARTY_PAYROLL, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // Employment Bond / Service Agreement (e.g. TVM Infotech one-year employment bond)
+    if (/\b(?:employment\s*bond|service\s*bond|service\s*agreement|commitment\s*bond|one[\s-]year\s*(?:employment\s*)?bond|two[\s-]year\s*(?:employment\s*)?bond|committing\s*to\s*(?:a\s*)?(?:\w+[\s-])?bond|commit\s*to\s*(?:a\s*)?(?:\w+[\s-])?bond|open\s*to\s*(?:committing\s*to\s*)?(?:a\s*)?(?:\w+[\s-])?bond|ready\s*to\s*sign\s*(?:a\s*)?(?:service\s*)?bond)\b/i.test(norm)) {
+      return { intent: this.INTENTS.SERVICE_BOND, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
     // Unknown or unsupported question
@@ -653,6 +659,11 @@ class ScreeningClassifier {
       case this.INTENTS.THIRD_PARTY_PAYROLL:
         proposedAnswer = 'Yes';
         sourceField = 'career.thirdPartyPayroll';
+        break;
+
+      case this.INTENTS.SERVICE_BOND:
+        proposedAnswer = 'Yes';
+        sourceField = 'career.employmentBondCommitment';
         break;
 
       case this.INTENTS.GOVERNMENT_ID:

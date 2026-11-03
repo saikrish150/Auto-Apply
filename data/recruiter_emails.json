@@ -1,20 +1,41 @@
 {
   "summary": {
-    "totalEmails": 14,
+    "totalEmails": 15,
     "newCount": 0,
-    "contactedCount": 14,
+    "contactedCount": 15,
     "repliedCount": 0,
     "archivedCount": 0,
     "byPlatform": {
       "LinkedIn": 1,
-      "Naukri": 3,
+      "Naukri": 4,
       "Foundit": 0,
       "Career Website": 10,
       "Other": 0
     },
-    "lastUpdated": "2026-11-01T06:09:01.577Z"
+    "lastUpdated": "2026-11-03T14:25:57.067Z"
   },
   "emails": [
+    {
+      "id": "recruiter-1793683328917-3cbq4",
+      "email": "swathi@brainsnskills.com",
+      "recruiterName": "swathi",
+      "company": "BNS",
+      "jobTitle": "Java Full Stack Developer-Diary Circle-Bangalore",
+      "jobTitles": [
+        "Java Full Stack Developer-Diary Circle-Bangalore"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-java-full-stack-developer-diary-circle-bangalore-brains-n-skills-chennai-bengaluru-0-to-1-years-020725017915",
+      "platform": "Naukri",
+      "context": "...ull stack developer freshers or exp , if interested contact swathi@brainsnskills.com or 9341818811 Role: Full Stack Developer Industry Type: Rec...",
+      "status": "contacted",
+      "notes": "",
+      "subjectTemplate": "Application for Java Full Stack Developer-Diary Circle-Bangalore - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi swathi,\n\nI hope this email finds you well.\n\nI came across the Java Full Stack Developer-Diary Circle-Bangalore opening at BNS and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to BNS.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-03T05:22:08.917Z",
+      "lastSeenAt": "2026-11-03T05:33:06.137Z",
+      "contactedAt": "2026-11-03T14:24:41.270Z",
+      "updatedAt": "2026-11-03T14:24:41.270Z"
+    },
     {
       "id": "recruiter-1793434261286-f1q4h",
       "email": "peddollu.d@honeybeetechsolutions.com",
@@ -53,7 +74,7 @@
       "subjectTemplate": "Application for Quality Engineer Full Stack Tester - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
       "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Quality Engineer Full Stack Tester opening at Net Connect and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Net Connect.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
       "foundAt": "2026-10-31T07:27:52.764Z",
-      "lastSeenAt": "2026-10-31T07:28:11.668Z",
+      "lastSeenAt": "2026-11-02T05:52:07.352Z",
       "contactedAt": "2026-11-01T06:09:01.577Z",
       "updatedAt": "2026-11-01T06:09:01.577Z"
     },

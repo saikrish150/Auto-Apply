@@ -179,7 +179,7 @@ class LinkedInBot {
     try {
       const scenarios = this.getScenarios();
       const dateFilter = this.getDateFilterParam(this.settings.search?.datePosted);
-      const expFilter = this.getExperienceFilterParam(this.settings.search?.experienceLevel);
+      const expFilter = this.getExperienceFilterParam(this.settings.search?.experienceLevel) || 'f_E=2,3';
       const expParam = expFilter ? `${expFilter}&` : '';
       const maxApps = this.settings.automation?.maxApplicationsPerSession || 25;
       const maxPages = this.settings.automation?.maxPagesPerScenario || 2;
@@ -444,6 +444,20 @@ class LinkedInBot {
                   this.logger('warning', 'LinkedIn', `Skipping "${jobDetails.title}" - ATS score ${evaluation.score}% below threshold ${this.settings.automation?.minMatchScore || 65}%.`);
                   jobRecord.status = 'skipped';
                   jobRecord.skipReason = `ATS score ${evaluation.score}% < threshold`;
+                  if (onJobProcessed) onJobProcessed(jobRecord);
+                  continue;
+                }
+
+                // Strict experience check: skip if job specifies >4 years (e.g. 5+, 8+ years) or is architectural/senior mismatch
+                const isExecOrArch = /\b(?:architect|principal|staff|director|vp|head)\b/i.test(jobDetails.title);
+                const reqExpRange = evaluation.experienceRequiredRange || '';
+                const mExp = reqExpRange.match(/(\d+(?:\.\d+)?)/);
+                const minYears = mExp ? parseFloat(mExp[1]) : null;
+
+                if (isExecOrArch || (minYears !== null && minYears > 4.0) || evaluation.experienceCompatibility === 'below_mandatory') {
+                  this.logger('warning', 'LinkedIn', `Skipping "${jobDetails.title}" - Experience requirement (${reqExpRange || 'Architect/Executive inferred'}) exceeds candidate 0-4 years maximum.`);
+                  jobRecord.status = 'skipped';
+                  jobRecord.skipReason = 'Experience requirement exceeds 0-4 years maximum';
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }

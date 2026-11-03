@@ -498,6 +498,83 @@ test('LinkedIn Easy Apply & Naukri External Link Prevention Verification', async
     assert.equal(sendClicked, true, 'Chatbot send button must be clicked');
     assert.equal(outcome.questionsAnswered.length, 1, 'Question must be recorded in questionsAnswered');
   });
+
+  await t.test('16. NaukriBot.handleNaukriChatbot answers radio options (TVM Infotech employment bond) and clicks drawer Save button', async () => {
+    const naukriBot = new NaukriBot(null, ai, settings, () => {}, dataStore);
+    naukriBot.randomDelay = async () => {};
+
+    let optionChosen = null;
+    let saveClicked = false;
+    let questionsAskedCount = 0;
+
+    const mockPage = {
+      url: () => 'https://www.naukri.com/job-listings-angular-developer-freshers-chennai-tvm-infotech-chennai-0-to-1-years-161026024689',
+      isClosed: () => false,
+      $$: async (selector) => {
+        if (selector.includes('._chatBotContainer') || selector.includes('.chatbot_Drawer')) {
+          return [{
+            evaluate: async (fn) => fn({ className: 'chatbot_Drawer', closest: () => null, offsetWidth: 380, offsetHeight: 650 })
+          }];
+        }
+        return [];
+      },
+      $: async () => null,
+      keyboard: {
+        type: async () => {},
+        press: async () => {}
+      },
+      evaluate: async (fn, ...args) => {
+        const fnStr = fn.toString();
+
+        // Check if finished
+        if (fnStr.includes('combined.includes') || fnStr.includes('thank you for applying')) {
+          return saveClicked;
+        }
+
+        // Question extraction: TVM Infotech bond question
+        if (fnStr.includes('botMsgs') || fnStr.includes('botMsg')) {
+          if (saveClicked) return '';
+          questionsAskedCount++;
+          return 'Would you be open to committing to a one-year employment bond with the company?';
+        }
+
+        // Radio click evaluation: targetAns is 'Yes'
+        if (fnStr.includes('targetAns') || fnStr.includes('isMatch')) {
+          optionChosen = args[0] || 'Yes';
+          return { clicked: true, isRadio: true, text: 'Yes' };
+        }
+
+        // Drawer Save button click
+        if (fnStr.includes('saveBtn') || fnStr.includes('saveClicked') || fnStr.includes('saveResult')) {
+          saveClicked = true;
+          return { saveClicked: true, text: 'Save' };
+        }
+
+        // Options extraction inside chatbot drawer: returns ['Yes', 'No']
+        if (fnStr.includes('radioInputs')) {
+          return ['Yes', 'No'];
+        }
+
+        // Final completion check
+        if (fnStr.includes('isSuccess') && fnStr.includes('is406')) {
+          return { isSuccess: true, is406: false };
+        }
+
+        return false;
+      }
+    };
+
+    const outcome = await naukriBot.handleNaukriChatbot(mockPage, {
+      title: 'Angular Developer Freshers',
+      company: 'Tvm Infotech'
+    });
+
+    assert.equal(outcome.success, true, 'Chatbot handler must succeed for TVM Infotech');
+    assert.equal(optionChosen, 'Yes', 'Radio option must be chosen as Yes for 1-year employment bond');
+    assert.equal(saveClicked, true, 'Drawer Save button must be clicked after selecting radio');
+    assert.equal(outcome.questionsAnswered.length, 1, 'Question must be recorded in questionsAnswered');
+    assert.equal(outcome.questionsAnswered[0].answer, 'Yes');
+  });
 });
 
 

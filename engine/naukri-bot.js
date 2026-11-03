@@ -76,7 +76,8 @@ class NaukriBot {
     if (raw === 'all') return '';
     const match = raw.match(/(\d+)/);
     if (match) {
-      return `experience=${match[1]}`;
+      const expVal = Math.min(parseInt(match[1], 10), 3);
+      return `experience=${expVal}`;
     }
     // Default 2 years for 1-4 years candidate profile
     return 'experience=2';
@@ -262,6 +263,20 @@ class NaukriBot {
                 if (normUrl) this.seenJobKeys.add(normUrl);
                 jobRecord.status = 'skipped';
                 jobRecord.skipReason = 'External company link on card (Naukri external applies disabled)';
+                if (onJobProcessed) onJobProcessed(jobRecord);
+                continue;
+              }
+
+              // Guard 0b: Strictly skip jobs requiring >4 years of experience (0-3 or 0-4 years maximum)
+              const cardExpMatch = String(jobMeta.experience || '').match(/(\d+(?:\.\d+)?)/);
+              const cardMinExp = cardExpMatch ? parseFloat(cardExpMatch[1]) : null;
+              const isCardSenior = /senior|sr\.|lead|architect|principal|staff|director|vp|head/i.test(jobMeta.title);
+              if ((cardMinExp !== null && cardMinExp > 4.0) || (isCardSenior && cardMinExp !== null && cardMinExp > 3.0)) {
+                this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - Experience requirement (${jobMeta.experience}) exceeds 0-4 years maximum.`);
+                if (titleKey) this.seenJobKeys.add(titleKey);
+                if (normUrl) this.seenJobKeys.add(normUrl);
+                jobRecord.status = 'skipped';
+                jobRecord.skipReason = `Experience requirement (${jobMeta.experience}) exceeds 0-4 years maximum`;
                 if (onJobProcessed) onJobProcessed(jobRecord);
                 continue;
               }
@@ -768,52 +783,124 @@ class NaukriBot {
         lastAnsweredQuestion = questionText;
 
         // D. Check for Multiple-Choice / Radio / Chips Options INSIDE Chatbot Container
-        const hasOptions = await page.evaluate(() => {
-          const chips = Array.from(document.querySelectorAll('._chatBotContainer [class*="chip"], ._chatBotContainer [class*="radio"], ._chatBotContainer [class*="choice"], ._chatBotContainer [class*="option"], ._chatBotContainer .bot-chip, ._chatBotContainer ul.list li:not(.botItem):not(.userItem), .chatbot_Drawer [class*="chip"], .chatbot_Drawer [class*="radio"], .chatbot_Drawer [class*="choice"], .chatbot_Drawer [class*="option"], .chatbot_Drawer .bot-chip'))
-            .filter(c => !c.closest('.nI-gNb-header, .nI-gNb-drawer') && c.offsetParent !== null)
+        const chatOptions = await page.evaluate(() => {
+          const drawer = document.querySelector('._chatBotContainer, .chatbot_Drawer');
+          if (!drawer) return [];
+
+          const options = [];
+
+          // 1. Radio buttons & labels (e.g. .singleselect-radiobutton, .ssrc__radio, label.ssrc__label)
+          const radioInputs = Array.from(drawer.querySelectorAll('input[type="radio"], [role="radio"]'))
+            .filter(r => !r.closest('.nI-gNb-header, .nI-gNb-drawer, .chatbot_Nav'));
+
+          for (const r of radioInputs) {
+            const label = (r.id ? drawer.querySelector(`label[for="${r.id}"]`) : null) || r.closest('label') || r.parentElement?.querySelector('label');
+            const txt = (label ? (label.innerText || label.textContent) : '') || r.value || (r.parentElement ? r.parentElement.innerText : '');
+            const clean = String(txt || '').trim();
+            if (clean && clean.length > 0 && clean.length < 60) {
+              options.push(clean);
+            }
+          }
+
+          // 2. Interactive chips, choices, and option containers
+          const chips = Array.from(drawer.querySelectorAll('[class*="chip"]:not(.botLogo), [class*="choice"], [class*="option"], .bot-chip, ul.list li.chipMsg, .singleselect-radiobutton-container label, .ssrc__radio-btn-container label, .singleselect-radiobutton label'))
+            .filter(c => !c.closest('.nI-gNb-header, .nI-gNb-drawer, .chatbot_Nav') && (c.offsetParent !== null || c.offsetHeight > 0))
             .map(c => (c.innerText || c.textContent || '').trim())
-            .filter(t => t.length > 0 && t.length < 60 && !t.toLowerCase().includes('save') && !t.toLowerCase().includes('submit'));
-          return chips.length > 0;
+            .filter(t => t.length > 0 && t.length < 60 && !/^(save|submit|send|close|cancel)$/i.test(t));
+
+          options.push(...chips);
+          return [...new Set(options)];
         });
 
-        if (hasOptions) {
-          const chatOptions = await page.evaluate(() => {
-            const chips = Array.from(document.querySelectorAll('._chatBotContainer [class*="chip"], ._chatBotContainer [class*="radio"], ._chatBotContainer [class*="choice"], ._chatBotContainer [class*="option"], ._chatBotContainer .bot-chip, ._chatBotContainer ul.list li:not(.botItem):not(.userItem), .chatbot_Drawer [class*="chip"], .chatbot_Drawer [class*="radio"], .chatbot_Drawer [class*="choice"], .chatbot_Drawer [class*="option"], .chatbot_Drawer .bot-chip'))
-              .filter(c => !c.closest('.nI-gNb-header, .nI-gNb-drawer') && c.offsetParent !== null)
-              .map(c => (c.innerText || c.textContent || '').trim())
-              .filter(t => t.length > 0 && t.length < 60 && !t.toLowerCase().includes('save') && !t.toLowerCase().includes('submit'));
-            return [...new Set(chips)];
-          });
-
+        if (chatOptions && chatOptions.length > 0) {
           this.logger('action', 'Naukri', `Chatbot question: "${questionText.slice(0, 45)}..." with options: [${chatOptions.join(', ')}]`);
           const answer = await this.ai.answerScreeningQuestionAI(questionText, chatOptions, 'radio', qaContext);
 
-          const clicked = await page.evaluate((targetAns) => {
-            const chips = Array.from(document.querySelectorAll('._chatBotContainer [class*="chip"], ._chatBotContainer [class*="radio"], ._chatBotContainer [class*="choice"], ._chatBotContainer [class*="option"], ._chatBotContainer .bot-chip, ._chatBotContainer ul.list li:not(.botItem):not(.userItem), .chatbot_Drawer [class*="chip"], .chatbot_Drawer [class*="radio"], .chatbot_Drawer [class*="choice"], .chatbot_Drawer [class*="option"], .chatbot_Drawer .bot-chip'))
-              .filter(c => !c.closest('.nI-gNb-header, .nI-gNb-drawer') && c.offsetParent !== null);
+          const clickResult = await page.evaluate((targetAns) => {
+            const drawer = document.querySelector('._chatBotContainer, .chatbot_Drawer');
+            if (!drawer) return { clicked: false };
 
-            const tLower = targetAns.toLowerCase().trim();
+            const tLower = String(targetAns || '').toLowerCase().trim();
+
+            // 1. First check radio buttons and associated labels
+            const radios = Array.from(drawer.querySelectorAll('input[type="radio"], [role="radio"]'))
+              .filter(r => !r.closest('.nI-gNb-header, .nI-gNb-drawer, .chatbot_Nav'));
+
+            for (const r of radios) {
+              const label = (r.id ? drawer.querySelector(`label[for="${r.id}"]`) : null) || r.closest('label') || r.parentElement?.querySelector('label');
+              const labelText = ((label ? (label.innerText || label.textContent) : '') || r.value || (r.parentElement ? r.parentElement.innerText : '')).toLowerCase().trim();
+
+              const isMatch = labelText === tLower ||
+                              labelText.includes(tLower) ||
+                              tLower.includes(labelText) ||
+                              (/yes/i.test(tLower) && /yes/i.test(labelText)) ||
+                              (/no/i.test(tLower) && /no/i.test(labelText));
+
+              if (isMatch) {
+                if (label && typeof label.click === 'function') {
+                  label.click();
+                } else {
+                  r.click();
+                }
+                r.checked = true;
+                r.dispatchEvent(new Event('change', { bubbles: true }));
+                r.dispatchEvent(new Event('click', { bubbles: true }));
+                return { clicked: true, isRadio: true, text: labelText };
+              }
+            }
+
+            // 2. Next check chips, buttons, and clickable labels
+            const chips = Array.from(drawer.querySelectorAll('[class*="chip"]:not(.botLogo), [class*="choice"], [class*="option"], .bot-chip, ul.list li.chipMsg, .singleselect-radiobutton-container label, .ssrc__radio-btn-container label, label'))
+              .filter(c => !c.closest('.nI-gNb-header, .nI-gNb-drawer, .chatbot_Nav') && (c.offsetParent !== null || c.offsetHeight > 0));
+
             let match = chips.find(b => {
-              const text = (b.innerText || '').trim().toLowerCase();
+              const text = (b.innerText || b.textContent || '').trim().toLowerCase();
               return text === tLower || text.includes(tLower) || tLower.includes(text);
             });
-            if (!match && /yes/i.test(tLower)) match = chips.find(b => /yes/i.test(b.innerText));
-            if (!match && /no/i.test(tLower)) match = chips.find(b => /no/i.test(b.innerText));
+            if (!match && /yes/i.test(tLower)) match = chips.find(b => /yes/i.test((b.innerText || b.textContent || '')));
+            if (!match && /no/i.test(tLower)) match = chips.find(b => /no/i.test((b.innerText || b.textContent || '')));
+
             if (match) {
               match.click();
-              return true;
+              return { clicked: true, isRadio: false, text: match.innerText };
             }
+
             if (chips.length > 0) {
               chips[0].click();
-              return true;
+              return { clicked: true, isRadio: false, text: chips[0].innerText, fallback: true };
             }
-            return false;
+
+            return { clicked: false };
           }, answer.answer);
 
-          if (clicked) {
+          if (clickResult.clicked) {
+            await this.randomDelay(600, 1000);
+
+            // After selecting option, click the Save / Submit button in the drawer footer if present
+            const saveResult = await page.evaluate(() => {
+              const drawer = document.querySelector('._chatBotContainer, .chatbot_Drawer');
+              if (!drawer) return { saveClicked: false };
+
+              const candidates = Array.from(drawer.querySelectorAll('button, .save-btn, [class*="save"], .ssrc__save, .footerInputBoxWrapper button, .footerWrapper button, [id*="save"], [id*="sendMsg"], .sendMsg'))
+                .filter(b => !b.closest('.nI-gNb-header, .nI-gNb-drawer, .chatbot_Nav') && (b.offsetParent !== null || b.offsetHeight > 0));
+
+              const saveBtn = candidates.find(b => {
+                const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
+                const cls = (b.className || '').toLowerCase();
+                const id = (b.id || '').toLowerCase();
+                return txt === 'save' || txt.includes('save') || txt === 'submit' || cls.includes('save') || id.includes('save');
+              });
+
+              if (saveBtn) {
+                if (typeof saveBtn.click === 'function') saveBtn.click();
+                return { saveClicked: true, text: (saveBtn.innerText || 'Save').trim() };
+              }
+              return { saveClicked: false };
+            });
+
             questionsAnswered.push({ question: questionText, answer: answer.answer, inputType: 'radio', source: answer.source });
-            this.logger('action', 'Naukri', `Option chosen: "${answer.answer}" for "${questionText.slice(0, 35)}..." (${answer.source})`);
-            await this.randomDelay(1800, 2600);
+            this.logger('action', 'Naukri', `Option chosen: "${answer.answer}" for "${questionText.slice(0, 35)}..." (${answer.source})${saveResult.saveClicked ? ' [Clicked Save]' : ''}`);
+            await this.randomDelay(1800, 2800);
             continue;
           }
         }
@@ -851,11 +938,18 @@ class NaukriBot {
 
           // Click the Save / Send button inside the drawer
           const sendClicked = await page.evaluate(() => {
-            const sendBtn = document.querySelector('._chatBotContainer [id*="sendMsg"], ._chatBotContainer .sendMsg, ._chatBotContainer .send:not(.disabled), ._chatBotContainer button[type="submit"], .chatbot_Drawer [id*="sendMsg"], .chatbot_Drawer .sendMsg, .chatbot_Drawer .send:not(.disabled)');
+            const drawer = document.querySelector('._chatBotContainer, .chatbot_Drawer') || document;
+            const sendBtn = drawer.querySelector('[id*="sendMsg"], .sendMsg, .send:not(.disabled), button[type="submit"], button.save-btn, [class*="save"]');
             if (sendBtn) {
               sendBtn.click();
               const inner = sendBtn.querySelector('.sendMsg');
               if (inner) inner.click();
+              return true;
+            }
+            const allBtns = Array.from(drawer.querySelectorAll('button'));
+            const saveBtn = allBtns.find(b => /^(save|submit|send)$/i.test((b.innerText || '').trim()));
+            if (saveBtn) {
+              saveBtn.click();
               return true;
             }
             return false;

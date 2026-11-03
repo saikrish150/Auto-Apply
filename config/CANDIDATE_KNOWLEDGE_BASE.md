@@ -119,6 +119,7 @@ JUnit / Mockito, React.js, Kubernetes, Kafka, RabbitMQ, Redis, MongoDB, Swagger 
 - **Contract / contract-to-hire roles: No.**
 - **Third-party payroll: Yes.** If the posting also says "contract" or "C2H", return `needs_human: true`.
 - **Saturday working: No.**
+- **Employment Bond / Service Agreement (e.g. 1-year bond): Yes.** Open to committing to a one-year employment bond or service agreement.
 - Interviews: virtual and in-person, available immediately.
 - Background verification: consent given. Drug test: consent given.
 - Visa sponsorship required: No.

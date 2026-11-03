@@ -36,6 +36,23 @@ class ManualQueueService {
         } else if (parsed && Array.isArray(parsed.items)) {
           this.items = parsed.items;
         }
+
+        // Prune legacy records exceeding 0-4 years or with fewer than 2 matched skills
+        const initialCount = this.items.length;
+        this.items = this.items.filter(item => {
+          const req = String(item.requiredExperience || '').trim();
+          const m = req.match(/(\d+(?:\.\d+)?)/);
+          const minYears = m ? parseFloat(m[1]) : null;
+          const isSenior = /\b(?:senior|lead|sr\.?|architect|principal|staff|director|vp|head)\b/i.test(item.title);
+          if (minYears !== null && minYears > 4.0) return false;
+          if (isSenior && minYears !== null && minYears > 3.0) return false;
+          if (isSenior && minYears === null) return false;
+          if (!Array.isArray(item.matchedSkills) || item.matchedSkills.length < 2) return false;
+          return true;
+        });
+        if (this.items.length !== initialCount) {
+          this.persist();
+        }
       }
     } catch (err) {
       console.error('[ManualQueueService] Init error:', err.message);
@@ -86,6 +103,48 @@ class ManualQueueService {
   }
 
   /**
+   * Robust timestamp resolution from multiple candidate fields and IDs
+   */
+  static getItemTimestamp(item) {
+    if (!item) return 0;
+    const parse = (v) => {
+      if (!v) return 0;
+      if (typeof v === 'number') return v;
+      const t = new Date(v).getTime();
+      return isNaN(t) ? 0 : t;
+    };
+
+    let ts = parse(item.discoveryTimestamp);
+    if (ts > 0) return ts;
+
+    ts = parse(item.timestamp);
+    if (ts > 0) return ts;
+
+    ts = parse(item.addedAt);
+    if (ts > 0) return ts;
+
+    ts = parse(item.lastVerifiedTimestamp);
+    if (ts > 0) return ts;
+
+    if (Array.isArray(item.auditTrail) && item.auditTrail.length > 0) {
+      for (const a of item.auditTrail) {
+        ts = parse(a.timestamp);
+        if (ts > 0) return ts;
+      }
+    }
+
+    if (item.id) {
+      const m = String(item.id).match(/(\d{13})/);
+      if (m) {
+        const num = parseInt(m[1], 10);
+        if (num > 1500000000000) return num;
+      }
+    }
+
+    return 0;
+  }
+
+  /**
    * Adds or updates a job in the manual application queue
    */
   enqueue(jobData = {}) {
@@ -122,15 +181,61 @@ class ManualQueueService {
       return null;
     }
 
-    // Filter seeing experience: strictly skip jobs with mismatched experience (>4 yrs or below_mandatory)
-    const reqExp = String(jobData.requiredExperience || jobData.experienceRequiredRange || jobData.experience || '').trim();
+    // Filter experience: strictly enforce 0-3 or 0-4 years maximum
+    const reqExp = String(jobData.requiredExperience || jobData.experienceRequiredRange || jobData.experience || jobData.experienceRange || '').trim();
     let minExp = null;
-    const expMatch = reqExp.match(/(\d+(?:\.\d+)?)/);
-    if (expMatch) minExp = parseFloat(expMatch[1]);
-    const expComp = String(jobData.experienceCompatibility || (jobData.evaluation?.experienceCompatibility) || '').toLowerCase();
-    const isMismatchedExp = expComp === 'below_mandatory' || (minExp !== null && minExp >= 5.0);
+    const expRangeMatch = reqExp.match(/(\d+(?:\.\d+)?)\s*(?:-|to|\+)\s*(\d+(?:\.\d+)?)?/);
+    if (expRangeMatch) {
+      minExp = parseFloat(expRangeMatch[1]);
+    } else {
+      const expMatch = reqExp.match(/(\d+(?:\.\d+)?)/);
+      if (expMatch) minExp = parseFloat(expMatch[1]);
+    }
 
-    if (isMismatchedExp && !jobData.isUserManualEntry) {
+    const isExecOrArch = /\b(?:architect|principal|staff|director|vp|head)\b/i.test(title);
+    const expComp = String(jobData.experienceCompatibility || (jobData.evaluation?.experienceCompatibility) || '').toLowerCase();
+
+    // Reject if minimum experience exceeds 4.0 years, or if executive/architect, or below_mandatory
+    const isMismatchedExp = expComp === 'below_mandatory' ||
+                            isExecOrArch ||
+                            (minExp !== null && minExp > 4.0);
+
+    if (existingIndex < 0 && isMismatchedExp && !jobData.isUserManualEntry) {
+      return null;
+    }
+
+    // Match skills against candidate core competencies (require at least 2 matching skills)
+    let matchedSkills = Array.isArray(jobData.matchedSkills) ? jobData.matchedSkills.filter(Boolean) : (jobData.evaluation?.matchedSkills || []);
+
+    if (matchedSkills.length === 0) {
+      const textToSearch = `${title} ${jobData.description || ''} ${(jobData.tags || []).join(' ')} ${(jobData.skills || []).join(' ')}`.toLowerCase();
+      const coreSkillsMap = [
+        { name: 'Angular', pattern: /\bangular\b/i },
+        { name: 'Java', pattern: /\bjava\b/i },
+        { name: 'Spring Boot', pattern: /\bspring\s*boot\b/i },
+        { name: 'Spring MVC', pattern: /\bspring\s*mvc\b/i },
+        { name: 'Microservices', pattern: /\bmicroservices?\b/i },
+        { name: 'REST APIs', pattern: /\b(?:rest|restful|api|apis)\b/i },
+        { name: 'PostgreSQL', pattern: /\b(?:postgresql|postgres|sql)\b/i },
+        { name: 'TypeScript', pattern: /\b(?:typescript|ts)\b/i },
+        { name: 'JavaScript', pattern: /\b(?:javascript|js)\b/i },
+        { name: 'Frontend', pattern: /\b(?:frontend|front\s*end|ui|web)\b/i },
+        { name: 'Docker', pattern: /\bdocker\b/i }
+      ];
+      for (const cs of coreSkillsMap) {
+        if (cs.pattern.test(textToSearch)) {
+          matchedSkills.push(cs.name);
+        }
+      }
+    }
+
+    // If updating an existing item that already has matched skills, retain them
+    if (existingIndex >= 0 && matchedSkills.length < 2 && this.items[existingIndex].matchedSkills) {
+      matchedSkills = this.items[existingIndex].matchedSkills;
+    }
+
+    // Strictly enforce minimum 2 matching candidate skills for new entries
+    if (existingIndex < 0 && matchedSkills.length < 2 && !jobData.isUserManualEntry) {
       return null;
     }
 
@@ -157,7 +262,7 @@ class ManualQueueService {
       workMode: jobData.workMode || 'Hybrid / Office',
       requiredExperience: jobData.requiredExperience || jobData.experienceRange || '1-4 years',
       experienceCompatibility: jobData.experienceCompatibility || 'meets_required',
-      matchedSkills: Array.isArray(jobData.matchedSkills) ? jobData.matchedSkills : (jobData.evaluation?.matchedSkills || ['Angular', 'Java']),
+      matchedSkills: matchedSkills.length > 0 ? matchedSkills : (jobData.matchedSkills || ['Angular', 'Java']),
       missingRequiredSkills: Array.isArray(jobData.missingRequiredSkills) ? jobData.missingRequiredSkills : (jobData.evaluation?.missingSkills || []),
       missingPreferredSkills: Array.isArray(jobData.missingPreferredSkills) ? jobData.missingPreferredSkills : [],
       sourcePlatform: platform,
@@ -251,16 +356,24 @@ class ManualQueueService {
         if (m) minYears = parseFloat(m[1]);
 
         if (experience === 'compatible' || experience === 'matches_experience') {
-          // Strictly match candidate experience (3 years, target range 1-4 years)
+          // Strictly match candidate experience (0-3 or 0-4 years maximum)
           if (itemExpComp === 'below_mandatory') return false;
-          if (minYears !== null && minYears >= 5.0) return false;
+          if (minYears !== null && minYears > 4.0) return false;
+          const isItemSenior = /\b(?:senior|lead|sr\.?|architect|principal|staff|director|vp|head)\b/i.test(item.title);
+          if (isItemSenior && minYears !== null && minYears > 3.0) return false;
+          if (isItemSenior && minYears === null) return false;
         } else if (experience === 'meets_required') {
           if (itemExpComp !== 'meets_required') return false;
         } else if (experience === 'compatible_adjacent') {
           if (itemExpComp !== 'compatible_adjacent') return false;
         } else if (experience === 'senior') {
-          if (itemExpComp !== 'below_mandatory' && (minYears === null || minYears < 5.0)) return false;
+          if (itemExpComp !== 'below_mandatory' && (minYears === null || minYears <= 4.0)) return false;
         }
+      }
+
+      // Ensure minimum 2 matched skills
+      if (Array.isArray(item.matchedSkills) && item.matchedSkills.length < 2) {
+        return false;
       }
 
       if (search) {
@@ -281,11 +394,20 @@ class ManualQueueService {
       const fitB = b.overallFitScore || b.overallScore || b.matchScore || 0;
       const techA = a.technicalScore || fitA;
       const techB = b.technicalScore || fitB;
-      const timeA = new Date(a.discoveryTimestamp || 0).getTime();
-      const timeB = new Date(b.discoveryTimestamp || 0).getTime();
+      const timeA = ManualQueueService.getItemTimestamp(a);
+      const timeB = ManualQueueService.getItemTimestamp(b);
 
-      if (sort === 'highest_fit') {
+      if (sort === 'newest' || sort === 'recently_added' || sort === 'date_desc' || sort === 'date') {
+        if (timeA !== timeB) return timeB - timeA;
         return fitB - fitA;
+      }
+      if (sort === 'oldest' || sort === 'oldest_pending' || sort === 'date_asc') {
+        if (timeA !== timeB) return timeA - timeB;
+        return fitB - fitA;
+      }
+      if (sort === 'highest_fit') {
+        if (fitA !== fitB) return fitB - fitA;
+        return timeB - timeA;
       }
       if (sort === 'lowest_fit') {
         return fitA - fitB;
@@ -295,21 +417,17 @@ class ManualQueueService {
         const pA = pOrder[a.priority] || 1;
         const pB = pOrder[b.priority] || 1;
         if (pA !== pB) return pB - pA;
-        return fitB - fitA;
-      }
-      if (sort === 'highest_tech') {
-        return techB - techA;
-      }
-      if (sort === 'newest') {
+        if (fitA !== fitB) return fitB - fitA;
         return timeB - timeA;
       }
-      if (sort === 'oldest_pending') {
-        return timeA - timeB;
+      if (sort === 'highest_tech') {
+        if (techA !== techB) return techB - techA;
+        return fitB - fitA;
       }
       if (sort === 'company_asc') {
         return (a.company || '').localeCompare(b.company || '');
       }
-      return fitB - fitA;
+      return (timeB - timeA) || (fitB - fitA);
     });
 
     return filtered.slice(0, limit);

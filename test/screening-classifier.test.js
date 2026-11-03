@@ -249,6 +249,11 @@ test('ScreeningClassifier - Typed Question Classification & Answer Engine', asyn
     assert.equal(tppRes.intent, ScreeningClassifier.INTENTS.THIRD_PARTY_PAYROLL);
     assert.equal(tppRes.answer, 'Yes');
 
+    // Employment Bond / Service Agreement (e.g. TVM Infotech job)
+    const bondRes = ScreeningClassifier.classifyAndAnswer('Would you be open to committing to a one-year employment bond with the company?', v2Profile, ['Yes', 'No'], 'radio');
+    assert.equal(bondRes.intent, ScreeningClassifier.INTENTS.SERVICE_BOND);
+    assert.equal(bondRes.answer, 'Yes');
+
     // Government IDs -> privacy/security policy triggers human review
     const aadhaarRes = ScreeningClassifier.classifyAndAnswer('Please provide your Aadhaar or PAN card number', v2Profile);
     assert.equal(aadhaarRes.intent, ScreeningClassifier.INTENTS.GOVERNMENT_ID);

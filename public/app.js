@@ -2723,7 +2723,7 @@ class AutoApplyApp {
       const exp = this.mqFilterExp ? this.mqFilterExp.value : 'compatible';
       const platform = this.mqFilterPlatform ? this.mqFilterPlatform.value : 'all';
       const status = this.mqFilterStatus ? this.mqFilterStatus.value : 'all';
-      const sort = this.mqSortBy ? this.mqSortBy.value : 'highest_fit';
+      const sort = this.mqSortBy ? this.mqSortBy.value : 'newest';
       const search = this.mqSearchInput ? encodeURIComponent(this.mqSearchInput.value.trim()) : '';
 
       const url = `/api/manual-queue?minFitScore=${fit}&experience=${exp}&platform=${platform}&status=${status}&sort=${sort}&search=${search}&limit=100`;

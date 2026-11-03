@@ -258,6 +258,20 @@
   ],
   "screeningQA": [
     {
+      "pattern": "would.*open.*committing.*one-year",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes",
+      "notes": "Learned from screening Q: \"Would you be open to committing to a one-year employment bon\"",
+      "updatedAt": "2026-11-02T14:50:35.882Z"
+    },
+    {
+      "pattern": "(?:years|experience).*(?:with|in|using|on)?\\s*coding|coding.*(?:years|experience)",
+      "answerType": "fixed",
+      "defaultAnswer": "3",
+      "notes": "Learned from screening Q: \"How many years of experience do you have in Coding?\"",
+      "updatedAt": "2026-11-02T14:50:20.077Z"
+    },
+    {
       "pattern": "ever.*been.*employed.*precisely",
       "answerType": "fixed",
       "defaultAnswer": "No",

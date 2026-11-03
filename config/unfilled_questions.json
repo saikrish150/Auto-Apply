@@ -1,5 +1,59 @@
 [
   {
+    "id": "unfilled-1793715401717-5h2ox",
+    "semanticKey": "norm:delhi india",
+    "question": "Delhi, India",
+    "label": "Delhi, India",
+    "inputType": "radio",
+    "options": [
+      "Select Your Preferred Work Location"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Backend Developer",
+    "company": "Deservely Technologies",
+    "reason": "The provided option list contains only a dropdown placeholder ('Select Your Preferred Work Location') and no valid choices.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-03T14:16:41.717Z",
+    "lastEncountered": "2026-11-03T14:16:41.717Z"
+  },
+  {
+    "id": "unfilled-1793714551992-3nepv",
+    "semanticKey": "norm:bengaluru karnataka india",
+    "question": "Bengaluru, Karnataka, India",
+    "label": "Bengaluru, Karnataka, India",
+    "inputType": "radio",
+    "options": [
+      "Select Your Preferred Work Location"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Java Developer",
+    "company": "Deservely Technologies",
+    "reason": "The provided radio option list contains only a placeholder ('Select Your Preferred Work Location') and no semantically valid selection.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-03T14:02:31.992Z",
+    "lastEncountered": "2026-11-03T14:02:31.992Z"
+  },
+  {
+    "id": "unfilled-1793714392212-5urqj",
+    "semanticKey": "norm:hyderabad telangana india",
+    "question": "Hyderabad, Telangana, India",
+    "label": "Hyderabad, Telangana, India",
+    "inputType": "radio",
+    "options": [
+      "Select Your Preferred Work Location"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Java Developer",
+    "company": "Deservely Technologies",
+    "reason": "The provided option list containing only 'Select Your Preferred Work Location' does not present a valid or semantically matching choice for the prompt.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-03T13:59:52.212Z",
+    "lastEncountered": "2026-11-03T13:59:52.212Z"
+  },
+  {
     "id": "unfilled-1793519887953-1hjjy",
     "semanticKey": "norm:which aws service is used to host a mana",
     "question": "Which AWS service is used to host a managed MySQL database?",
@@ -34,11 +88,11 @@
     "platform": "Naukri",
     "jobTitle": "Junior Angular Developer",
     "company": "Nxtwave Disruptive Technologies",
-    "reason": "The prompt asks the candidate to complete an external Google Form, but the radio options provided are technical skills. No option semantically fits the prompt.",
+    "reason": "This question requires completing an external Google Form before confirming submission, which requires human action.",
     "status": "pending",
-    "occurrences": 1,
+    "occurrences": 8,
     "createdAt": "2026-11-01T07:40:50.102Z",
-    "lastEncountered": "2026-11-01T07:40:50.102Z"
+    "lastEncountered": "2026-11-03T14:39:05.225Z"
   },
   {
     "id": "unfilled-1793518806881-gg6lm",
@@ -69,11 +123,11 @@
     "platform": "Naukri",
     "jobTitle": "Angular Developer Freshers - Chennai",
     "company": "TVM Infotech Private Limited",
-    "reason": "The question asks about commitment to a one-year employment bond, but the provided options are a list of technical skills with no semantically matching answer.",
+    "reason": "Employment bond / service agreement commitment is not specified in the candidate knowledge base.",
     "status": "pending",
-    "occurrences": 1,
+    "occurrences": 4,
     "createdAt": "2026-11-01T07:40:06.881Z",
-    "lastEncountered": "2026-11-01T07:40:06.881Z"
+    "lastEncountered": "2026-11-02T14:34:10.286Z"
   },
   {
     "id": "unfilled-1793518075513-gjqoz",
