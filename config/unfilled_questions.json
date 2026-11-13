@@ -1,5 +1,185 @@
 [
   {
+    "id": "unfilled-1794572645372-lbo80",
+    "semanticKey": "norm:pune district maharashtra india",
+    "question": "Pune District, Maharashtra, India",
+    "label": "Pune District, Maharashtra, India",
+    "inputType": "radio",
+    "options": [
+      "Select Your Preferred Work Location"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Backend Developer",
+    "company": "Umanist NA",
+    "reason": "No provided option matches the location selection question",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-13T12:24:05.372Z",
+    "lastEncountered": "2026-11-13T12:24:05.372Z"
+  },
+  {
+    "id": "unfilled-1794469909685-62lgn",
+    "semanticKey": "norm:bangalore urban karnataka india",
+    "question": "Bangalore Urban, Karnataka, India",
+    "label": "Bangalore Urban, Karnataka, India",
+    "inputType": "radio",
+    "options": [
+      "Select Your Preferred Work Location"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Software Engineer Backend",
+    "company": "The UrbanIndia",
+    "reason": "The provided options list standard placeholder text ('Select Your Preferred Work Location') and does not contain a valid, semantically matching selection for 'Bangalore Urban, Karnataka, India'.",
+    "status": "pending",
+    "occurrences": 2,
+    "createdAt": "2026-11-12T07:51:49.685Z",
+    "lastEncountered": "2026-11-13T02:08:31.215Z"
+  },
+  {
+    "id": "unfilled-1794402321644-herwb",
+    "semanticKey": "norm:limited exposure — i have only explored ",
+    "question": "Limited exposure — I have only explored these security practices through learning or experimentation, without professional implementation.",
+    "label": "Limited exposure — I have only explored these security practices through learning or experimentation, without professional implementation.",
+    "inputType": "radio",
+    "options": [
+      "Please respond truthfully. What is your level of professional experience implementing software supply-chain security practices, including Software Bills of Materials (SBOMs), container image signing and verification?"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Java Developer",
+    "company": "Smart Working",
+    "reason": "No semantically matching answer option is available in the provided options list.",
+    "status": "pending",
+    "occurrences": 2,
+    "createdAt": "2026-11-11T13:05:21.644Z",
+    "lastEncountered": "2026-11-12T07:48:47.808Z"
+  },
+  {
+    "id": "unfilled-1794370524500-rv2nn",
+    "semanticKey": "norm:hyderabad",
+    "question": "Hyderabad",
+    "label": "Hyderabad",
+    "inputType": "radio",
+    "options": [
+      "You are required to attend 1 F2F Interview either in Hyderabad or Bengaluru. Which location are you comfortable to attend the F2F Interview?"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Backend Developer",
+    "company": "Relic Consultancy Services",
+    "reason": "The available options list contains only the prompt text ('You are required to attend 1 F2F Interview...') rather than selectable location choices.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-11T04:15:24.500Z",
+    "lastEncountered": "2026-11-11T04:15:24.500Z"
+  },
+  {
+    "id": "unfilled-1794370169108-xxamu",
+    "semanticKey": "norm:chennai tamil nadu india",
+    "question": "Chennai, Tamil Nadu, India",
+    "label": "Chennai, Tamil Nadu, India",
+    "inputType": "radio",
+    "options": [
+      "Select Your Preferred Work Location"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Software Engineer Backend",
+    "company": "Team Geek Solutions",
+    "reason": "The available options list contains only a placeholder ('Select Your Preferred Work Location') and no valid selection option for the requested location.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-11T04:09:29.108Z",
+    "lastEncountered": "2026-11-11T04:09:29.108Z"
+  },
+  {
+    "id": "unfilled-1793936322511-1axs8",
+    "semanticKey": "norm:for further process kindly fill the form",
+    "question": "For further process kindly fill the form : https://forms.gle/kVzo45P1NpL8fzGQ6",
+    "label": "For further process kindly fill the form : https://forms.gle/kVzo45P1NpL8fzGQ6",
+    "inputType": "radio",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "platform": "Naukri",
+    "jobTitle": "Full-Stack Flutter Developer",
+    "company": "Nxtwave Disruptive Technologies (Hiring for a Client)",
+    "reason": "Completing an external Google Form requires manual candidate action prior to selection.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-06T03:38:42.511Z",
+    "lastEncountered": "2026-11-06T03:38:42.511Z"
+  },
+  {
+    "id": "unfilled-1793933936397-6p6bt",
+    "semanticKey": "norm:photo",
+    "question": "Photo",
+    "label": "Photo",
+    "inputType": "text",
+    "options": [],
+    "platform": "LinkedIn",
+    "jobTitle": "Angular Java Developer",
+    "company": "Docyt",
+    "reason": "Candidate photo URL or file path is not stored in the master knowledge base.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-06T02:58:56.398Z",
+    "lastEncountered": "2026-11-06T02:58:56.398Z"
+  },
+  {
+    "id": "unfilled-1793890999716-7qsum",
+    "semanticKey": "norm:unrecognized question repeating endlessl",
+    "question": "Unrecognized question repeating endlessly?",
+    "label": "Unrecognized question repeating endlessly?",
+    "inputType": "radio",
+    "options": [
+      "Option 1",
+      "Option 2"
+    ],
+    "platform": "Naukri",
+    "jobTitle": "Stuck Job",
+    "company": "Some Corp",
+    "reason": "No provided option matches the nonsensical question; requires human judgment",
+    "status": "pending",
+    "occurrences": 7,
+    "createdAt": "2026-11-05T15:03:19.716Z",
+    "lastEncountered": "2026-11-13T14:48:25.109Z"
+  },
+  {
+    "id": "unfilled-1793887776135-f5cno",
+    "semanticKey": "norm:how immediate your can join in days",
+    "question": "How immediate you can join in days ?",
+    "label": "How immediate you can join in days ?",
+    "inputType": "text",
+    "options": [],
+    "platform": "LinkedIn",
+    "jobTitle": "Full Stack Developer",
+    "company": "RapidBrains",
+    "reason": "Required field left blank",
+    "status": "pending",
+    "occurrences": 11,
+    "createdAt": "2026-11-05T14:09:36.135Z",
+    "lastEncountered": "2026-11-05T14:10:36.487Z"
+  },
+  {
+    "id": "unfilled-1793852323340-2fkf9",
+    "semanticKey": "norm:please rate your c++ exp",
+    "question": "Please rate your C++ Exp",
+    "label": "Please rate your C++ Exp",
+    "inputType": "select",
+    "options": [
+      "Beginner",
+      "Intermediate",
+      "Expert"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Java Developer",
+    "company": "Jitterbit",
+    "reason": "Candidate has 0 years of experience in C++ as it is not listed in the Knowledge Base. The provided options ('Beginner', 'Intermediate', 'Expert') do not include 'None' or '0', so no option semantically fits without claiming unverified experience.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-05T04:18:43.340Z",
+    "lastEncountered": "2026-11-05T04:18:43.340Z"
+  },
+  {
     "id": "unfilled-1793715401717-5h2ox",
     "semanticKey": "norm:delhi india",
     "question": "Delhi, India",
@@ -9,13 +189,13 @@
       "Select Your Preferred Work Location"
     ],
     "platform": "LinkedIn",
-    "jobTitle": "Backend Developer",
+    "jobTitle": "Software Engineer Backend",
     "company": "Deservely Technologies",
-    "reason": "The provided option list contains only a dropdown placeholder ('Select Your Preferred Work Location') and no valid choices.",
+    "reason": "The only available option is a placeholder dropdown header ('Select Your Preferred Work Location') and does not contain a valid selection for 'Delhi, India'.",
     "status": "pending",
-    "occurrences": 1,
+    "occurrences": 2,
     "createdAt": "2026-11-03T14:16:41.717Z",
-    "lastEncountered": "2026-11-03T14:16:41.717Z"
+    "lastEncountered": "2026-11-04T03:57:36.372Z"
   },
   {
     "id": "unfilled-1793714551992-3nepv",
@@ -27,13 +207,13 @@
       "Select Your Preferred Work Location"
     ],
     "platform": "LinkedIn",
-    "jobTitle": "Java Developer",
-    "company": "Deservely Technologies",
-    "reason": "The provided radio option list contains only a placeholder ('Select Your Preferred Work Location') and no semantically valid selection.",
+    "jobTitle": "Backend Developer",
+    "company": "Relic Consultancy Services",
+    "reason": "The available options list contains only a dropdown placeholder ('Select Your Preferred Work Location') and lacks valid choice options.",
     "status": "pending",
-    "occurrences": 1,
+    "occurrences": 3,
     "createdAt": "2026-11-03T14:02:31.992Z",
-    "lastEncountered": "2026-11-03T14:02:31.992Z"
+    "lastEncountered": "2026-11-11T04:15:00.850Z"
   },
   {
     "id": "unfilled-1793714392212-5urqj",
@@ -88,11 +268,11 @@
     "platform": "Naukri",
     "jobTitle": "Junior Angular Developer",
     "company": "Nxtwave Disruptive Technologies",
-    "reason": "This question requires completing an external Google Form before confirming submission, which requires human action.",
+    "reason": "This question requires manually filling out an external Google Form link prior to selection.",
     "status": "pending",
-    "occurrences": 8,
+    "occurrences": 15,
     "createdAt": "2026-11-01T07:40:50.102Z",
-    "lastEncountered": "2026-11-03T14:39:05.225Z"
+    "lastEncountered": "2026-11-06T03:17:51.271Z"
   },
   {
     "id": "unfilled-1793518806881-gg6lm",
@@ -137,13 +317,13 @@
     "inputType": "text",
     "options": [],
     "platform": "LinkedIn",
-    "jobTitle": "Java Spring Boot Developer",
+    "jobTitle": "Java Backend Developer",
     "company": "JioStar",
-    "reason": "Middle name is not specified in the candidate knowledge base (First Name: Sai Krishna, Last Name: G).",
+    "reason": "Middle name is not provided in the candidate knowledge base (only First Name: Sai Krishna, Last Name: G are specified).",
     "status": "pending",
-    "occurrences": 1,
+    "occurrences": 2,
     "createdAt": "2026-11-01T07:27:55.513Z",
-    "lastEncountered": "2026-11-01T07:27:55.513Z"
+    "lastEncountered": "2026-11-13T02:15:52.825Z"
   },
   {
     "id": "unfilled-1793517115954-gx14t",

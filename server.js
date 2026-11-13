@@ -606,8 +606,16 @@ app.post('/api/manual-queue/mark-applied', (req, res) => {
     if (!id) return res.status(400).json({ success: false, error: 'Job ID is required' });
     const result = orchestrator.manualQueue.markApplied(id, { confirmationId, notes, appliedDate, isSelfReported });
     if (result.success) {
+      orchestrator.dataStore.updateApplicationStatus(id, ApplicationStates.APPLIED_CONFIRMED, {
+        appliedAt: result.item.appliedAt,
+        notes: result.item.notes,
+        confirmationId: result.item.confirmationId
+      });
+      // Sync into orchestrator stats
+      orchestrator.stats.appliedToday = orchestrator.dataStore.summary.today;
+      orchestrator.stats.manualQueuePending = orchestrator.manualQueue.getStats().pendingCount;
+      orchestrator.stats.matchesFound = orchestrator.dataStore.summary.matchesFound;
       broadcast('manual_queue_updated', { id, action: 'applied', item: result.item });
-      orchestrator.dataStore.recalculateSummary();
       broadcast('state_changed', orchestrator.getSnapshot());
       res.json(result);
     } else {
@@ -624,8 +632,11 @@ app.post('/api/manual-queue/update-status', (req, res) => {
     if (!id || !status) return res.status(400).json({ success: false, error: 'Job ID and status are required' });
     const result = orchestrator.manualQueue.updateStatus(id, status, reason);
     if (result.success) {
+      orchestrator.dataStore.updateApplicationStatus(id, status, { reason });
+      orchestrator.stats.appliedToday = orchestrator.dataStore.summary.today;
+      orchestrator.stats.manualQueuePending = orchestrator.manualQueue.getStats().pendingCount;
+      orchestrator.stats.matchesFound = orchestrator.dataStore.summary.matchesFound;
       broadcast('manual_queue_updated', { id, action: 'status_updated', item: result.item });
-      orchestrator.dataStore.recalculateSummary();
       broadcast('state_changed', orchestrator.getSnapshot());
       res.json(result);
     } else {

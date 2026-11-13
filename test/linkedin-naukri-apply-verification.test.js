@@ -575,6 +575,110 @@ test('LinkedIn Easy Apply & Naukri External Link Prevention Verification', async
     assert.equal(outcome.questionsAnswered.length, 1, 'Question must be recorded in questionsAnswered');
     assert.equal(outcome.questionsAnswered[0].answer, 'Yes');
   });
+
+  await t.test('17. Naukri chatbot accurately detects modern "Your application was successful" completion banner', async () => {
+    const naukriBot = new NaukriBot(null, ai, settings, () => {}, dataStore);
+    naukriBot.randomDelay = async () => {};
+
+    const mockPage = {
+      url: () => 'https://www.naukri.com/job-listings-sde-mentor-nxtwave-091026025257',
+      isClosed: () => false,
+      $$: async (sel) => {
+        if (sel.includes('_chatBotContainer')) return [];
+        return [];
+      },
+      evaluate: async (fn) => {
+        const fnStr = fn.toString();
+        if (fnStr.includes('isSuccess') || fnStr.includes('directSuccess') || fnStr.includes('bodyTxt')) {
+          // Real Naukri post-apply text
+          return {
+            isSuccess: true,
+            is406: false,
+            isDrawerStillVisible: false
+          };
+        }
+        return false;
+      }
+    };
+
+    const outcome = await naukriBot.handleNaukriChatbot(mockPage, {
+      title: 'SDE Mentor',
+      company: 'Nxtwave Disruptive Technologies'
+    });
+    assert.equal(outcome.success, true, 'Chatbot handler must confirm success when modern banner is detected');
+  });
+
+  await t.test('18. Naukri chatbot does NOT falsely report applied when questionnaire gets stuck or drawer is unclosed', async () => {
+    const naukriBot = new NaukriBot(null, ai, settings, () => {}, dataStore);
+    naukriBot.randomDelay = async () => {};
+
+    // Page where drawer remains visible and application is never confirmed
+    const mockPageStuck = {
+      url: () => 'https://www.naukri.com/job-listings-test-stuck-999',
+      isClosed: () => false,
+      $$: async (sel) => {
+        if (sel.includes('_chatBotContainer')) {
+          return [{
+            evaluate: async (fn) => fn({ className: '_chatBotContainer', closest: () => null, offsetWidth: 380, offsetHeight: 650 })
+          }];
+        }
+        return [];
+      },
+      $: async () => null,
+      keyboard: { type: async () => {}, press: async () => {} },
+      evaluate: async (fn, ...args) => {
+        const fnStr = fn.toString();
+        // Check if finished (never done in this test)
+        if (fnStr.includes('combined.includes') || fnStr.includes('application was successful')) {
+          return false;
+        }
+        // Return same question over and over
+        if (fnStr.includes('question-text') || fnStr.includes('botMsgs')) {
+          return 'Unrecognized question repeating endlessly?';
+        }
+        if (fnStr.includes('radioInputs')) {
+          return ['Option 1', 'Option 2'];
+        }
+        if (fnStr.includes('targetAns')) {
+          return { clicked: true, isRadio: true, text: 'Option 1' };
+        }
+        if (fnStr.includes('saveResult') || fnStr.includes('sendMsg')) {
+          return { saveClicked: false };
+        }
+        if (fnStr.includes('isSuccess') && fnStr.includes('is406')) {
+          return { isSuccess: false, is406: false, isDrawerStillVisible: true };
+        }
+        return false;
+      }
+    };
+
+    const outcome = await naukriBot.handleNaukriChatbot(mockPageStuck, {
+      title: 'Stuck Job',
+      company: 'Some Corp'
+    });
+    assert.equal(outcome.success, false, 'Must NOT report success when drawer is still open and unconfirmed');
+    assert.ok(outcome.reason, 'Must provide reason for non-completion');
+  });
+
+  await t.test('19. ScreeningClassifier accurately answers TVM Infotech & NxtWave screening questionnaire questions', async () => {
+    const q1 = await ai.answerScreeningQuestionAI('Would you be open to committing to a one-year employment bond with the company?', ['Yes', 'No'], 'radio', {});
+    assert.equal(q1.answer, 'Yes', 'Must answer Yes to 1-year employment bond');
+
+    const q2 = await ai.answerScreeningQuestionAI('Are you an Experienced? If Experienced Holding PF ?', ['Yes', 'No'], 'radio', {});
+    assert.equal(q2.answer, 'No', 'Must answer No to holding PF account');
+
+    const q3 = await ai.answerScreeningQuestionAI('What is your Highest Qualification?', ['UG', 'PG'], 'radio', {});
+    assert.equal(q3.answer, 'UG', 'Must answer UG for B.Tech degree');
+
+    const q4 = await ai.answerScreeningQuestionAI('What is your Highest Qualification Degree?', [], 'text', {});
+    assert.ok(q4.answer.toLowerCase().includes('b.tech'), 'Must return B.Tech for degree');
+
+    const q5 = await ai.answerScreeningQuestionAI('Highest Qualification Year of passed out', [], 'number', {});
+    assert.equal(q5.answer, '2023', 'Must return 2023 for year of passed out');
+
+    const q6 = await ai.answerScreeningQuestionAI('Are you currently residing in Hyderabad, Telangana or willing to relocate to Hyderabad, Telangana?', ['Yes', 'No'], 'radio', {});
+    assert.equal(q6.answer, 'Yes', 'Must answer Yes to Hyderabad relocation');
+  });
 });
 
 

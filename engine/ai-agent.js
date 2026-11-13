@@ -210,43 +210,63 @@ class AIAgent {
     }
     const systemPrompt = customSystemPrompt || this._buildSystemPrompt();
     const url = 'https://api.groq.com/openai/v1/chat/completions';
+    const modelsToTry = [this.groqModel || 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+    const uniqueModels = [...new Set(modelsToTry.filter(Boolean))];
 
-    const payload = {
-      model: this.groqModel || 'openai/gpt-oss-120b',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.2,
-      response_format: { type: 'json_object' }
-    };
+    let lastErr = null;
+    for (const currentModel of uniqueModels) {
+      const payload = {
+        model: currentModel,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.2,
+        response_format: { type: 'json_object' }
+      };
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.groqApiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.groqApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
 
-    if (!response.ok) {
-      const errorBody = await response.text().catch(() => '');
-      const err = new Error(`Groq API error ${response.status}: ${errorBody}`);
-      err.status = response.status;
-      if (response.status === 429) {
-        this.markGroqThrottled(err);
+        if (!response.ok) {
+          const errorBody = await response.text().catch(() => '');
+          const err = new Error(`Groq API error ${response.status}: ${errorBody}`);
+          err.status = response.status;
+          if (response.status === 429) {
+            this.markGroqThrottled(err);
+          }
+          if ((response.status === 413 || response.status === 429) && currentModel !== uniqueModels[uniqueModels.length - 1]) {
+            console.warn(`[AIAgent] Groq model ${currentModel} returned ${response.status}. Retrying with lightweight fallback ${uniqueModels[uniqueModels.indexOf(currentModel) + 1]}...`);
+            lastErr = err;
+            continue;
+          }
+          throw err;
+        }
+
+        const data = await response.json();
+        const content = data?.choices?.[0]?.message?.content || '';
+        return {
+          content,
+          model: data?.model || currentModel,
+          usage: data?.usage
+        };
+      } catch (err) {
+        lastErr = err;
+        if ((err.status === 413 || err.status === 429) && currentModel !== uniqueModels[uniqueModels.length - 1]) {
+          continue;
+        }
+        throw err;
       }
-      throw err;
     }
 
-    const data = await response.json();
-    const content = data?.choices?.[0]?.message?.content || '';
-    return {
-      content,
-      model: data?.model || this.groqModel,
-      usage: data?.usage
-    };
+    throw lastErr;
   }
 
   async _executeAICall(prompt, customSystemPrompt = null) {
@@ -531,6 +551,12 @@ CAREER SUMMARY:
 TECHNICAL SKILLS:
 ${skills.map(s => `• ${s.name}: ${s.years} years (${s.proficiency})`).join('\n')}
 
+AI & VIBE CODING EXPERTISE (3 YEARS EXPERIENCE - DAILY DAY-TO-DAY USE):
+• Tools & Platforms: Google Antigravity, GitHub Copilot, ChatGPT (OpenAI), Claude (Anthropic), Google Gemini.
+• Workflows: Autonomous AI agents, agentic workflows, conversational LLMs/chats, prompt engineering, and vibe coding (AI-assisted rapid full-stack software development).
+• Experience duration: 3 years of daily hands-on engineering experience.
+• For questions asking about experience with AI, vibe coding, GitHub Copilot, ChatGPT, Claude, Gemini, Antigravity, or AI agents, ALWAYS answer "3" for numeric fields (or "Yes" for Yes/No questions).
+
 ZERO-EXPERIENCE TECHNOLOGIES (STRICTLY ANSWER "0" OR "No"):
 JUnit, Mockito, React.js, Kubernetes, Kafka, RabbitMQ, Redis, MongoDB, Swagger / OpenAPI, Linux, Python, Django, Flask, C#, .NET, PHP, Ruby, Go, Rust. Any technology not in the knowledge base must also be answered as "0" or "No".
 
@@ -642,27 +668,23 @@ OUTPUT FORMAT (JSON ONLY, NO EXTRA TEXT):
     let engine = 'Local Rule';
     let reasoning = localResult.source;
 
-    // 3. If local match is confident enough, use it directly
+    // 3. If local match is confident enough and non-empty, use it directly
     //    This covers: notice period, CTC, experience years, yes/no,
     //    relocation, visa, work auth, shift preference, etc.
     const CONFIDENCE_THRESHOLD = 0.85;
-    if (localResult.confidence >= CONFIDENCE_THRESHOLD) {
-      console.log(`[AIAgent] Local match (confidence ${localResult.confidence}): "${q.substring(0, 50)}..." → "${localResult.answer}"`);
-      finalResult = localResult;
+    const sanitizedLocalAns = this.sanitizeAnswerForInputType(localResult.answer, inputType, safeOptions);
+    if (localResult.confidence >= CONFIDENCE_THRESHOLD && sanitizedLocalAns && String(sanitizedLocalAns).trim() !== '') {
+      console.log(`[AIAgent] Local match (confidence ${localResult.confidence}): "${q.substring(0, 50)}..." → "${sanitizedLocalAns}"`);
+      finalResult = {
+        ...localResult,
+        answer: sanitizedLocalAns
+      };
       engine = hasProfileRule ? 'Verified Memory Rule' : 'Local Rule';
       reasoning = localResult.source;
     } else if (this.isAiAvailable()) {
       // 4. Low-confidence or unknown question → Escalate to AI (Groq / Gemini)
       const callStart = Date.now();
-      const candidateKb = this.loadCandidateKnowledgeBase();
-      let prompt = `You are answering an application screening question on behalf of candidate Sai Krishna G.\n` +
-        `Below is the candidate's complete, verified Markdown Knowledge Base. Use this as your ABSOLUTE SINGLE SOURCE OF TRUTH for all facts, dates, academic marks, companies, projects, declarations, and preferences:\n\n` +
-        `================================================================================\n` +
-        `CANDIDATE MASTER KNOWLEDGE BASE (STRICT SINGLE SOURCE OF TRUTH):\n` +
-        `================================================================================\n` +
-        `${candidateKb}\n` +
-        `================================================================================\n\n` +
-        `SCREENING QUESTION: "${q}"`;
+      let prompt = `SCREENING QUESTION: "${q}"`;
       if (context.company && context.company !== 'N/A') {
         prompt += `\nTARGET COMPANY: "${context.company}" (Candidate current/past company: Tech Mahindra / GE Aerospace)`;
       }
@@ -1031,6 +1053,20 @@ Respond in this JSON format only:
       }
 
       // D. Boolean / Affirmative match
+      const isBinaryYesNo = options.length >= 2 && options.length <= 3 &&
+        options.some(o => /^(yes|agree|authorized|willing|comfortable|true)/i.test(o.trim())) &&
+        options.some(o => /^(no|none|never|do not have|not|false)/i.test(o.trim()));
+
+      if (!isNaN(candNum) && isBinaryYesNo) {
+        if (candNum > 0) {
+          const yesOpt = options.find(o => /^(yes|agree|authorized|willing|comfortable|true)/i.test(o.trim()));
+          if (yesOpt) return yesOpt;
+        } else {
+          const noOpt = options.find(o => /^(no|none|never|do not have|not|false)/i.test(o.trim()));
+          if (noOpt) return noOpt;
+        }
+      }
+
       if (/^(yes|true|willing|authorized|agree|comfortable|expert|experienced)/i.test(val)) {
         const yesOpt = options.find(o => /^(yes|agree|authorized|willing|comfortable)/i.test(o.trim()));
         if (yesOpt) return yesOpt;
@@ -1128,7 +1164,21 @@ Respond in this JSON format only:
       return 'intent:bgv_consent';
     }
 
+    // 7B. Client Handling & Interaction
+    if (/\b(?:handling\s*clients?|client\s*(?:facing|handling|interaction|communication)|experience\s*(?:with|handling)\s*clients?)\b/i.test(norm)) {
+      return 'intent:client_handling';
+    }
+
+    // 7C. Legal work authorization in applying country (CRITICAL: Must evaluate BEFORE intent:country!)
+    if (/\b(?:legally\s*(?:authorized|eligible|permitted)|authorized\s*to\s*work|legal\s*(?:right|status)\s*to\s*work|eligible\s*to\s*work|eligibility\s*to\s*work|work\s*authorization|legally\s*work)\b/i.test(norm)) {
+      return 'intent:legal_work_auth';
+    }
+
     // 8. Location & Personal
+    if (/\b(?:which\s*part\s*of|where\s*in|located\s*in)\s+(?:tamil\s*nadu|karnataka|maharashtra|kerala|andhra|telangana)\b/i.test(norm) ||
+        /\b(?:which\s*part\s*of\s+[a-z\s]+are\s*your\s*currently\s*located)\b/i.test(norm)) {
+      return 'intent:state_part_location';
+    }
     if (/\b(?:city|current\s*city|city\s*of\s*residence|current\s*location|where\s*(?:are|do)\s*you\s*(?:live|reside))\b/i.test(norm)) return 'intent:city';
     if (/\b(?:country|current\s*country|citizenship|nationality)\b/i.test(norm)) return 'intent:country';
     if (/\b(?:state|province|region)\b/i.test(norm)) return 'intent:state';
@@ -1146,10 +1196,6 @@ Respond in this JSON format only:
     // A. Previous employment with applying company
     if (/\b(?:worked\s*(?:with|at|for)\s*(?:us|this\s*company)|previous(?:ly)?\s*(?:employed|worked)|former\s*employee|ever\s*worked\s*(?:with|at|for)|previously\s*applied)\b/i.test(norm)) {
       return 'intent:previous_employee';
-    }
-    // B. Legal work authorization in applying country (India / country of job)
-    if (/\b(?:legally\s*(?:authorized|eligible|permitted)|authorized\s*to\s*work|legal\s*right\s*to\s*work|eligible\s*to\s*work|legally\s*work)\b/i.test(norm)) {
-      return 'intent:legal_work_auth';
     }
     // C. Disability status & self-identification
     if (/\b(?:disability|disabled|physical\s*or\s*mental\s*impairment|handicap|special\s*needs)\b/i.test(norm)) {
@@ -1232,13 +1278,26 @@ Respond in this JSON format only:
         try {
           const regex = new RegExp(rule.pattern, 'i');
           if (regex.test(rawQ) || regex.test(norm)) {
+            // Guard: If question is legal work auth, a generic rule matching "country" must not hijack it
+            if (semanticKey === 'intent:legal_work_auth' && !/authorized|eligible|permit|legal/i.test(rule.pattern)) {
+              continue;
+            }
+
             let ans = rule.defaultAnswer;
             if (rule.answerType === 'dynamic_skill_lookup') {
               const matchedSkill = skills.find(s => norm.includes(s.name.toLowerCase()));
               if (matchedSkill) ans = String(matchedSkill.years);
             }
+            const sanitized = this.sanitizeAnswerForInputType(ans, inputType, options);
+
+            // Guard: If options were provided (e.g. ['Yes', 'No']) and sanitized answer is empty,
+            // this rule did not match the question's required choices. Continue to specialized intents.
+            if (options && options.length > 0 && !sanitized) {
+              continue;
+            }
+
             return {
-              answer: this.sanitizeAnswerForInputType(ans, inputType, options),
+              answer: sanitized,
               confidence: 0.98,
               source: `Semantic Engine — Profile Memory Rule (${rule.pattern})`,
               semanticKey,
@@ -1291,7 +1350,21 @@ Respond in this JSON format only:
         };
       }
 
-      // CRITICAL GENIUS RULE: If skill is NOT listed in candidate's profile (e.g. C#, Dot Net, Gen AI, Python, Ruby, PHP, Subversion):
+      // AI / Vibe Coding / Agents experience (Candidate has 3 years of daily hands-on experience)
+      const isAiOrVibe = /(?:vibe|vibecoding|whitecoding|aicoding|codingwithai|genai|generativeai|aiagents?|agentic|copilot|githubcopilot|chatgpt|claude|gemini|antigravity|promptengineering|llm)/i.test(targetTech) ||
+                         /^ai(?:tools?|agents?|coding|dev)?$/i.test(targetTech);
+      if (isAiOrVibe) {
+        const ans = this.sanitizeAnswerForInputType('3', inputType, options);
+        return {
+          answer: ans,
+          confidence: 0.98,
+          source: 'Semantic Engine — AI tools, agents and vibe coding (3 yrs daily hands-on experience)',
+          semanticKey,
+          aiPowered: false
+        };
+      }
+
+      // CRITICAL GENIUS RULE: If skill is NOT listed in candidate's profile (e.g. C#, Dot Net, Python, Ruby, PHP, Subversion):
       // The honest, optimal answer is strictly 0 (or "No" for radio/select/boolean options)!
       let zeroAns = '0';
       if ((inputType === 'radio' || inputType === 'select') && options.length > 0) {
@@ -1450,6 +1523,37 @@ Respond in this JSON format only:
     }
     if (semanticKey === 'intent:legal_work_auth') {
       return { answer: this.sanitizeAnswerForInputType('Yes', inputType, options), confidence: 0.98, source: 'Semantic Engine — Legal work authorization in India (Yes)', semanticKey, aiPowered: false };
+    }
+    if (semanticKey === 'intent:client_handling') {
+      const isBoolOrSelect = inputType === 'radio' || inputType === 'select' || (options && options.length > 0);
+      const textAns = 'Yes, I have experience handling client interactions, working directly with GE Aerospace as a client while at Tech Mahindra.';
+      const ans = isBoolOrSelect ? 'Yes' : textAns;
+      return {
+        answer: this.sanitizeAnswerForInputType(ans, inputType, options),
+        confidence: 0.98,
+        source: 'Semantic Engine — Client handling experience with GE Aerospace (Yes)',
+        semanticKey,
+        aiPowered: false
+      };
+    }
+    if (semanticKey === 'intent:state_part_location') {
+      let ans = 'Hyderabad (open to relocate)';
+      if (options && options.length > 0) {
+        const notInStateOpt = options.find(o => /other|not\s*in|outside|none/i.test(o));
+        if (notInStateOpt) {
+          ans = notInStateOpt;
+        } else {
+          const hydOpt = options.find(o => /hyderabad/i.test(o));
+          ans = hydOpt || options[0];
+        }
+      }
+      return {
+        answer: this.sanitizeAnswerForInputType(ans, inputType, options),
+        confidence: 0.98,
+        source: 'Semantic Engine — Resides in Hyderabad, open to relocate',
+        semanticKey,
+        aiPowered: false
+      };
     }
     if (semanticKey === 'intent:disability_status') {
       let ans = 'No';
@@ -1732,6 +1836,16 @@ Respond in this JSON format only:
       return { answer: ans, confidence: 0.96, source: 'Local Fallback — Documentation readiness', aiPowered: false };
     }
 
+    // 9B. AI Tools, Vibe Coding, Copilot, ChatGPT, Claude, Gemini, Antigravity, AI Agents
+    if (/\b(?:vibe\s*coding|white\s*coding|ai\s*assisted\s*coding|coding\s*with\s*ai|ai\s*agents?|chatgpt|chat\s*gpt|copilot|github\s*copilot|claude|gemini|antigravity|generative\s*ai|gen\s*ai|prompt\s*engineering)\b/i.test(q)) {
+      if (inputType === 'number' || /\b(?:how\s*many\s*years|years\s*(?:of\s*)?experience|experience\s*in\s*years)\b/i.test(q)) {
+        const ans = this.sanitizeAnswerForInputType('3', inputType, options);
+        return { answer: ans, confidence: 0.98, source: 'Local Match — AI & Vibe Coding Experience (3 years)', aiPowered: false };
+      }
+      const ans = this.sanitizeAnswerForInputType('Yes', inputType, options);
+      return { answer: ans, confidence: 0.98, source: 'Local Match — AI & Vibe Coding Proficiency (Yes)', aiPowered: false };
+    }
+
     // 10. An unknown choice field needs Gemini. Do not assume "Yes" or pick
     // the first option: both behaviours produced incorrect submissions.
     if (options.length > 0) {
@@ -2003,7 +2117,7 @@ Respond in this JSON format only:
 
     // 1. SMART CHECK: Can this question already be resolved with high confidence by semantic intent or memory?
     const semanticRes = this.resolveSemanticQuestionIntent(rawQ, options, inputType);
-    if (semanticRes && semanticRes.confidence >= 0.90) {
+    if (semanticRes && semanticRes.confidence >= 0.90 && semanticRes.answer && String(semanticRes.answer).trim() !== '') {
       console.log(`[AIAgent] ✨ Question "${rawQ.substring(0, 50)}" is already resolved by semantic engine (${semanticKey} -> "${semanticRes.answer}"). Suppressing from unfilled queue.`);
       return null;
     }

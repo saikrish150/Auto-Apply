@@ -260,13 +260,23 @@ class LinkedInBot {
             });
             await this.randomDelay(1000, 2000);
 
-            // Find job cards
-            let jobCards = await page.$$(
-              '.jobs-search-results__list-item, .job-card-container, .jobs-search__results-list li, .base-card, .job-search-card, .scaffold-layout__list-item, [data-occludable-job-id]'
-            );
-            if (!jobCards || jobCards.length === 0) {
-              jobCards = await page.$$('a[href*="/jobs/view/"]');
-            }
+            // Find job cards using clean selector hierarchy to prevent duplicate nested matches
+            const fetchJobCards = async () => {
+              // 1. Top-level list item containers
+              let cards = await page.$$(
+                'ul.jobs-search__results-list > li, .jobs-search-results-list > .jobs-search-results__list-item, .scaffold-layout__list-container > .jobs-search-results__list-item, .scaffold-layout__list-container > li, .jobs-search-results__list-item'
+              );
+              if (cards && cards.length > 0) return cards;
+
+              // 2. Standalone card containers (only if no list items found)
+              cards = await page.$$('.job-card-container, .job-search-card, .base-card');
+              if (cards && cards.length > 0) return cards;
+
+              // 3. Fallback links
+              return await page.$$('a[href*="/jobs/view/"]');
+            };
+
+            let jobCards = await fetchJobCards();
 
             this.logger('info', 'LinkedIn', `[${phase.name}] Found ${jobCards.length} matching job cards on page ${pageNum + 1} for "${currentScenario}".`);
 
@@ -278,11 +288,37 @@ class LinkedInBot {
             for (let i = 0; i < jobCards.length; i++) {
               if (this.shouldStop || totalProcessedCount >= maxApps) break;
 
+              let cardPre = null;
+              let titleKey = '';
+              let isGenericKey = true;
+
               try {
-                const card = jobCards[i];
+                // Smoothly scroll the left list as we advance so lazy-loaded items render
+                if (i > 0 && i % 3 === 0) {
+                  await page.evaluate(() => {
+                    const listEl = document.querySelector('.jobs-search-results-list, .scaffold-layout__list-detail, .scaffold-layout__list');
+                    if (listEl) listEl.scrollBy({ top: 320, behavior: 'smooth' });
+                  }).catch(() => {});
+                  await this.randomDelay(400, 800);
+                }
+
+                // Verify card handle is still connected to DOM; refresh list if detached
+                let card = jobCards[i];
+                let isDetached = false;
+                try {
+                  isDetached = !(await card.evaluate(el => el && el.isConnected));
+                } catch (e) {
+                  isDetached = true;
+                }
+
+                if (isDetached) {
+                  jobCards = await fetchJobCards();
+                  card = jobCards[i];
+                  if (!card) continue;
+                }
 
                 // Fast pre-click DOM inspection: check applied status, job ID, and title/company
-                const cardPre = await card.evaluate(el => {
+                cardPre = await card.evaluate(el => {
                   const text = el.innerText || '';
                   const appliedBadge = el.querySelector('.job-card-container__footer-item, [class*="status-badge"], [class*="job-state"], .artdeco-inline-feedback--success');
                   let isApplied = false;
@@ -294,11 +330,17 @@ class LinkedInBot {
                   }
                   const hasEasyApply = /easy\s*apply/i.test(text);
 
-                  const jobIdAttr = el.getAttribute('data-occludable-job-id') || el.getAttribute('data-job-id');
-                  const link = el.querySelector('a[href*="/jobs/view/"], a.job-card-list__title, a.job-card-list__title--link, a.job-card-container__link');
+                  let rawJobId = el.getAttribute('data-occludable-job-id') || el.getAttribute('data-job-id') || el.getAttribute('data-entity-urn') || '';
+                  const link = el.querySelector('a[href*="/jobs/view/"], a[href*="currentJobId="], a.job-card-list__title, a.job-card-list__title--link, a.job-card-container__link') || (el.tagName === 'A' ? el : null);
                   const href = link ? link.href : '';
-                  const idMatch = href.match(/\/jobs\/view\/(\d+)/);
-                  const jobId = jobIdAttr || (idMatch ? idMatch[1] : '');
+                  const idMatch = href.match(/(?:\/jobs\/view\/|currentJobId=)(\d+)/);
+                  let jobId = '';
+                  if (idMatch) {
+                    jobId = idMatch[1];
+                  } else if (rawJobId) {
+                    const numMatch = rawJobId.match(/(\d{6,})/);
+                    if (numMatch) jobId = numMatch[1];
+                  }
 
                   const titleEl = el.querySelector(
                     '.job-card-list__title--link, .job-card-list__title, .job-card-container__link, .artdeco-entity-lockup__title a, [data-view-name="job-card"] a, a[class*="job-title"], a[href*="/jobs/view/"], strong'
@@ -323,14 +365,25 @@ class LinkedInBot {
 
                 const rawTitle = (cardPre.title || '').trim();
                 const rawComp = (cardPre.company || '').trim();
-                const titleKey = (rawTitle && rawComp) ? `${rawTitle.toLowerCase()}|${rawComp.toLowerCase()}` : '';
-                const isGenericKey = !titleKey || titleKey.startsWith('software developer|company') || titleKey === '|';
+                titleKey = (rawTitle && rawComp) ? `${rawTitle.toLowerCase()}|${rawComp.toLowerCase()}` : '';
+                isGenericKey = !titleKey || titleKey.startsWith('software developer|company') || titleKey === '|';
+
+                const markJobSeen = (extraTitle = '', extraComp = '', extraJobId = '') => {
+                  if (cardPre?.jobId) this.seenJobKeys.add(String(cardPre.jobId));
+                  if (extraJobId) this.seenJobKeys.add(String(extraJobId));
+                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
+                  if (extraTitle && extraComp) {
+                    const k = `${extraTitle.toLowerCase().trim()}|${extraComp.toLowerCase().trim()}`;
+                    if (k !== '|' && !k.startsWith('software developer|direct employer')) {
+                      this.seenJobKeys.add(k);
+                    }
+                  }
+                };
 
                 // 1. Skip if already applied
                 if (cardPre.isApplied) {
                   this.logger('info', 'LinkedIn', `[Pre-check] Skipping "${rawTitle || 'Job'}" at ${rawComp} - card shows already applied.`);
-                  if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
-                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
+                  markJobSeen();
                   continue;
                 }
 
@@ -340,22 +393,48 @@ class LinkedInBot {
                   continue;
                 }
 
-                // Click card to load job details in the right pane
+                // Click card anchor or container to load job details in the right pane
                 await card.evaluate(el => {
-                  el.scrollIntoView({ block: 'center', inline: 'nearest' });
-                  el.click();
+                  const target = el.querySelector(
+                    'a.job-card-list__title, a.job-card-container__link, [data-control-name="job_card_click"], a[href*="/jobs/view/"], .job-card-container, a'
+                  ) || el;
+                  target.scrollIntoView({ block: 'center', inline: 'nearest' });
+                  ['mouseenter', 'mouseover', 'mousedown', 'mouseup', 'click'].forEach(evt => {
+                    target.dispatchEvent(new MouseEvent(evt, { bubbles: true, cancelable: true, view: window, buttons: 1 }));
+                  });
+                  if (typeof target.click === 'function') target.click();
                 });
 
-                // Wait for the detail pane content to render (up to 3.5 seconds)
-                await page.waitForFunction(() => {
+                // Wait for the detail pane content to render the clicked job
+                await page.waitForFunction((expectedId) => {
                   const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
                   const descEl = detailPane.querySelector('.jobs-description__content, #job-details, .show-more-less-html__markup, [class*="description"]');
                   const titleEl = detailPane.querySelector('.job-details-jobs-unified-top-card__job-title, .jobs-unified-top-card__job-title, h1, h2, [class*="job-title"]');
                   const hasDesc = descEl && (descEl.innerText || '').trim().length > 30;
                   const hasTitle = titleEl && (titleEl.innerText || '').trim().length > 3;
+                  if (expectedId) {
+                    const topCard = detailPane.querySelector('.job-details-jobs-unified-top-card, .jobs-unified-top-card') || detailPane;
+                    const topLink = topCard.querySelector('a[href*="/jobs/view/"]');
+                    const hasMatchingId = topLink && topLink.href.includes(expectedId);
+                    const urlHasId = window.location.href.includes(expectedId);
+                    return (hasDesc || hasTitle) && (hasMatchingId || urlHasId);
+                  }
                   return hasDesc || hasTitle;
-                }, { timeout: 3500 }).catch(() => {});
+                }, { timeout: 3500 }, cardPre.jobId).catch(() => {});
                 await this.randomDelay(800, 1500);
+
+                // Determine effective job ID for this specific card
+                const urlMatch = page.url().match(/(?:\/jobs\/view\/|currentJobId=)(\d+)/);
+                const currentUrlJobId = urlMatch ? urlMatch[1] : '';
+                const effectiveJobId = cardPre.jobId || currentUrlJobId;
+                const detailJobId = effectiveJobId;
+
+                // Skip if this specific job ID was already processed
+                if (effectiveJobId && this.seenJobKeys.has(effectiveJobId)) {
+                  this.logger('info', 'LinkedIn', `[Detail-check] Skipping "${rawTitle || 'Job'}" (${effectiveJobId}) - already processed.`);
+                  markJobSeen(rawTitle, rawComp, effectiveJobId);
+                  continue;
+                }
 
                 // Extract job details from right-hand details pane with robust fallback to cardPre
                 const jobDetails = await page.evaluate((fallbackMeta, scenarioName) => {
@@ -444,6 +523,7 @@ class LinkedInBot {
                   this.logger('warning', 'LinkedIn', `Skipping "${jobDetails.title}" - ATS score ${evaluation.score}% below threshold ${this.settings.automation?.minMatchScore || 65}%.`);
                   jobRecord.status = 'skipped';
                   jobRecord.skipReason = `ATS score ${evaluation.score}% < threshold`;
+                  markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }
@@ -458,6 +538,7 @@ class LinkedInBot {
                   this.logger('warning', 'LinkedIn', `Skipping "${jobDetails.title}" - Experience requirement (${reqExpRange || 'Architect/Executive inferred'}) exceeds candidate 0-4 years maximum.`);
                   jobRecord.status = 'skipped';
                   jobRecord.skipReason = 'Experience requirement exceeds 0-4 years maximum';
+                  markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }
@@ -481,7 +562,7 @@ class LinkedInBot {
                     return { status: 'already_applied' };
                   }
 
-                  const buttons = Array.from(detailPane.querySelectorAll('button, a.jobs-apply-button, a[href*="/jobs/view/externalApply/"], a[aria-label*="Apply to"]'));
+                  const buttons = Array.from(detailPane.querySelectorAll('button, a, [role="button"]'));
                   let hasEasy = false;
                   let hasExt = false;
                   let extHref = '';
@@ -517,8 +598,7 @@ class LinkedInBot {
                 if (applyBtnInfo.status === 'already_applied') {
                   this.logger('info', 'LinkedIn', `"${jobDetails.title}" is already applied.`);
                   jobRecord.status = 'already_applied';
-                  if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
-                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
+                  markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }
@@ -574,8 +654,7 @@ class LinkedInBot {
                   jobRecord.reason = `High match (${evaluation.score}%) - Shortlisted normal job application for manual submission`;
                   totalProcessedCount++;
 
-                  if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
-                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
+                  markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
 
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   await this.randomDelay(1500, 2500);
@@ -588,8 +667,7 @@ class LinkedInBot {
                   await this.randomDelay(1500, 2500);
                   jobRecord.status = 'applied (simulated)';
                   totalProcessedCount++;
-                  if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
-                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
+                  markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }
@@ -600,6 +678,7 @@ class LinkedInBot {
                   jobRecord.actionRequired = true;
                   jobRecord.directApplicationUrl = page.url();
                   jobRecord.reason = 'Active LinkedIn login required to complete Easy Apply';
+                  markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }
@@ -662,8 +741,7 @@ class LinkedInBot {
                     jobRecord.reason = `High match (${evaluation.score}%) - LinkedIn external employer application preserved in Manual Apply Queue`;
                     totalProcessedCount++;
 
-                    if (cardPre.jobId) this.seenJobKeys.add(cardPre.jobId);
-                    if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
+                    markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
 
                     if (onJobProcessed) onJobProcessed(jobRecord);
                     this.logger('success', 'LinkedIn', `Preserved "${jobDetails.title}" at ${jobDetails.company} in Manual Apply Queue.`);
@@ -674,6 +752,7 @@ class LinkedInBot {
                   this.logger('info', 'LinkedIn', `Neither Easy Apply nor External Apply button found for "${jobDetails.title}".`);
                   jobRecord.status = 'skipped';
                   jobRecord.skipReason = 'No applicable apply button';
+                  markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }
@@ -706,6 +785,7 @@ class LinkedInBot {
                 const easyApplyEl = easyApplyBtnHandle.asElement();
                 if (!easyApplyEl) {
                   this.logger('info', 'LinkedIn', `Could not click Easy Apply button for "${jobDetails.title}".`);
+                  markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                   continue;
                 }
 
@@ -745,11 +825,16 @@ class LinkedInBot {
                   this.logger('warning', 'LinkedIn', `Application for "${jobDetails.title}" requires manual verification. Enqueued into Manual Apply Queue.`);
                 }
 
+                markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                 if (onJobProcessed) onJobProcessed(jobRecord);
                 await this.randomDelay(2000, 3500);
 
               } catch (jobErr) {
                 this.logger('error', 'LinkedIn', `Error processing LinkedIn job: ${jobErr.message}`);
+                try {
+                  if (cardPre?.jobId) this.seenJobKeys.add(String(cardPre.jobId));
+                  if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
+                } catch (e) {}
               }
             }
           }
@@ -791,6 +876,29 @@ class LinkedInBot {
     while (maxSteps > 0) {
       maxSteps--;
       await this.randomDelay(1000, 1800);
+
+      // 0. Detect LinkedIn account-level daily Easy Apply limit modal
+      const limitInfo = await page.evaluate(() => {
+        const modal = document.querySelector('dialog, [role="dialog"], .jobs-easy-apply-modal, .artdeco-modal') || document;
+        const text = (modal.innerText || '').toLowerCase();
+        const isLimit = text.includes('reached today’s easy apply limit') || text.includes("reached today's easy apply limit") || text.includes('limit easy apply submissions');
+        if (isLimit) {
+          const gotItBtn = Array.from(modal.querySelectorAll('button')).find(b => {
+            const t = (b.innerText || '').trim().toLowerCase();
+            return t === 'got it' || t === 'close' || t === 'dismiss';
+          });
+          if (gotItBtn) gotItBtn.click();
+          return { isLimit: true, dismissed: !!gotItBtn };
+        }
+        return { isLimit: false };
+      });
+
+      if (limitInfo && limitInfo.isLimit) {
+        this.logger('warning', 'LinkedIn', 'LinkedIn daily Easy Apply limit reached for this account. Easy Apply submissions are paused by LinkedIn until tomorrow.');
+        this.dailyEasyApplyLimitReached = true;
+        await this.randomDelay(800, 1500);
+        return false;
+      }
 
       // 1. Ensure candidate resume is selected or uploaded
       await this.handleResumeStep(page);
@@ -1191,12 +1299,17 @@ class LinkedInBot {
             if (legend && legend.innerText.trim()) return window.__cleanText(legend.innerText);
           }
           let curr = el.parentElement;
-          for (let depth = 0; depth < 5 && curr; depth++) {
-            const headerEl = curr.querySelector('legend, h3, h4, span[class*="label"], span[class*="title"], p:not([class*="error"]):not([class*="feedback"])');
-            if (headerEl && !headerEl.contains(el) && headerEl.innerText.trim()) {
-              const t = window.__cleanText(headerEl.innerText);
-              if (t.length > 3 && !/^\d+\/\d+/.test(t) && !/of \d+ characters/i.test(t) && !window.__isErrorText(t)) {
-                return t;
+          for (let depth = 0; depth < 6 && curr; depth++) {
+            const candidateHeaders = Array.from(curr.querySelectorAll(
+              'legend, [data-test-form-builder-radio-group-title], [class*="form-element__label"], label[class*="label"], span.t-14.t-bold, h3, h4, p:not([class*="error"]):not([class*="feedback"])'
+            ));
+            for (const h of candidateHeaders) {
+              if (!h.closest('label[class*="radio"], .fb-radio-button, [class*="radio-item"], [class*="radio-label"], [data-test-form-builder-radio-button]') &&
+                  !h.contains(el) && h.innerText.trim()) {
+                const t = window.__cleanText(h.innerText);
+                if (t.length > 3 && !/^\d+\/\d+/.test(t) && !/of \d+ characters/i.test(t) && !window.__isErrorText(t)) {
+                  return t;
+                }
               }
             }
             curr = curr.parentElement;

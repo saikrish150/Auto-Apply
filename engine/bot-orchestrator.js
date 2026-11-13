@@ -40,7 +40,7 @@ class BotOrchestrator extends EventEmitter {
 
     this.stats = {
       appliedToday: timeStats.today || 0,
-      matchesFound: timeStats.totalApplications || 0,
+      matchesFound: timeStats.matchesFound !== undefined ? timeStats.matchesFound : (timeStats.today + (mqStats.pendingCount || 0)),
       manualQueuePending: mqStats.pendingCount || 0,
       unverifiedSubmissions: timeStats.unverifiedSubmissions || 0,
       recruiterEmailsCount: emailStats.totalEmails || 0,
@@ -277,7 +277,7 @@ class BotOrchestrator extends EventEmitter {
     const timeStats = this.dataStore.getTimeStats();
     const mqStats = this.manualQueue ? this.manualQueue.getStats() : { pendingCount: 0 };
     this.stats.appliedToday = timeStats.today;
-    this.stats.matchesFound = timeStats.totalApplications;
+    this.stats.matchesFound = timeStats.matchesFound !== undefined ? timeStats.matchesFound : (timeStats.today + (mqStats.pendingCount || 0));
     this.stats.manualQueuePending = mqStats.pendingCount;
     this.stats.unverifiedSubmissions = timeStats.unverifiedSubmissions || 0;
     this.stats.recruiterEmailsCount = this.recruiterEmails ? this.recruiterEmails.getStats().totalEmails : 0;

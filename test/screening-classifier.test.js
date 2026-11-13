@@ -342,4 +342,91 @@ test('ScreeningClassifier - Typed Question Classification & Answer Engine', asyn
     assert.equal(relocateRes.intent, ScreeningClassifier.INTENTS.WILLING_TO_RELOCATE);
     assert.equal(relocateRes.answer, 'Yes');
   });
+
+  await t.test('Accurately handles work authorization with country mentions, client handling, and state location', () => {
+    const testProfile = ProfileManager.normalizeProfile({
+      personal: {
+        city: 'Hyderabad',
+        state: 'Telangana',
+        country: 'India',
+        location: 'Hyderabad, Telangana, India'
+      },
+      skills: [
+        { name: 'Angular', years: 3, proficiency: 'expert' }
+      ],
+      career: {
+        workAuthorization: 'Yes',
+        willingToRelocate: true
+      }
+    });
+
+    // 1. Work authorization with "country" in question text (Must NOT be misclassified as INTENT_COUNTRY)
+    const authQ = 'Are you legally eligible to work in the country of this job?';
+    const authRes = ScreeningClassifier.classifyAndAnswer(authQ, testProfile, ['Yes', 'No'], 'radio');
+    assert.equal(authRes.intent, ScreeningClassifier.INTENTS.WORK_AUTHORIZATION);
+    assert.equal(authRes.answer, 'Yes');
+
+    const authQ2 = 'Are you legally eligible to work in the United States or India?';
+    const authRes2 = ScreeningClassifier.classifyAndAnswer(authQ2, testProfile, ['Yes', 'No'], 'select');
+    assert.equal(authRes2.intent, ScreeningClassifier.INTENTS.WORK_AUTHORIZATION);
+    assert.equal(authRes2.answer, 'Yes');
+
+    // 2. Client handling experience (Tech Mahindra / GE Aerospace)
+    const clientQ = 'Do you have any prior experience handling clients?';
+    const clientRes = ScreeningClassifier.classifyAndAnswer(clientQ, testProfile, ['Yes', 'No'], 'radio');
+    assert.equal(clientRes.intent, ScreeningClassifier.INTENTS.CLIENT_HANDLING);
+    assert.equal(clientRes.answer, 'Yes');
+
+    const clientQText = 'Do you have any prior experience handling clients?';
+    const clientResText = ScreeningClassifier.classifyAndAnswer(clientQText, testProfile, [], 'text');
+    assert.equal(clientResText.intent, ScreeningClassifier.INTENTS.CLIENT_HANDLING);
+    assert.match(clientResText.answer, /GE Aerospace/i);
+
+    // 3. Specific state location (Tamil Nadu / Chennai)
+    const tnQ = 'Which part of Tamil Nadu are you currently located in?';
+    const tnRes = ScreeningClassifier.classifyAndAnswer(tnQ, testProfile, ['Chennai', 'Coimbatore', 'Other / Not in Tamil Nadu'], 'select');
+    assert.equal(tnRes.intent, ScreeningClassifier.INTENTS.SPECIFIC_STATE_LOCATION);
+    assert.equal(tnRes.answer, 'Other / Not in Tamil Nadu');
+
+    const tnQText = 'Which part of Tamil Nadu are you currently located in?';
+    const tnResText = ScreeningClassifier.classifyAndAnswer(tnQText, testProfile, [], 'text');
+    assert.equal(tnResText.intent, ScreeningClassifier.INTENTS.SPECIFIC_STATE_LOCATION);
+    assert.match(tnResText.answer, /Hyderabad/i);
+
+    // 4. Binary experience option matching (e.g. 3 years exp mapped to Yes/No options)
+    const expQ = 'How much hands-on experience do you have with Angular, TypeScript and RxJS?';
+    const expRes = ScreeningClassifier.classifyAndAnswer(expQ, testProfile, ['Yes', 'No'], 'radio');
+    assert.equal(expRes.answer, 'Yes');
+
+    const noExpQ = 'How much hands-on experience do you have with Ruby on Rails?';
+    const noExpRes = ScreeningClassifier.classifyAndAnswer(noExpQ, testProfile, ['Yes', 'No'], 'radio');
+    assert.equal(noExpRes.answer, 'No');
+  });
+
+  await t.test('Accurately answers AI tools, agents, Claude, Copilot, ChatGPT, Gemini, Antigravity & Vibe Coding', () => {
+    const profile = require('../config/profile.json');
+
+    // 1. Vibe coding & white coding years
+    const vibeRes = ScreeningClassifier.classifyAndAnswer('How many years of experience do you have in vibe coding?', profile, [], 'number');
+    assert.equal(vibeRes.answer, '3');
+
+    const whiteRes = ScreeningClassifier.classifyAndAnswer('How many years of experience do you have in white coding?', profile, [], 'number');
+    assert.equal(whiteRes.answer, '3');
+
+    // 2. AI tools, Copilot, ChatGPT binary Yes/No
+    const copilotRes = ScreeningClassifier.classifyAndAnswer('Do you have experience using AI agents, GitHub Copilot, or ChatGPT?', profile, ['Yes', 'No'], 'radio');
+    assert.equal(copilotRes.answer, 'Yes');
+
+    // 3. Claude experience in years
+    const claudeRes = ScreeningClassifier.classifyAndAnswer('How many years of experience do you have with Claude?', profile, [], 'number');
+    assert.equal(claudeRes.answer, '3');
+
+    // 4. Gemini & Antigravity multi-choice
+    const antigravityRes = ScreeningClassifier.classifyAndAnswer('Have you worked with Google Antigravity or Gemini in day-to-day work?', profile, ['Yes', 'No'], 'select');
+    assert.equal(antigravityRes.answer, 'Yes');
+
+    // 5. GitHub URL isolation
+    const ghRes = ScreeningClassifier.classifyAndAnswer('Please provide your GitHub profile link:', profile, [], 'text');
+    assert.match(ghRes.answer, /github\.com/i);
+  });
 });

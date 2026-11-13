@@ -1342,9 +1342,20 @@ class AutoApplyApp {
       // Status filter
       if (this.selectedStatus !== 'all') {
         const st = (job.status || '').toLowerCase();
-        if (this.selectedStatus === 'applied' && !st.includes('applied')) return false;
-        if (this.selectedStatus === 'skipped' && st !== 'skipped') return false;
-        if (this.selectedStatus === 'failed' && st !== 'failed' && st !== 'needs_manual_review') return false;
+        const norm = (job.normalizedStatus || '').toLowerCase();
+        if (this.selectedStatus === 'applied') {
+          const isApp = st.includes('applied') || st.includes('submitted') || norm.includes('applied') || norm.includes('submitted');
+          if (!isApp) return false;
+        } else if (this.selectedStatus === 'skipped') {
+          const isSkip = st.includes('skip') || norm.includes('skip') || st.includes('ineligible') || norm.includes('ineligible');
+          if (!isSkip) return false;
+        } else if (this.selectedStatus === 'failed') {
+          const isFail = st.includes('fail') || st.includes('error') || norm.includes('fail') || norm.includes('error');
+          if (!isFail) return false;
+        } else if (this.selectedStatus === 'manual_queue' || this.selectedStatus === 'needs_review') {
+          const isManual = st.includes('manual') || norm.includes('manual') || job.actionRequired;
+          if (!isManual) return false;
+        }
       }
 
       // Search filter

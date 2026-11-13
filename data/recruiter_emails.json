@@ -1,20 +1,77 @@
 {
   "summary": {
-    "totalEmails": 15,
-    "newCount": 0,
+    "totalEmails": 18,
+    "newCount": 3,
     "contactedCount": 15,
     "repliedCount": 0,
     "archivedCount": 0,
     "byPlatform": {
       "LinkedIn": 1,
-      "Naukri": 4,
+      "Naukri": 7,
       "Foundit": 0,
       "Career Website": 10,
       "Other": 0
     },
-    "lastUpdated": "2026-11-03T14:25:57.067Z"
+    "lastUpdated": "2026-11-13T12:50:51.511Z"
   },
   "emails": [
+    {
+      "id": "recruiter-1794498271636-o9mt0",
+      "email": "sushank@kaizentek.com",
+      "recruiterName": "no",
+      "company": "Kaizen SRA Technologies",
+      "jobTitle": "Dot Net Developer",
+      "jobTitles": [
+        "Dot Net Developer"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-dot-net-developer-kaizen-sra-technologies-hyderabad-1-to-3-years-111126922656",
+      "platform": "Naukri",
+      "context": "...ly Immediate or short-notice joiners preferred. Mail id: sushank@kaizentek.com Contact no:7987202024. Company Info Address: Flat 201, Bl...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Dot Net Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi no,\n\nI hope this email finds you well.\n\nI came across the Dot Net Developer opening at Kaizen SRA Technologies and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Kaizen SRA Technologies.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-12T15:44:31.637Z",
+      "lastSeenAt": "2026-11-13T12:50:51.511Z"
+    },
+    {
+      "id": "recruiter-1793805324889-pk6uk",
+      "email": "hr@dyneinfotech.com",
+      "recruiterName": "Hiring Team",
+      "company": "Dyne Infotech",
+      "jobTitle": "Job Opportunity For IT Trainee - Java at Vashi",
+      "jobTitles": [
+        "Job Opportunity For IT Trainee - Java at Vashi"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-opportunity-for-it-trainee-java-at-vashi-dyne-infotech-navi-mumbai-0-to-2-years-041126023895",
+      "platform": "Naukri",
+      "context": "...rocesses. If you are interested, kindly share your CV on hr@dyneinfotech.com/+91 7304742725 with below details: Total Experience Re...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Job Opportunity For IT Trainee - Java at Vashi - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Job Opportunity For IT Trainee - Java at Vashi opening at Dyne Infotech and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Dyne Infotech.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-04T15:15:24.899Z",
+      "lastSeenAt": "2026-11-04T15:15:24.899Z"
+    },
+    {
+      "id": "recruiter-1793803892457-2msff",
+      "email": "piyush.jain@virtualrealityinfosys.com.au",
+      "recruiterName": "Number",
+      "company": "Virtual Reality Infosys",
+      "jobTitle": "Walk-in || Full Stack Developer (.net & Angular)",
+      "jobTitles": [
+        "Walk-in || Full Stack Developer (.net & Angular)"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-full-stack-developer-net-angular-virtual-reality-infosys-gurugram-1-to-6-years-071125013535",
+      "platform": "Naukri",
+      "context": "...40H, Jacaranda Marg, DLF Phase-II, Gurgaon, Haryana Email: Piyush.Jain@virtualrealityinfosys.com.au Contact Number: 0124-4080472 About Company: Virtual Reality...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Walk-in || Full Stack Developer (.net & Angular) - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Number,\n\nI hope this email finds you well.\n\nI came across the Walk-in || Full Stack Developer (.net & Angular) opening at Virtual Reality Infosys and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Virtual Reality Infosys.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-04T14:51:32.457Z",
+      "lastSeenAt": "2026-11-06T03:19:20.499Z"
+    },
     {
       "id": "recruiter-1793683328917-3cbq4",
       "email": "swathi@brainsnskills.com",
@@ -32,7 +89,7 @@
       "subjectTemplate": "Application for Java Full Stack Developer-Diary Circle-Bangalore - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
       "bodyTemplate": "Hi swathi,\n\nI hope this email finds you well.\n\nI came across the Java Full Stack Developer-Diary Circle-Bangalore opening at BNS and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to BNS.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
       "foundAt": "2026-11-03T05:22:08.917Z",
-      "lastSeenAt": "2026-11-03T05:33:06.137Z",
+      "lastSeenAt": "2026-11-04T04:49:15.102Z",
       "contactedAt": "2026-11-03T14:24:41.270Z",
       "updatedAt": "2026-11-03T14:24:41.270Z"
     },

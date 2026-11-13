@@ -117,8 +117,9 @@ class DataStore {
     let prevMonthCount = 0;
     let manualQueuePending = 0;
     let unverifiedSubmissions = 0;
+    let matchesCount = 0;
 
-    const byPlatform = { LinkedIn: 0, Naukri: 0, Foundit: 0, 'Career Website': 0 };
+    const byPlatform = { LinkedIn: 0, Naukri: 0, Foundit: 0, Instahyre: 0, 'Career Website': 0 };
     const byStatus = {};
 
     for (const app of this.applications) {
@@ -126,13 +127,25 @@ class DataStore {
       const normalizedStatus = StateMachine.normalizeStatus(app.status);
       const isApplied = StateMachine.isConfirmedApplied(app.status);
 
-      // Track status counts
+      // Track status counts under both raw and normalized status
       const statusKey = app.status || normalizedStatus;
       byStatus[statusKey] = (byStatus[statusKey] || 0) + 1;
+      if (normalizedStatus && normalizedStatus !== statusKey) {
+        byStatus[normalizedStatus] = (byStatus[normalizedStatus] || 0) + 1;
+      }
 
       // Track platform
       const plat = app.platform || 'Other';
       byPlatform[plat] = (byPlatform[plat] || 0) + 1;
+
+      // Track true matches (jobs that passed match threshold: applied, unverified, or manual review)
+      const isSkippedOrIneligible = normalizedStatus === ApplicationStates.SKIPPED_LOW_MATCH ||
+                                    normalizedStatus === ApplicationStates.INELIGIBLE ||
+                                    normalizedStatus === ApplicationStates.ALREADY_APPLIED ||
+                                    String(app.status || '').toLowerCase().includes('skip');
+      if (!isSkippedOrIneligible) {
+        matchesCount++;
+      }
 
       if (normalizedStatus === ApplicationStates.MANUAL_ACTION_REQUIRED) {
         manualQueuePending++;
@@ -160,10 +173,11 @@ class DataStore {
 
     // Include queue metrics from manual queue service
     const mqStats = this.manualQueue ? this.manualQueue.getStats() : { pendingCount: 0 };
-    const effectiveManualPending = Math.max(manualQueuePending, mqStats.pendingCount);
+    const effectiveManualPending = Math.max(manualQueuePending, mqStats.pendingCount || 0);
 
     this.summary = {
       totalApplications: this.applications.length,
+      matchesFound: matchesCount,
       totalApplied: appliedCount,
       today: todayCount,
       yesterday: yesterdayCount,
@@ -177,6 +191,22 @@ class DataStore {
       recruiterEmails: this.recruiterEmails ? this.recruiterEmails.getStats() : { totalEmails: 0, newCount: 0 },
       lastUpdated: new Date().toISOString()
     };
+  }
+
+  updateApplicationStatus(id, newStatus, extra = {}) {
+    const norm = StateMachine.normalizeStatus(newStatus);
+    const existingIndex = this.applications.findIndex(a => a.id === id || a.normalizedUrl === id);
+    if (existingIndex >= 0) {
+      this.applications[existingIndex].status = newStatus;
+      this.applications[existingIndex].normalizedStatus = norm;
+      if (extra.appliedAt) this.applications[existingIndex].appliedAt = extra.appliedAt;
+      if (extra.notes) this.applications[existingIndex].notes = extra.notes;
+      if (extra.confirmationId) this.applications[existingIndex].confirmationId = extra.confirmationId;
+      this.recalculateSummary();
+      this.persist();
+      return this.applications[existingIndex];
+    }
+    return null;
   }
 
   persist() {

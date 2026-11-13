@@ -174,4 +174,76 @@ test('InstahyreBot - Curated Tech Platform 1-Click Apply Automation', async (t) 
     const stats = dataStore.getTimeStats();
     assert.ok(stats.byPlatform.Instahyre >= 1);
   });
+
+  await t.test('8. Prevents tab accumulation: tracks and immediately closes new tabs opened via target=_blank', async () => {
+    let closedTab = false;
+    let applyClickedOnNewTab = false;
+
+    const mockMainPage = {
+      evaluate: async () => ({ clicked: true, text: 'View job »' })
+    };
+
+    const mockJobTab = {
+      url: () => 'https://www.instahyre.com/job-404540-angular-developer-at-decisions-2-bangalore/',
+      isClosed: () => closedTab,
+      close: async () => { closedTab = true; },
+      waitForFunction: async () => {},
+      evaluate: async () => {
+        applyClickedOnNewTab = true;
+        return { clickedApply: true };
+      }
+    };
+
+    const mockBrowser = {
+      _pages: [mockMainPage],
+      pages: async () => {
+        // First call before click: [mockMainPage]
+        // Second call after click: [mockMainPage, mockJobTab]
+        return mockBrowser._callCount++ === 0
+          ? [mockMainPage]
+          : [mockMainPage, mockJobTab];
+      },
+      _callCount: 0
+    };
+
+    const mockChrome = { browser: mockBrowser };
+    const bot = new InstahyreBot(mockChrome, null, { disableDelays: true }, () => {});
+
+    const result = await bot.applyToCard(mockMainPage, {}, {
+      company: 'Decisions',
+      title: 'Angular Developer'
+    });
+
+    assert.equal(result.success, true);
+    assert.equal(result.appliedConfirmed, true);
+    assert.equal(applyClickedOnNewTab, true);
+    assert.equal(closedTab, true, 'Opened tab MUST be closed to prevent tab accumulation leaks');
+  });
+
+  await t.test('9. cleanupOrphanTabs correctly identifies and closes stray Instahyre tabs', async () => {
+    let closedStrayCount = 0;
+
+    const mainPage = { url: () => 'https://www.instahyre.com/candidate/opportunities/' };
+    const strayJobPage1 = {
+      url: () => 'https://www.instahyre.com/job-12345/',
+      isClosed: () => false,
+      close: async () => { closedStrayCount++; }
+    };
+    const strayJobPage2 = {
+      url: () => 'https://www.instahyre.com/job-67890/',
+      isClosed: () => false,
+      close: async () => { closedStrayCount++; }
+    };
+
+    const mockChrome = {
+      browser: {
+        pages: async () => [mainPage, strayJobPage1, strayJobPage2]
+      }
+    };
+
+    const bot = new InstahyreBot(mockChrome, null, {}, () => {});
+    await bot.cleanupOrphanTabs(mainPage);
+
+    assert.equal(closedStrayCount, 2, 'Both stray job tabs should have been closed');
+  });
 });

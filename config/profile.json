@@ -82,6 +82,22 @@
     "shiftPreference": "Flexible / Day, Rotational or US Overlap / Night Shifts",
     "offersInHand": "None",
     "interviewAvailability": "Available for both Virtual and In-Person interviews on any dates immediately",
+    "aiExperience": {
+      "years": 3,
+      "proficiency": "Expert",
+      "tools": [
+        "Google Antigravity",
+        "GitHub Copilot",
+        "ChatGPT (OpenAI)",
+        "Claude (Anthropic)",
+        "Google Gemini",
+        "AI Agents",
+        "Conversational LLMs / Chats"
+      ],
+      "vibeCodingYears": 3,
+      "dailyUsage": true,
+      "description": "3 years of daily hands-on experience using AI agents (Google Antigravity, GitHub Copilot, ChatGPT, Claude, Google Gemini) for vibe coding, rapid full-stack prototyping, code generation, refactoring, and automated workflows."
+    },
     "zeroExperienceSkills": [
       "JUnit",
       "Mockito",
@@ -201,6 +217,51 @@
       "name": "Supabase",
       "years": 2,
       "proficiency": "Advanced"
+    },
+    {
+      "name": "AI-Assisted Coding / Vibe Coding",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "GitHub Copilot",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "ChatGPT",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Claude (Anthropic)",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Google Gemini",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Google Antigravity",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "AI Agents & Autonomous Workflows",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Generative AI & LLMs",
+      "years": 3,
+      "proficiency": "Expert"
+    },
+    {
+      "name": "Prompt Engineering",
+      "years": 3,
+      "proficiency": "Expert"
     }
   ],
   "experience": [
@@ -208,7 +269,7 @@
       "title": "Full Stack Developer",
       "company": "Tech Mahindra (GE Aerospace Client)",
       "duration": "Dec 2023 – Present",
-      "highlights": "Delivered features across 8+ enterprise applications integrating Angular frontends with Spring Boot backend services. Automated access management for 3,000+ users via Java/Spring Boot REST APIs and AWS Lambda. Built hierarchical date-tree filters and automated data-entry workflows."
+      "highlights": "Delivered features across 8+ enterprise applications integrating Angular frontends with Spring Boot backend services using daily AI-assisted engineering and vibe coding (Google Antigravity, GitHub Copilot, ChatGPT, Claude). Automated access management for 3,000+ users via Java/Spring Boot REST APIs and AWS Lambda. Built hierarchical date-tree filters and automated data-entry workflows."
     }
   ],
   "projects": [
@@ -257,6 +318,27 @@
     "Certified in Angular & Spring Boot Development (Udemy)"
   ],
   "screeningQA": [
+    {
+      "pattern": "(?:years|experience).*(?:with|in|using|on)?\\s*(?:vibe\\s*coding|white\\s*coding|ai\\s*coding|coding\\s*with\\s*ai)|(?:vibe\\s*coding|white\\s*coding|ai\\s*coding|coding\\s*with\\s*ai).*(?:years|experience)",
+      "answerType": "fixed",
+      "defaultAnswer": "3",
+      "notes": "3 years of experience in vibe coding and AI-assisted engineering",
+      "updatedAt": "2026-11-13T20:10:00.000Z"
+    },
+    {
+      "pattern": "(?:years|experience).*(?:with|in|using|on)?\\s*(?:chatgpt|chat\\s*gpt|copilot|github\\s*copilot|claude|gemini|antigravity|ai\\s*agents?|generative\\s*ai|gen\\s*ai|llms?)|(?:chatgpt|chat\\s*gpt|copilot|github\\s*copilot|claude|gemini|antigravity|ai\\s*agents?|generative\\s*ai|gen\\s*ai|llms?).*(?:years|experience)",
+      "answerType": "fixed",
+      "defaultAnswer": "3",
+      "notes": "3 years of experience with AI models, agents, ChatGPT, Copilot, Claude, Gemini, Antigravity",
+      "updatedAt": "2026-11-13T20:10:00.000Z"
+    },
+    {
+      "pattern": "(?:do\\s*you\\s*(?:have|use)|experience\\s*(?:with|in|using)|familiar.*(?:with)?|hands[- ]on).*(?:vibe\\s*coding|white\\s*coding|ai\\s*tools?|ai\\s*agents?|copilot|github\\s*copilot|chatgpt|claude|gemini|antigravity|generative\\s*ai|gen\\s*ai|llms?)",
+      "answerType": "fixed",
+      "defaultAnswer": "Yes",
+      "notes": "Affirmative familiarity & daily usage of AI tools, vibe coding, and autonomous agents",
+      "updatedAt": "2026-11-13T20:10:00.000Z"
+    },
     {
       "pattern": "would.*open.*committing.*one-year",
       "answerType": "fixed",
@@ -491,7 +573,7 @@
       "notes": "Candidate residence city for typeaheads and form inputs"
     },
     {
-      "pattern": "\\bcountry\\b|country of residence|current country|citizenship|nationality",
+      "pattern": "which country|what country|country of residence|current country|citizenship|nationality",
       "answerType": "fixed",
       "defaultAnswer": "India",
       "notes": "Candidate country for dropdowns and inputs"
@@ -629,12 +711,12 @@
       "defaultAnswer": "Yes"
     },
     {
-      "pattern": "sponsorship|require.*visa|work authorization",
+      "pattern": "sponsorship|require.*visa|need.*sponsorship",
       "answerType": "fixed",
       "defaultAnswer": "No"
     },
     {
-      "pattern": "authorized to work in india|citizen",
+      "pattern": "authorized to work|eligible to work|legal.*right.*work|citizen",
       "answerType": "fixed",
       "defaultAnswer": "Yes"
     },
@@ -766,6 +848,60 @@
       "name": "Supabase",
       "years": 2,
       "proficiency": "Advanced",
+      "verified": true
+    },
+    "ai-assisted coding / vibe coding": {
+      "name": "AI-Assisted Coding / Vibe Coding",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "github copilot": {
+      "name": "GitHub Copilot",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "chatgpt": {
+      "name": "ChatGPT",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "claude (anthropic)": {
+      "name": "Claude (Anthropic)",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "google gemini": {
+      "name": "Google Gemini",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "google antigravity": {
+      "name": "Google Antigravity",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "ai agents & autonomous workflows": {
+      "name": "AI Agents & Autonomous Workflows",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "generative ai & llms": {
+      "name": "Generative AI & LLMs",
+      "years": 3,
+      "proficiency": "Expert",
+      "verified": true
+    },
+    "prompt engineering": {
+      "name": "Prompt Engineering",
+      "years": 3,
+      "proficiency": "Expert",
       "verified": true
     }
   },

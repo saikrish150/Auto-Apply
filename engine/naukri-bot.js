@@ -174,8 +174,11 @@ class NaukriBot {
           });
           await this.randomDelay(1200, 2200);
 
-          // Collect job card tuples
-          const jobTuples = await page.$$('.srp-jobtuple-wrapper, .cust-job-tuple, .jobTuple, [data-job-id]');
+          // Collect job card tuples avoiding nested duplicate matches
+          let jobTuples = await page.$$('.srp-jobtuple-wrapper');
+          if (!jobTuples || jobTuples.length === 0) {
+            jobTuples = await page.$$('.cust-job-tuple, .jobTuple, [data-job-id]');
+          }
           this.logger('info', 'Naukri', `Found ${jobTuples.length} matching jobs on page ${pageNum} for "${currentScenario}".`);
 
           if (jobTuples.length === 0) {
@@ -593,7 +596,13 @@ class NaukriBot {
       // Check for success banners or keywords on page
       const isSuccess = await page.evaluate(() => {
         const txt = (document.body ? document.body.innerText : '').toLowerCase();
-        return txt.includes('application submitted') || txt.includes('successfully applied') || txt.includes('thank you for applying');
+        return txt.includes('application was successful') ||
+               txt.includes('application is successful') ||
+               txt.includes('application successful') ||
+               txt.includes('application submitted') ||
+               txt.includes('successfully applied') ||
+               txt.includes('applied successfully') ||
+               txt.includes('thank you for applying');
       });
 
       if (isSuccess) {
@@ -664,7 +673,14 @@ class NaukriBot {
           const bodyTxt = (document.body ? document.body.innerText : '').toLowerCase();
           const btn = document.querySelector('#apply-button, .apply-button, [class*="apply-button"]');
           const btnTxt = (btn ? btn.innerText : '').toLowerCase();
-          return btnTxt.includes('applied') || bodyTxt.includes('application submitted') || bodyTxt.includes('successfully applied');
+          return btnTxt.includes('applied') ||
+                 bodyTxt.includes('application was successful') ||
+                 bodyTxt.includes('application is successful') ||
+                 bodyTxt.includes('application successful') ||
+                 bodyTxt.includes('applied successfully') ||
+                 bodyTxt.includes('application submitted') ||
+                 bodyTxt.includes('successfully applied') ||
+                 bodyTxt.includes('thank you for applying');
         });
 
         if (directSuccess) {
@@ -723,7 +739,13 @@ class NaukriBot {
             .map(el => el.innerText.toLowerCase())
             .join(' ');
           const combined = bodyTxt + ' ' + drawerTxt;
-          return combined.includes('application submitted') ||
+          return combined.includes('application was successful') ||
+                 combined.includes('application is successful') ||
+                 combined.includes('application successful') ||
+                 combined.includes('applied successfully') ||
+                 combined.includes('applied on') ||
+                 combined.includes('already applied') ||
+                 combined.includes('application submitted') ||
                  combined.includes('successfully applied') ||
                  combined.includes('thank you for applying') ||
                  combined.includes('your application has been sent');
@@ -749,10 +771,17 @@ class NaukriBot {
 
         // C. Detect latest unanswered bot question inside chatbot container
         const questionText = await page.evaluate(() => {
-          const botMsgs = Array.from(document.querySelectorAll('._chatBotContainer li.botItem .botMsg, ._chatBotContainer li.botItem, ._chatBotContainer .botMsg, .chatbot_Drawer li.botItem .botMsg, .chatbot_Drawer li.botItem, .chatbot_Drawer .botMsg, [class*="botMsg"], [class*="question-text"]'))
+          const botMsgs = Array.from(document.querySelectorAll('._chatBotContainer li.botItem .botMsg, ._chatBotContainer .botMsg, .chatbot_Drawer li.botItem .botMsg, .chatbot_Drawer .botMsg, [class*="botMsg"], [class*="question-text"]'))
             .filter(b => !b.closest('.nI-gNb-header, .nI-gNb-drawer'))
             .map(el => (el.innerText || el.textContent || '').trim())
-            .filter(t => t.length > 5 && !t.includes('naukriLogo'));
+            .filter(t => {
+              if (t.length < 4 || t.includes('naukriLogo')) return false;
+              const low = t.toLowerCase();
+              if (low.includes('thank you for showing interest')) return false;
+              if (low === 'got it!' || low === 'got it') return false;
+              if (low.includes("i am sorry i didn't understand")) return false;
+              return true;
+            });
           return botMsgs.length > 0 ? botMsgs[botMsgs.length - 1] : '';
         });
 
@@ -839,14 +868,27 @@ class NaukriBot {
               if (isMatch) {
                 if (label && typeof label.click === 'function') {
                   label.click();
-                } else {
+                }
+                if (typeof r.click === 'function') {
                   r.click();
                 }
                 r.checked = true;
+                r.dispatchEvent(new Event('input', { bubbles: true }));
                 r.dispatchEvent(new Event('change', { bubbles: true }));
                 r.dispatchEvent(new Event('click', { bubbles: true }));
                 return { clicked: true, isRadio: true, text: labelText };
               }
+            }
+
+            // Fallback: If no match but radios exist, pick first
+            if (radios.length > 0 && chips.length === 0) {
+              const r = radios[0];
+              const label = (r.id ? drawer.querySelector(`label[for="${r.id}"]`) : null) || r.closest('label') || r.parentElement?.querySelector('label');
+              if (label && typeof label.click === 'function') label.click();
+              if (typeof r.click === 'function') r.click();
+              r.checked = true;
+              r.dispatchEvent(new Event('change', { bubbles: true }));
+              return { clicked: true, isRadio: true, text: r.value || 'first_radio', fallback: true };
             }
 
             // 2. Next check chips, buttons, and clickable labels
@@ -874,27 +916,38 @@ class NaukriBot {
           }, answer.answer);
 
           if (clickResult.clicked) {
-            await this.randomDelay(600, 1000);
+            await this.randomDelay(400, 700);
 
-            // After selecting option, click the Save / Submit button in the drawer footer if present
+            // After selecting option, click the Save / Submit button in the drawer footer
             const saveResult = await page.evaluate(() => {
-              const drawer = document.querySelector('._chatBotContainer, .chatbot_Drawer');
-              if (!drawer) return { saveClicked: false };
+              const drawer = document.querySelector('._chatBotContainer, .chatbot_Drawer') || document;
 
-              const candidates = Array.from(drawer.querySelectorAll('button, .save-btn, [class*="save"], .ssrc__save, .footerInputBoxWrapper button, .footerWrapper button, [id*="save"], [id*="sendMsg"], .sendMsg'))
+              // Priority 1: Interactive sendMsg element or enabled send div
+              const sendMsg = drawer.querySelector('.sendMsg');
+              const sendDiv = drawer.querySelector('.send:not(.disabled) .sendMsg, .send:not(.disabled)');
+              if (sendDiv && sendMsg) {
+                sendMsg.click();
+                return { saveClicked: true, text: (sendMsg.innerText || 'Save').trim() };
+              }
+
+              // Priority 2: Standard buttons
+              const explicitBtns = Array.from(drawer.querySelectorAll('button.save-btn, button[type="submit"], .footerInputBoxWrapper button, .ssrc__save, button'))
                 .filter(b => !b.closest('.nI-gNb-header, .nI-gNb-drawer, .chatbot_Nav') && (b.offsetParent !== null || b.offsetHeight > 0));
 
-              const saveBtn = candidates.find(b => {
+              for (const b of explicitBtns) {
                 const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
-                const cls = (b.className || '').toLowerCase();
-                const id = (b.id || '').toLowerCase();
-                return txt === 'save' || txt.includes('save') || txt === 'submit' || cls.includes('save') || id.includes('save');
-              });
-
-              if (saveBtn) {
-                if (typeof saveBtn.click === 'function') saveBtn.click();
-                return { saveClicked: true, text: (saveBtn.innerText || 'Save').trim() };
+                if (txt === 'save' || txt === 'submit' || txt.includes('save') || txt.includes('submit')) {
+                  b.click();
+                  return { saveClicked: true, text: txt };
+                }
               }
+
+              // Priority 3: Fallback click on any .sendMsg
+              if (sendMsg) {
+                sendMsg.click();
+                return { saveClicked: true, text: (sendMsg.innerText || 'Save').trim() };
+              }
+
               return { saveClicked: false };
             });
 
@@ -911,7 +964,7 @@ class NaukriBot {
 
         if (inputDiv) {
           const isContentEditable = await inputDiv.evaluate(el => el.contentEditable === 'true' || el.getAttribute('contenteditable') === 'true');
-          const isNumericQuestion = /how many years|years of experience|notice period|days to join|current ctc|expected ctc|annual salary|in lakhs|in days|ctc|experience/i.test(questionText);
+          const isNumericQuestion = /how many years|years of experience|notice period|days to join|current ctc|expected ctc|annual salary|in lakhs|in days|ctc|experience|year\s*of\s*pass|year\s*passed|graduation\s*year|passing\s*year/i.test(questionText);
           const inputType = isNumericQuestion ? 'number' : 'text';
 
           const answer = await this.ai.answerScreeningQuestionAI(questionText, [], inputType, qaContext);
@@ -919,6 +972,10 @@ class NaukriBot {
 
           if (isContentEditable) {
             // Type into contenteditable div
+            try {
+              await inputDiv.click({ clickCount: 3 });
+              await page.keyboard.press('Backspace');
+            } catch (e) {}
             await inputDiv.evaluate(el => {
               if (el && typeof el.focus === 'function') el.focus();
               if (el) el.innerText = '';
@@ -934,12 +991,22 @@ class NaukriBot {
             await setInputReactValue(inputDiv, answer.answer);
           }
 
-          await this.randomDelay(300, 600);
+          await this.randomDelay(400, 700);
 
           // Click the Save / Send button inside the drawer
           const sendClicked = await page.evaluate(() => {
             const drawer = document.querySelector('._chatBotContainer, .chatbot_Drawer') || document;
+            const sendMsg = drawer.querySelector('.sendMsg');
+            const sendDiv = drawer.querySelector('.send:not(.disabled) .sendMsg, .send:not(.disabled)');
             const sendBtn = drawer.querySelector('[id*="sendMsg"], .sendMsg, .send:not(.disabled), button[type="submit"], button.save-btn, [class*="save"]');
+            if (sendDiv && sendMsg) {
+              sendMsg.click();
+              return true;
+            }
+            if (sendMsg) {
+              sendMsg.click();
+              return true;
+            }
             if (sendBtn) {
               sendBtn.click();
               const inner = sendBtn.querySelector('.sendMsg');
@@ -994,21 +1061,45 @@ class NaukriBot {
 
       const finalOutcome = await page.evaluate(() => {
         const bodyTxt = (document.body ? document.body.innerText : '').toLowerCase();
+        const drawer = document.querySelector('._chatBotContainer, .chatbot_Drawer');
+        const drawerTxt = (drawer ? drawer.innerText : '').toLowerCase();
+        const combined = bodyTxt + ' ' + drawerTxt;
         const btn = document.querySelector('#apply-button, .apply-button, [class*="apply-button"]');
         const btnTxt = (btn ? btn.innerText : '').toLowerCase();
+
         const isSuccess = btnTxt.includes('applied') ||
-                          bodyTxt.includes('application submitted') ||
-                          bodyTxt.includes('successfully applied') ||
-                          bodyTxt.includes('thank you for applying');
-        const is406 = bodyTxt.includes('incomplete information') || bodyTxt.includes('please answer all mandatory questions');
-        return { isSuccess, is406 };
+                          combined.includes('application was successful') ||
+                          combined.includes('application is successful') ||
+                          combined.includes('application successful') ||
+                          combined.includes('applied successfully') ||
+                          combined.includes('applied on') ||
+                          combined.includes('already applied') ||
+                          combined.includes('application submitted') ||
+                          combined.includes('successfully applied') ||
+                          combined.includes('thank you for applying') ||
+                          combined.includes('your application has been sent');
+
+        const is406 = combined.includes('incomplete information') || combined.includes('please answer all mandatory questions');
+        const isDrawerStillVisible = drawer !== null && (drawer.offsetParent !== null || drawer.offsetHeight > 100);
+
+        return { isSuccess, is406, isDrawerStillVisible };
       });
 
-      if (finalOutcome.is406) {
+      if (finalOutcome && finalOutcome.is406) {
         return {
           success: false,
           questionsAnswered,
           reason: 'Application rejected by Naukri with HTTP 406 (incomplete mandatory questions)'
+        };
+      }
+
+      const isConfirmedSuccess = finalOutcome && finalOutcome.isSuccess === true;
+
+      if (!isConfirmedSuccess) {
+        return {
+          success: false,
+          questionsAnswered,
+          reason: 'Application unconfirmed or screening questions incomplete'
         };
       }
 

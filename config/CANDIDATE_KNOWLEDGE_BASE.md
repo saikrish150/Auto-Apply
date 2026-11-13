@@ -98,6 +98,20 @@
 | AWS (Lambda, S3) | 2 | Intermediate |
 | Docker, Jenkins, CI/CD | 2 | Intermediate |
 | Supabase | 2 | Advanced |
+| AI-Assisted Coding / Vibe Coding | 3 | Expert |
+| GitHub Copilot | 3 | Expert |
+| ChatGPT (OpenAI) | 3 | Expert |
+| Claude (Anthropic) | 3 | Expert |
+| Google Gemini | 3 | Expert |
+| Google Antigravity | 3 | Expert |
+| AI Agents & Autonomous Workflows | 3 | Expert |
+| Generative AI & LLMs | 3 | Expert |
+| Prompt Engineering | 3 | Expert |
+
+**AI & Vibe Coding Day-to-Day Proficiency:**
+Candidate uses AI models (ChatGPT, Claude, Gemini), Google Antigravity, GitHub Copilot, and autonomous AI agents daily in their day-to-day software engineering workflow for vibe coding, rapid full-stack architecture prototyping, code generation, refactoring, test automation, and system design (3 years hands-on experience).
+- Any question on experience with vibe coding / AI coding: **3 years** (or **"Yes"** for Yes/No).
+- Any question on experience with GitHub Copilot, ChatGPT, Claude, Gemini, Antigravity, or AI Agents: **3 years** (or **"Yes"** for Yes/No).
 
 **Skills with ZERO experience (answer "0" or "No"):**
 JUnit / Mockito, React.js, Kubernetes, Kafka, RabbitMQ, Redis, MongoDB, Swagger / OpenAPI, Linux, Python, Django, Flask, C#, .NET, PHP, Ruby, Go, Rust.  
@@ -169,3 +183,6 @@ When asked "Tell me about yourself", "Most challenging project", "Why this role 
 | Saturday Working | No |
 | Contract / C2H | No |
 | Third-Party Payroll | Yes |
+| Vibe coding / AI coding experience | 3 (years) / Yes |
+| GitHub Copilot / ChatGPT / Claude / Gemini / Antigravity | 3 (years) / Yes |
+| AI Agents & Autonomous Workflows | 3 (years) / Yes |

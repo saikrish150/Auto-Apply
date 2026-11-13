@@ -33,6 +33,7 @@ class ScreeningClassifier {
 
       TOTAL_EXPERIENCE: 'INTENT_TOTAL_EXPERIENCE',
       SKILL_EXPERIENCE: 'INTENT_SKILL_EXPERIENCE',
+      AI_EXPERIENCE: 'INTENT_AI_EXPERIENCE',
 
       CURRENT_CTC: 'INTENT_CURRENT_CTC',
       EXPECTED_CTC: 'INTENT_EXPECTED_CTC',
@@ -52,6 +53,8 @@ class ScreeningClassifier {
       PREVIOUS_EMPLOYEE: 'INTENT_PREVIOUS_EMPLOYEE',
       CURRENTLY_EMPLOYED: 'INTENT_CURRENTLY_EMPLOYED',
       EDUCATION_DEGREE: 'INTENT_EDUCATION_DEGREE',
+      GRADUATION_YEAR: 'INTENT_GRADUATION_YEAR',
+      PF_ACCOUNT: 'INTENT_PF_ACCOUNT',
       INTERVIEW_AVAILABILITY: 'INTENT_INTERVIEW_AVAILABILITY',
       BACKGROUND_CHECK_CONSENT: 'INTENT_BACKGROUND_CHECK_CONSENT',
 
@@ -65,6 +68,8 @@ class ScreeningClassifier {
       THIRD_PARTY_PAYROLL: 'INTENT_THIRD_PARTY_PAYROLL',
       GOVERNMENT_ID: 'INTENT_GOVERNMENT_ID',
       SERVICE_BOND: 'INTENT_SERVICE_BOND',
+      CLIENT_HANDLING: 'INTENT_CLIENT_HANDLING',
+      SPECIFIC_STATE_LOCATION: 'INTENT_SPECIFIC_STATE_LOCATION',
 
       CONSEQUENTIAL_LEGAL: 'INTENT_CONSEQUENTIAL_LEGAL',
       UNKNOWN_OR_UNSUPPORTED: 'INTENT_UNKNOWN_OR_UNSUPPORTED'
@@ -125,7 +130,8 @@ class ScreeningClassifier {
     if (/\b(?:portfolio|website|personal\s*website)\b/i.test(norm)) {
       return { intent: this.INTENTS.PORTFOLIO_URL, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
-    if (/\b(?:github|git\s*repo|github\s*profile)\b/i.test(norm)) {
+    if (/\b(?:github\s*(?:url|link|handle|profile|account|username)|git\s*repo)\b/i.test(norm) ||
+        (/\bgithub\b/i.test(norm) && !/copilot/i.test(norm))) {
       return { intent: this.INTENTS.GITHUB_URL, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
@@ -146,7 +152,14 @@ class ScreeningClassifier {
       return { intent: this.INTENTS.PASSPORT, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
-    // 3C. ACADEMIC MARKS & BACKLOGS
+    // 3C. ACADEMIC MARKS, DEGREES & BACKLOGS
+    if (/\b(?:highest\s*qualification\s*year|year\s*of\s*(?:pass(?:ed|ing)?(?:\s*out)?|graduation)|passing\s*year|graduation\s*year|pass\s*out\s*year|year\s*passed\s*out|passed\s*out)\b/i.test(norm)) {
+      return { intent: this.INTENTS.GRADUATION_YEAR, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:highest\s*qualification(?:\s*degree)?|qualification\s*degree|graduation\s*degree|highest\s*degree|degree\s*name|degree\s*specialization|education\s*level)\b/i.test(norm) &&
+        !/\b(?:year|passed\s*out|passing)\b/i.test(norm)) {
+      return { intent: this.INTENTS.EDUCATION_DEGREE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: { norm } };
+    }
     if (/\b(?:10th|tenth|ssc|matriculation)\b/i.test(norm) &&
         /\b(?:marks|percentage|cgpa|score|percent|board|school|passing)\b/i.test(norm)) {
       return { intent: this.INTENTS.ACADEMIC_10TH, confidence: this.CONFIDENCE_LEVELS.HIGH, params: { norm } };
@@ -157,6 +170,9 @@ class ScreeningClassifier {
     }
     if (/\b(?:backlogs?|active\s*backlogs?|history\s*of\s*backlogs?|arrears?)\b/i.test(norm)) {
       return { intent: this.INTENTS.ACADEMIC_BACKLOGS, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:holding\s*pf|have\s*(?:a\s*)?pf|pf\s*account|provident\s*fund|experienced.*holding\s*pf|experienced\s*\?\s*if\s*experienced)\b/i.test(norm)) {
+      return { intent: this.INTENTS.PF_ACCOUNT, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
     // 4. COMPENSATION (Strict Current vs Expected Separation)
@@ -221,7 +237,26 @@ class ScreeningClassifier {
       return { intent: this.INTENTS.TOTAL_EXPERIENCE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
+    // 6B. CLIENT HANDLING & INTERACTION
+    if (/\b(?:handling\s*clients?|client\s*(?:facing|handling|interaction|communication)|experience\s*(?:with|handling)\s*clients?)\b/i.test(norm)) {
+      return { intent: this.INTENTS.CLIENT_HANDLING, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // 6C. LEGAL WORK AUTHORIZATION (CRITICAL: Must evaluate BEFORE generic 'country'!)
+    if (/\b(?:legally\s*(?:authorized|eligible|permitted)|authorized\s*to\s*work|legal\s*(?:right|status)\s*to\s*work|eligible\s*to\s*work|eligibility\s*to\s*work|work\s*authorization|legally\s*work)\b/i.test(norm)) {
+      return { intent: this.INTENTS.WORK_AUTHORIZATION, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // 6D. AI TOOLS, VIBE CODING, CHATGPT, COPILOT, CLAUDE, GEMINI, ANTIGRAVITY, AI AGENTS
+    if (/\b(?:vibe\s*coding|white\s*coding|ai\s*assisted\s*coding|coding\s*with\s*ai|ai\s*agents?|chatgpt|chat\s*gpt|copilot|github\s*copilot|claude|gemini|antigravity|generative\s*ai|gen\s*ai|prompt\s*engineering)\b/i.test(norm)) {
+      return { intent: this.INTENTS.AI_EXPERIENCE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: { norm } };
+    }
+
     // 7. LOCATION & ADDRESS (Only matches residential/physical address now!)
+    if (/\b(?:which\s*part\s*of|where\s*in|located\s*in)\s+(?:tamil\s*nadu|karnataka|maharashtra|kerala|andhra|telangana)\b/i.test(norm) ||
+        /\b(?:which\s*part\s*of\s+[a-z\s]+are\s*your\s*currently\s*located)\b/i.test(norm)) {
+      return { intent: this.INTENTS.SPECIFIC_STATE_LOCATION, confidence: this.CONFIDENCE_LEVELS.HIGH, params: { norm } };
+    }
     if (/\b(?:city|current\s*city|city\s*of\s*residence|current\s*location)\b/i.test(norm)) {
       return { intent: this.INTENTS.CITY, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
@@ -263,9 +298,6 @@ class ScreeningClassifier {
     }
     if (/\b(?:sponsorship|require\s*visa|need\s*sponsorship|visa\s*sponsorship)\b/i.test(norm)) {
       return { intent: this.INTENTS.VISA_SPONSORSHIP, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
-    }
-    if (/\b(?:legally\s*authorized|authorized\s*to\s*work|legal\s*right\s*to\s*work|work\s*authorization)\b/i.test(norm)) {
-      return { intent: this.INTENTS.WORK_AUTHORIZATION, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
     if (/\b(?:currently\s*employed|are\s*you\s*currently\s*working)\b/i.test(norm)) {
       return { intent: this.INTENTS.CURRENTLY_EMPLOYED, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
@@ -514,16 +546,73 @@ class ScreeningClassifier {
         sourceField = 'education.backlogs';
         break;
 
+      case this.INTENTS.EDUCATION_DEGREE: {
+        const edu = profile.education || {};
+        const fullDegree = edu.degree || 'B.Tech in Computer Science';
+        if (options && options.length > 0) {
+          const matchUG = options.find(o => /^ug\b|under\s*grad/i.test(o));
+          if (matchUG) {
+            proposedAnswer = matchUG;
+            sourceField = 'education.degree';
+            break;
+          }
+          const matchBtech = options.find(o => /b\.?tech|bachelor|b\.?e/i.test(o));
+          if (matchBtech) {
+            proposedAnswer = matchBtech;
+            sourceField = 'education.degree';
+            break;
+          }
+        }
+        proposedAnswer = fullDegree;
+        sourceField = 'education.degree';
+        break;
+      }
+
+      case this.INTENTS.GRADUATION_YEAR: {
+        const edu = profile.education || {};
+        const gradYear = edu.graduationYear || 2023;
+        proposedAnswer = String(gradYear);
+        sourceField = 'education.graduationYear';
+        break;
+      }
+
+      case this.INTENTS.PF_ACCOUNT:
+        proposedAnswer = 'No';
+        sourceField = 'career.pfAccount';
+        break;
+
       case this.INTENTS.TOTAL_EXPERIENCE:
         const totalVal = career.totalYearsExperience !== undefined ? career.totalYearsExperience : 2.7;
         proposedAnswer = inputType === 'number' ? String(totalVal) : (totalVal % 1 === 0 ? String(totalVal) : totalVal.toFixed(1));
         sourceField = 'career.totalYearsExperience';
         break;
 
+      case this.INTENTS.AI_EXPERIENCE: {
+        if (inputType === 'number') {
+          proposedAnswer = '3';
+        } else if (inputType === 'radio' || inputType === 'select') {
+          proposedAnswer = '3';
+        } else {
+          proposedAnswer = '3 years of day-to-day hands-on experience using Google Antigravity, GitHub Copilot, ChatGPT, Claude, Gemini, and autonomous AI agents for vibe coding, rapid full-stack prototyping, microservices, and workflow automation.';
+        }
+        sourceField = 'career.aiExperience';
+        break;
+      }
+
       case this.INTENTS.SKILL_EXPERIENCE: {
         const targetTech = (params.skillName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         const cleanTech = targetTech.replace(/(?:framework|frameworks|database|databases|technology|technologies|tools|tool|language|languages|development|developer|library|libraries|stack)$/i, '').trim();
         let matched = null;
+
+        // Check AI / Vibe Coding / AI Agents experience (Candidate has 3 years of daily hands-on experience)
+        const isAiOrVibe = /(?:vibe|vibecoding|whitecoding|aicoding|codingwithai|genai|generativeai|aiagents?|agentic|copilot|githubcopilot|chatgpt|claude|gemini|antigravity|promptengineering|llm)/i.test(targetTech) ||
+                           /(?:vibe|vibecoding|whitecoding|aicoding|codingwithai|genai|generativeai|aiagents?|agentic|copilot|githubcopilot|chatgpt|claude|gemini|antigravity|promptengineering|llm)/i.test(cleanTech) ||
+                           /^ai(?:tools?|agents?|coding|dev)?$/i.test(targetTech);
+        if (isAiOrVibe) {
+          proposedAnswer = '3';
+          sourceField = 'career.aiExperience';
+          break;
+        }
 
         // Check if candidate explicitly has zero experience in this skill
         const zeroSkills = (career.zeroExperienceSkills || []).map(z => z.toLowerCase().replace(/[^a-z0-9]/g, ''));
@@ -687,6 +776,29 @@ class ScreeningClassifier {
         sourceField = 'career.workAuthorization';
         break;
 
+      case this.INTENTS.CLIENT_HANDLING: {
+        const isBoolOrSelect = inputType === 'radio' || inputType === 'select' || (options && options.length > 0);
+        proposedAnswer = isBoolOrSelect ? 'Yes' : 'Yes, I have experience handling client interactions, working directly with GE Aerospace as a client while at Tech Mahindra.';
+        sourceField = 'career.clientHandling';
+        break;
+      }
+
+      case this.INTENTS.SPECIFIC_STATE_LOCATION: {
+        if (options && options.length > 0) {
+          const notInStateOpt = options.find(o => /other|not\s*in|outside|none/i.test(o));
+          if (notInStateOpt) {
+            proposedAnswer = notInStateOpt;
+          } else {
+            const hydOpt = options.find(o => /hyderabad/i.test(o));
+            proposedAnswer = hydOpt || options[0];
+          }
+        } else {
+          proposedAnswer = 'Hyderabad (willing to relocate)';
+        }
+        sourceField = 'personal.locationRelocation';
+        break;
+      }
+
       case this.INTENTS.VISA_SPONSORSHIP:
         proposedAnswer = career.needsVisaSponsorship ? 'Yes' : 'No';
         sourceField = 'career.needsVisaSponsorship';
@@ -829,6 +941,21 @@ class ScreeningClassifier {
     }
 
     // 3. Boolean / Affirmative match
+    const candNum = parseFloat(cleanVal.match(/-?\d+(?:\.\d+)?/)?.[0]);
+    const isBinaryYesNo = options.length >= 2 && options.length <= 3 &&
+      options.some(o => /^(yes|agree|authorized|willing|comfortable|true)/i.test(String(o).trim())) &&
+      options.some(o => /^(no|none|never|do not have|not|false)/i.test(String(o).trim()));
+
+    if (!isNaN(candNum) && isBinaryYesNo) {
+      if (candNum > 0) {
+        const yesOpt = options.find(o => /^(yes|agree|authorized|willing|comfortable|true)/i.test(String(o).trim()));
+        if (yesOpt) return yesOpt;
+      } else {
+        const noOpt = options.find(o => /^(no|none|never|do not have|not|false)/i.test(String(o).trim()));
+        if (noOpt) return noOpt;
+      }
+    }
+
     if (/^(yes|true|willing|authorized|agree|comfortable|expert|experienced)$/i.test(cleanVal)) {
       const yesOpt = options.find(o => /^(yes|agree|authorized|willing|comfortable)/i.test(String(o).trim()));
       if (yesOpt) return yesOpt;

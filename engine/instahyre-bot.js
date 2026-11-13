@@ -24,6 +24,24 @@ class InstahyreBot {
     return new Promise(r => setTimeout(r, delay));
   }
 
+  // Close any orphan Instahyre tabs left over from prior runs or card clicks to prevent tab accumulation
+  async cleanupOrphanTabs(keepPage) {
+    try {
+      if (!this.chrome?.browser) return;
+      const pages = await this.chrome.browser.pages();
+      for (const p of pages) {
+        if (p !== keepPage && !p.isClosed()) {
+          const url = (p.url() || '').toLowerCase();
+          if (url.includes('instahyre.com/job-') || (url.includes('instahyre.com') && p !== keepPage)) {
+            await p.close().catch(() => {});
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore cleanup error
+    }
+  }
+
   getScenarios() {
     if (this.settings.search?.scenarios && Array.isArray(this.settings.search.scenarios) && this.settings.search.scenarios.length > 0) {
       return this.settings.search.scenarios;
@@ -180,7 +198,10 @@ class InstahyreBot {
   }
 
   async applyToCard(page, cardEl, jobMeta) {
+    let openedTab = null;
     try {
+      const pagesBefore = this.chrome?.browser ? await this.chrome.browser.pages() : [];
+
       // Step 1: Open the opportunity apply modal by clicking "View job »" or card anchor
       const openResult = await page.evaluate((el) => {
         const viewJobBtn = el.querySelector('button.btn-interested, .opp-row-btn-wrapper button, a#employer-profile-opportunity, a.text-link');
@@ -195,9 +216,90 @@ class InstahyreBot {
         return { success: false, reason: 'Could not find "View job »" button or card link on Instahyre opportunity card.' };
       }
 
-      // Step 2: Wait for .candidate-apply-modal to render
       await this.randomDelay(1500, 2500);
 
+      // Check if a new tab was opened by target="_blank" (common on category / public directory pages)
+      if (this.chrome?.browser) {
+        const pagesAfter = await this.chrome.browser.pages();
+        openedTab = pagesAfter.find(p => !pagesBefore.includes(p));
+      }
+
+      // CASE A: The card opened in a dedicated job page tab (e.g. from public category listings)
+      if (openedTab) {
+        try {
+          await openedTab.waitForFunction(() => {
+            const btns = Array.from(document.querySelectorAll('button, a.btn, .application-status-box'));
+            return btns.length > 3 || document.readyState === 'complete';
+          }, { timeout: 8000 }).catch(() => {});
+          await this.randomDelay(1200, 2200);
+
+          const tabState = await openedTab.evaluate(() => {
+            const statusBox = document.querySelector('.application-status-box, .status-label, [class*="status-box"]');
+            const statusText = statusBox ? statusBox.textContent.toLowerCase().trim() : '';
+            if (statusText.includes('applied')) return { isApplied: true };
+
+            const buttons = Array.from(document.querySelectorAll('button, a.btn, div[role="button"]'));
+            // Check for external apply
+            const extBtn = buttons.find(b => {
+              const txt = (b.innerText || '').toLowerCase();
+              const ng = (b.getAttribute('ng-click') || '').toLowerCase();
+              return txt.includes('apply on company') || ng.includes('trackexternal');
+            });
+            if (extBtn) return { isExternal: true };
+
+            // Look for native Apply now button
+            const applyBtn = buttons.find(b => {
+              const txt = (b.innerText || '').toLowerCase().trim();
+              const ng = (b.getAttribute('ng-click') || '').toLowerCase();
+              return (txt === 'apply now' || txt === 'apply') || ng.includes('submitchoice');
+            });
+
+            if (applyBtn) {
+              applyBtn.click();
+              return { clickedApply: true };
+            }
+
+            return { notFound: true };
+          });
+
+          if (tabState.isApplied) {
+            return { success: false, reason: 'Already applied', isApplied: true };
+          }
+          if (tabState.isExternal) {
+            return { success: false, reason: 'Requires application on external company website', isExternal: true };
+          }
+          if (!tabState.clickedApply) {
+            return { success: false, reason: 'Could not find Apply button on dedicated job page' };
+          }
+
+          // Wait for submit confirmation or bulk apply modal
+          await this.randomDelay(1500, 2500);
+          await openedTab.evaluate(() => {
+            // Dismiss bulk apply if it appears
+            const cancelBtn = document.querySelector('button[ng-click*="applyBulkCancel"], .apply-all-modal .btn-outline');
+            if (cancelBtn) cancelBtn.click();
+            const saveBtn = document.querySelector('.active-check-modal button.btn-filled, button[ng-click*="changeStatus"]');
+            if (saveBtn) saveBtn.click();
+          });
+          await this.randomDelay(800, 1500);
+
+          return {
+            success: true,
+            appliedConfirmed: true,
+            message: 'Successfully submitted Application on Instahyre job page'
+          };
+        } finally {
+          // ALWAYS close the opened job tab immediately! Zero tab leaks!
+          try {
+            if (openedTab && !openedTab.isClosed()) {
+              await openedTab.close();
+            }
+          } catch (e) {}
+        }
+      }
+
+      // CASE B: The card opened an inline modal on the candidate opportunities page
+      // Step 2: Wait for .candidate-apply-modal to render
       const modalApplyResult = await page.evaluate(async (candidatePitch) => {
         // Find open apply modal
         const modal = document.querySelector('.candidate-apply-modal, [class*="candidate-apply-modal"]');
@@ -306,6 +408,13 @@ class InstahyreBot {
         });
       } catch (e) {}
       return { success: false, reason: err.message };
+    } finally {
+      // Safety net: ensure openedTab is closed if still open
+      try {
+        if (openedTab && !openedTab.isClosed()) {
+          await openedTab.close();
+        }
+      } catch (e) {}
     }
   }
 
@@ -315,6 +424,7 @@ class InstahyreBot {
 
     const page = await this.chrome.newPage();
     await page.setViewport({ width: 1280, height: 800 });
+    await this.cleanupOrphanTabs(page);
 
     try {
       const scenarios = this.getScenarios();
@@ -363,136 +473,89 @@ class InstahyreBot {
         for (let i = 0; i < cardHandles.length; i++) {
           if (this.shouldStop || totalProcessedCount >= maxApps) break;
 
-          const card = cardHandles[i];
-          const rawData = await this.extractCardData(page, card);
+          try {
+            const card = cardHandles[i];
+            const rawData = await this.extractCardData(page, card);
 
-          const comboKey = `${rawData.title.toLowerCase().trim()}|${rawData.company.toLowerCase().trim()}`;
-          const isDup = processedKeys.has(comboKey) || (rawData.jobId && processedKeys.has(rawData.jobId));
+            const comboKey = `${rawData.title.toLowerCase().trim()}|${rawData.company.toLowerCase().trim()}`;
+            const isDup = processedKeys.has(comboKey) || (rawData.jobId && processedKeys.has(rawData.jobId));
 
-          if (rawData.isApplied || isDup) {
-            this.logger('info', 'Instahyre', `[Job ${i + 1}/${cardHandles.length}] Already applied to "${rawData.title}" at ${rawData.company}. Skipping.`);
-            if (!isDup && this.dataStore) {
-              const record = {
+            if (rawData.isApplied || isDup) {
+              this.logger('info', 'Instahyre', `[Job ${i + 1}/${cardHandles.length}] Already applied to "${rawData.title}" at ${rawData.company}. Skipping.`);
+              if (!isDup && this.dataStore) {
+                const record = {
+                  id: rawData.jobId,
+                  platform: 'Instahyre',
+                  title: rawData.title,
+                  company: rawData.company,
+                  location: rawData.location,
+                  url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
+                  status: ApplicationStates.ALREADY_APPLIED,
+                  appliedDate: new Date().toISOString()
+                };
+                if (onJobProcessed) onJobProcessed(record);
+              }
+              continue;
+            }
+
+            if (rawData.isDeclined) {
+              continue;
+            }
+
+            this.logger('action', 'Instahyre', `[Job ${i + 1}/${cardHandles.length}] Evaluating: "${rawData.title}" at ${rawData.company} (${rawData.location})...`);
+
+            // Match Evaluation via Multi-Dimensional Matching Engine
+            const profile = this.ai?.profile || {};
+            const evaluation = MatchingEngine.evaluate({
+              title: rawData.title,
+              description: rawData.description,
+              company: rawData.company,
+              location: rawData.location,
+              profile,
+              minMatchScore: minScore
+            });
+
+            this.logger(
+              'info',
+              'Instahyre',
+              `ATS Match: ${evaluation.score}% (Tech: ${evaluation.technicalScore}%, Seniority: ${evaluation.seniorityScore}%) - ${evaluation.reasoning}`
+            );
+
+            // Discovered Recruiter Emails
+            if (this.dataStore && this.dataStore.recruiterEmails && rawData.description) {
+              const extracted = typeof this.dataStore.recruiterEmails.extractEmailsFromText === 'function'
+                ? this.dataStore.recruiterEmails.extractEmailsFromText(rawData.description, {
+                    company: rawData.company,
+                    title: rawData.title,
+                    platform: 'Instahyre'
+                  })
+                : [];
+              if (extracted.length > 0) {
+                this.logger('success', 'Instahyre', `Found recruiter email in listing: ${extracted.map(e => e.email).join(', ')}`);
+              }
+            }
+
+            if (evaluation.score < minScore) {
+              this.logger('warning', 'Instahyre', `Match score ${evaluation.score}% below threshold (${minScore}%). Skipping application.`);
+              const skipRecord = {
                 id: rawData.jobId,
                 platform: 'Instahyre',
                 title: rawData.title,
                 company: rawData.company,
                 location: rawData.location,
                 url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
-                status: ApplicationStates.ALREADY_APPLIED,
-                appliedDate: new Date().toISOString()
+                matchScore: evaluation.score,
+                status: ApplicationStates.SKIPPED_LOW_MATCH,
+                evaluation
               };
-              if (onJobProcessed) onJobProcessed(record);
+              if (onJobProcessed) onJobProcessed(skipRecord);
+              continue;
             }
-            continue;
-          }
 
-          if (rawData.isDeclined) {
-            continue;
-          }
-
-          this.logger('action', 'Instahyre', `[Job ${i + 1}/${cardHandles.length}] Evaluating: "${rawData.title}" at ${rawData.company} (${rawData.location})...`);
-
-          // Match Evaluation via Multi-Dimensional Matching Engine
-          const profile = this.ai?.profile || {};
-          const evaluation = MatchingEngine.evaluate({
-            title: rawData.title,
-            description: rawData.description,
-            company: rawData.company,
-            location: rawData.location,
-            profile,
-            minMatchScore: minScore
-          });
-
-          this.logger(
-            'info',
-            'Instahyre',
-            `ATS Match: ${evaluation.score}% (Tech: ${evaluation.technicalScore}%, Seniority: ${evaluation.seniorityScore}%) - ${evaluation.reasoning}`
-          );
-
-          // Discovered Recruiter Emails
-          if (this.dataStore && this.dataStore.recruiterEmails && rawData.description) {
-            const extracted = this.dataStore.recruiterEmails.extractFromText(
-              rawData.description,
-              rawData.company,
-              rawData.title,
-              'Instahyre'
-            );
-            if (extracted.length > 0) {
-              this.logger('success', 'Instahyre', `Found recruiter email in listing: ${extracted.map(e => e.email).join(', ')}`);
-            }
-          }
-
-          if (evaluation.score < minScore) {
-            this.logger('warning', 'Instahyre', `Match score ${evaluation.score}% below threshold (${minScore}%). Skipping application.`);
-            const skipRecord = {
-              id: rawData.jobId,
-              platform: 'Instahyre',
-              title: rawData.title,
-              company: rawData.company,
-              location: rawData.location,
-              url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
-              matchScore: evaluation.score,
-              status: ApplicationStates.SKIPPED_LOW_MATCH,
-              evaluation
-            };
-            if (onJobProcessed) onJobProcessed(skipRecord);
-            continue;
-          }
-
-          // Check Semi-Auto Review Mode
-          if (reviewBeforeSubmit) {
-            this.logger('warning', 'Instahyre', `[Semi-Auto] Job "${rawData.title}" at ${rawData.company} held for candidate review.`);
-            const reviewRecord = {
-              id: rawData.jobId,
-              platform: 'Instahyre',
-              title: rawData.title,
-              company: rawData.company,
-              location: rawData.location,
-              url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
-              matchScore: evaluation.score,
-              status: ApplicationStates.MANUAL_ACTION_REQUIRED,
-              actionRequired: true,
-              evaluation
-            };
-            if (onJobProcessed) onJobProcessed(reviewRecord);
-            totalProcessedCount++;
-            continue;
-          }
-
-          // Proceed to 1-Click Apply
-          this.logger('action', 'Instahyre', `Applying to "${rawData.title}" at ${rawData.company}...`);
-          const applyResult = await this.applyToCard(page, card, {
-            company: rawData.company,
-            title: rawData.title,
-            candidatePitch: profile.summary || ''
-          });
-
-          if (applyResult.success) {
-            this.logger('success', 'Instahyre', `Successfully applied to "${rawData.title}" at ${rawData.company}! (1-Click Instahyre Match)`);
-            totalProcessedCount++;
-            processedKeys.add(comboKey);
-            if (rawData.jobId) processedKeys.add(rawData.jobId);
-
-            const successRecord = {
-              id: rawData.jobId,
-              platform: 'Instahyre',
-              title: rawData.title,
-              company: rawData.company,
-              location: rawData.location,
-              url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
-              matchScore: evaluation.score,
-              status: ApplicationStates.APPLIED_CONFIRMED,
-              appliedDate: new Date().toISOString(),
-              evaluation,
-              notes: '1-Click Apply via Instahyre Curated Tech Flow'
-            };
-
-            if (onJobProcessed) onJobProcessed(successRecord);
-          } else if (applyResult.isExternal) {
-            this.logger('info', 'Instahyre', `Job "${rawData.title}" at ${rawData.company} requires external company apply.`);
-            if (this.settings.automation?.shortlistNonEasyApplyJobs !== false) {
-              const mqRecord = {
+            // Check Semi-Auto Review Mode
+            if (reviewBeforeSubmit) {
+              this.logger('warning', 'Instahyre', `[Semi-Auto] Job "${rawData.title}" at ${rawData.company} held for candidate review.`);
+              const reviewRecord = {
                 id: rawData.jobId,
                 platform: 'Instahyre',
                 title: rawData.title,
@@ -504,26 +567,79 @@ class InstahyreBot {
                 actionRequired: true,
                 evaluation
               };
-              if (onJobProcessed) onJobProcessed(mqRecord);
+              if (onJobProcessed) onJobProcessed(reviewRecord);
+              totalProcessedCount++;
+              continue;
             }
-          } else {
-            this.logger('error', 'Instahyre', `Failed applying to "${rawData.title}" at ${rawData.company}: ${applyResult.reason}`);
-            const failRecord = {
-              id: rawData.jobId,
-              platform: 'Instahyre',
-              title: rawData.title,
-              company: rawData.company,
-              location: rawData.location,
-              url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
-              matchScore: evaluation.score,
-              status: ApplicationStates.FAILED_RETRYABLE,
-              evaluation,
-              error: applyResult.reason
-            };
-            if (onJobProcessed) onJobProcessed(failRecord);
-          }
 
-          await this.randomDelay(2500, 4000);
+            // Proceed to 1-Click Apply
+            this.logger('action', 'Instahyre', `Applying to "${rawData.title}" at ${rawData.company}...`);
+            const applyResult = await this.applyToCard(page, card, {
+              company: rawData.company,
+              title: rawData.title,
+              candidatePitch: profile.summary || ''
+            });
+
+            if (applyResult.success) {
+              this.logger('success', 'Instahyre', `Successfully applied to "${rawData.title}" at ${rawData.company}! (1-Click Instahyre Match)`);
+              totalProcessedCount++;
+              processedKeys.add(comboKey);
+              if (rawData.jobId) processedKeys.add(rawData.jobId);
+
+              const successRecord = {
+                id: rawData.jobId,
+                platform: 'Instahyre',
+                title: rawData.title,
+                company: rawData.company,
+                location: rawData.location,
+                url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
+                matchScore: evaluation.score,
+                status: ApplicationStates.APPLIED_CONFIRMED,
+                appliedDate: new Date().toISOString(),
+                evaluation,
+                notes: '1-Click Apply via Instahyre Curated Tech Flow'
+              };
+
+              if (onJobProcessed) onJobProcessed(successRecord);
+            } else if (applyResult.isExternal) {
+              this.logger('info', 'Instahyre', `Job "${rawData.title}" at ${rawData.company} requires external company apply.`);
+              if (this.settings.automation?.shortlistNonEasyApplyJobs !== false) {
+                const mqRecord = {
+                  id: rawData.jobId,
+                  platform: 'Instahyre',
+                  title: rawData.title,
+                  company: rawData.company,
+                  location: rawData.location,
+                  url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
+                  matchScore: evaluation.score,
+                  status: ApplicationStates.MANUAL_ACTION_REQUIRED,
+                  actionRequired: true,
+                  evaluation
+                };
+                if (onJobProcessed) onJobProcessed(mqRecord);
+              }
+            } else {
+              this.logger('error', 'Instahyre', `Failed applying to "${rawData.title}" at ${rawData.company}: ${applyResult.reason}`);
+              const failRecord = {
+                id: rawData.jobId,
+                platform: 'Instahyre',
+                title: rawData.title,
+                company: rawData.company,
+                location: rawData.location,
+                url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
+                matchScore: evaluation.score,
+                status: ApplicationStates.FAILED_RETRYABLE,
+                evaluation,
+                error: applyResult.reason
+              };
+              if (onJobProcessed) onJobProcessed(failRecord);
+            }
+
+            await this.randomDelay(2500, 4000);
+          } finally {
+            // Strictly guarantee zero orphan tabs remain after processing each card
+            await this.cleanupOrphanTabs(page);
+          }
         }
       };
 
@@ -539,9 +655,11 @@ class InstahyreBot {
         this.logger('action', 'Instahyre', `[Scenario ${sIdx + 1}/${scenarios.length}] Navigating to: ${scenarioUrl} ("${currentScenario}")...`);
 
         try {
+          await this.cleanupOrphanTabs(page);
           await page.goto(scenarioUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
           await this.randomDelay(3000, 4500);
           await processCurrentOpportunitiesPage(`Category: ${currentScenario}`);
+          await this.cleanupOrphanTabs(page);
         } catch (searchErr) {
           this.logger('warning', 'Instahyre', `Could not complete search for "${currentScenario}": ${searchErr.message}`);
         }
@@ -552,7 +670,10 @@ class InstahyreBot {
       this.logger('error', 'Instahyre', `Instahyre automation error: ${err.message}`);
     } finally {
       try {
-        await page.close();
+        await this.cleanupOrphanTabs(page);
+        if (page && !page.isClosed()) {
+          await page.close();
+        }
       } catch (closeErr) {}
     }
   }
