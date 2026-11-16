@@ -39,9 +39,9 @@
         "Career Website": 10,
         "Other": 0
       },
-      "lastUpdated": "2026-11-16T06:40:24.091Z"
+      "lastUpdated": "2026-11-16T06:40:57.258Z"
     },
-    "lastUpdated": "2026-11-16T06:40:24.091Z"
+    "lastUpdated": "2026-11-16T06:40:57.258Z"
   },
   "applications": [
     {
@@ -19083,8 +19083,8 @@
       "status": "FAILED_RETRYABLE",
       "normalizedStatus": "FAILED_RETRYABLE",
       "skipReason": null,
-      "appliedAt": "2026-11-16T06:36:43.635Z",
-      "timestamp": "2026-11-16T06:36:43.635Z",
+      "appliedAt": "2026-11-16T06:40:57.256Z",
+      "timestamp": "2026-11-16T06:40:57.256Z",
       "directApplicationUrl": "",
       "applicationMethod": "platform_auto",
       "questionsAnswered": [],
@@ -19136,8 +19136,8 @@
       "status": "FAILED_RETRYABLE",
       "normalizedStatus": "FAILED_RETRYABLE",
       "skipReason": null,
-      "appliedAt": "2026-11-16T06:36:28.755Z",
-      "timestamp": "2026-11-16T06:36:28.755Z",
+      "appliedAt": "2026-11-16T06:40:49.258Z",
+      "timestamp": "2026-11-16T06:40:49.258Z",
       "directApplicationUrl": "",
       "applicationMethod": "platform_auto",
       "questionsAnswered": [],
