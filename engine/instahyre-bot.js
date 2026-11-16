@@ -432,7 +432,8 @@ class InstahyreBot {
 
     try {
       const scenarios = this.getScenarios();
-      const maxApps = this.settings.automation?.maxApplicationsPerSession || 25;
+      const rawMaxApps = this.settings.automation?.maxApplicationsPerSession;
+      const maxApps = (rawMaxApps === 0 || rawMaxApps === null || rawMaxApps === undefined) ? Infinity : Number(rawMaxApps);
       const minScore = this.settings.automation?.minMatchScore || 65;
       const reviewBeforeSubmit = !!this.settings.automation?.reviewBeforeSubmit;
       let totalProcessedCount = 0;

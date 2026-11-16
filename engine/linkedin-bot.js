@@ -183,9 +183,12 @@ class LinkedInBot {
     try {
       const scenarios = this.getScenarios();
       const dateFilter = this.getDateFilterParam(this.settings.search?.datePosted);
-      const expFilter = this.getExperienceFilterParam(this.settings.search?.experienceLevel) || 'f_E=2,3';
+      // Relax URL experience filter by default so LinkedIn doesn't omit 85%+ of jobs missing recruiter experience tags.
+      // (The AI evaluation engine still strictly validates candidate 0-4 years experience from the actual job description text).
+      const expFilter = this.settings.search?.strictExperienceFilter ? (this.getExperienceFilterParam(this.settings.search?.experienceLevel) || '') : '';
       const expParam = expFilter ? `${expFilter}&` : '';
-      const maxApps = this.settings.automation?.maxApplicationsPerSession || 25;
+      const rawMaxApps = this.settings.automation?.maxApplicationsPerSession;
+      const maxApps = (rawMaxApps === 0 || rawMaxApps === null || rawMaxApps === undefined) ? Infinity : Number(rawMaxApps);
       const maxPages = this.settings.automation?.maxPagesPerScenario || 2;
       let totalProcessedCount = 0;
 
@@ -607,9 +610,13 @@ class LinkedInBot {
                   continue;
                 }
 
-                // PHASE 2: NORMAL JOBS DISCOVERY (WITHOUT EASY APPLY) -> SHORTLIST INTO MANUAL APPLY QUEUE
-                if (!phase.easyApplyOnly) {
-                  this.logger('success', 'LinkedIn', `[Manual Shortlist] High-fit normal job matched: "${jobDetails.title}" at ${jobDetails.company} (Score: ${evaluation.score}%). Adding to Manual Apply Queue...`);
+                // Check if this job can be automated (either via Easy Apply or external ATS portal)
+                const canAutoApply = applyBtnInfo.status === 'easy_apply' ||
+                  (applyBtnInfo.status === 'external_apply' && this.settings.automation?.autoSubmitCareerSites !== false && this.careerSiteBot);
+
+                // If neither automated application method is viable in Normal Jobs Discovery, shortlist to Manual Apply Queue
+                if (!canAutoApply && !phase.easyApplyOnly) {
+                  this.logger('info', 'LinkedIn', `[Manual Shortlist] Matched job without automated apply path: "${jobDetails.title}" at ${jobDetails.company} (Score: ${evaluation.score}%). Enqueuing into Manual Apply Queue...`);
                   
                   // If external apply button exists, click it to capture direct URL for manual queue
                   let directApplyUrl = page.url();
@@ -656,12 +663,12 @@ class LinkedInBot {
                   jobRecord.directApplicationUrl = directApplyUrl;
                   jobRecord.applicationMethod = 'manual_shortlist';
                   jobRecord.reason = `High match (${evaluation.score}%) - Shortlisted normal job application for manual submission`;
-                  totalProcessedCount++;
+                  // Preserved in manual queue without consuming applied applications quota
 
                   markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
 
                   if (onJobProcessed) onJobProcessed(jobRecord);
-                  await this.randomDelay(1500, 2500);
+                  await this.randomDelay(1000, 1800);
                   continue;
                 }
 
@@ -742,6 +749,7 @@ class LinkedInBot {
 
                         if (careerRes.status === ApplicationStates.APPLIED_CONFIRMED) {
                           this.logger('success', 'LinkedIn', `Confirmed applied on external portal for "${jobDetails.title}" at ${jobDetails.company}!`);
+                          totalProcessedCount++;
                         } else {
                           this.logger('info', 'LinkedIn', `External application preserved in queue: ${jobRecord.reason}`);
                         }
@@ -769,8 +777,6 @@ class LinkedInBot {
                       jobRecord.applicationMethod = 'manual_shortlist';
                       jobRecord.reason = `High match (${evaluation.score}%) - LinkedIn external employer application preserved in Manual Apply Queue`;
                     }
-
-                    totalProcessedCount++;
 
                     markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
 

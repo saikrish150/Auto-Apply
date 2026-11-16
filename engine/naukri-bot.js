@@ -134,7 +134,8 @@ class NaukriBot {
       const expParam = this.getExperienceParam(this.settings.search?.experienceLevel);
       const queryParts = [expParam, dateParam].filter(Boolean);
       const searchQueryParams = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
-      const maxApps = this.settings.automation?.maxApplicationsPerSession || 25;
+      const rawMaxApps = this.settings.automation?.maxApplicationsPerSession;
+      const maxApps = (rawMaxApps === 0 || rawMaxApps === null || rawMaxApps === undefined) ? Infinity : Number(rawMaxApps);
       const maxPages = this.settings.automation?.maxPagesPerScenario || 2;
       let totalProcessedCount = 0;
 
