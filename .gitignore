@@ -8,6 +8,7 @@ chrome_log.txt
 *.log
 
 # Sensitive Configuration & API Keys
+config/credentials.json
 config/settings.json
 config/settings.backup.json
 *.backup.json

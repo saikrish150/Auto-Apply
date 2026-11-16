@@ -875,6 +875,103 @@ app.get('/api/recruiter-emails/scan-posts/status', (req, res) => {
   });
 });
 
+// 14. External ATS Credentials Management
+const CREDENTIALS_PATH = path.join(__dirname, 'config', 'credentials.json');
+
+function readCredentials() {
+  try {
+    if (fs.existsSync(CREDENTIALS_PATH)) {
+      return JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf-8'));
+    }
+  } catch (err) {
+    console.error('[Server] Error reading credentials:', err.message);
+  }
+  return { globalEmail: '', globalPassword: '', portals: {}, customPortals: [] };
+}
+
+function writeCredentials(data) {
+  data.lastUpdated = new Date().toISOString();
+  fs.writeFileSync(CREDENTIALS_PATH, JSON.stringify(data, null, 2), 'utf-8');
+}
+
+function sanitizeCredentials(creds) {
+  if (!creds) return {};
+  const cloned = JSON.parse(JSON.stringify(creds));
+  if (cloned.globalPassword) {
+    cloned.globalPassword = cloned.globalPassword ? '••••••••' : '';
+  }
+  if (cloned.portals) {
+    for (const key of Object.keys(cloned.portals)) {
+      if (cloned.portals[key].password) {
+        cloned.portals[key].password = '••••••••';
+      }
+    }
+  }
+  if (Array.isArray(cloned.customPortals)) {
+    for (const cp of cloned.customPortals) {
+      if (cp.password) cp.password = '••••••••';
+    }
+  }
+  return cloned;
+}
+
+app.get('/api/credentials', (req, res) => {
+  const creds = readCredentials();
+  res.json({ success: true, credentials: sanitizeCredentials(creds) });
+});
+
+app.post('/api/credentials', (req, res) => {
+  try {
+    const existing = readCredentials();
+    const updated = req.body || {};
+
+    // Preserve real passwords if frontend sent masked placeholder
+    if (updated.globalPassword === '••••••••') {
+      updated.globalPassword = existing.globalPassword || '';
+    }
+    if (updated.portals) {
+      for (const key of Object.keys(updated.portals)) {
+        if (updated.portals[key]?.password === '••••••••') {
+          updated.portals[key].password = existing.portals?.[key]?.password || '';
+        }
+      }
+    }
+    if (Array.isArray(updated.customPortals)) {
+      for (let i = 0; i < updated.customPortals.length; i++) {
+        if (updated.customPortals[i]?.password === '••••••••') {
+          updated.customPortals[i].password = existing.customPortals?.[i]?.password || '';
+        }
+      }
+    }
+
+    writeCredentials(updated);
+    broadcast('credentials_updated', sanitizeCredentials(updated));
+    res.json({ success: true, message: 'Credentials saved securely.', credentials: sanitizeCredentials(updated) });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get credentials for a specific portal (used internally by career-site-bot)
+app.get('/api/credentials/portal/:portalKey', (req, res) => {
+  try {
+    const creds = readCredentials();
+    const portalKey = req.params.portalKey.toLowerCase();
+    const portal = creds.portals?.[portalKey];
+
+    if (!portal) {
+      return res.status(404).json({ success: false, error: `Portal "${portalKey}" not found` });
+    }
+
+    const email = portal.useGlobal ? (creds.globalEmail || portal.email) : portal.email;
+    const password = portal.useGlobal ? (creds.globalPassword || portal.password) : portal.password;
+
+    res.json({ success: true, email, hasPassword: !!password });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Start Server on loopback interface
 server.listen(PORT, HOST, () => {
   console.log(`======================================================`);
