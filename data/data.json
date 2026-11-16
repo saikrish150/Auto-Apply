@@ -39,9 +39,9 @@
         "Career Website": 10,
         "Other": 0
       },
-      "lastUpdated": "2026-11-16T06:40:02.340Z"
+      "lastUpdated": "2026-11-16T06:40:24.091Z"
     },
-    "lastUpdated": "2026-11-16T06:40:02.340Z"
+    "lastUpdated": "2026-11-16T06:40:24.091Z"
   },
   "applications": [
     {
@@ -18267,13 +18267,13 @@
       "scenario": null
     },
     {
-      "id": "instahyre-370456",
+      "id": "instahyre-371296",
       "platform": "Instahyre",
       "title": "Backend Developer",
       "company": "Amazon",
       "location": "Bangalore, Bangalore",
-      "url": "https://www.instahyre.com/job-370456-backend-developer-at-amazon-bangalore/",
-      "normalizedUrl": "https://www.instahyre.com/job-370456-backend-developer-at-amazon-bangalore/",
+      "url": "https://www.instahyre.com/job-371296-backend-developer-at-amazon-bangalore/",
+      "normalizedUrl": "https://www.instahyre.com/job-371296-backend-developer-at-amazon-bangalore/",
       "matchScore": 90,
       "overallFitScore": 90,
       "technicalScore": 90,
@@ -18281,8 +18281,8 @@
       "status": "FAILED_RETRYABLE",
       "normalizedStatus": "FAILED_RETRYABLE",
       "skipReason": null,
-      "appliedAt": "2026-11-16T06:39:40.881Z",
-      "timestamp": "2026-11-16T06:39:40.881Z",
+      "appliedAt": "2026-11-16T06:40:24.089Z",
+      "timestamp": "2026-11-16T06:40:24.089Z",
       "directApplicationUrl": "",
       "applicationMethod": "platform_auto",
       "questionsAnswered": [],
@@ -18303,7 +18303,7 @@
           "REST APIs",
           "JavaScript",
           "SQL, PostgreSQL, MySQL",
-          "Git / GitHub, Postman"
+          "AWS (Lambda, S3)"
         ],
         "missingRequiredSkills": [],
         "missingPreferredSkills": [],
@@ -27345,8 +27345,8 @@
       "status": "FAILED_RETRYABLE",
       "normalizedStatus": "FAILED_RETRYABLE",
       "skipReason": null,
-      "appliedAt": "2026-11-16T06:40:02.336Z",
-      "timestamp": "2026-11-16T06:40:02.336Z",
+      "appliedAt": "2026-11-16T06:40:10.273Z",
+      "timestamp": "2026-11-16T06:40:10.273Z",
       "directApplicationUrl": "",
       "applicationMethod": "platform_auto",
       "questionsAnswered": [],
