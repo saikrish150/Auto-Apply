@@ -39,9 +39,9 @@
         "Career Website": 10,
         "Other": 0
       },
-      "lastUpdated": "2026-11-16T06:54:06.759Z"
+      "lastUpdated": "2026-11-16T06:54:50.047Z"
     },
-    "lastUpdated": "2026-11-16T06:54:06.759Z"
+    "lastUpdated": "2026-11-16T06:54:50.047Z"
   },
   "applications": [
     {
@@ -19550,13 +19550,13 @@
       "scenario": null
     },
     {
-      "id": "instahyre-442633",
+      "id": "instahyre-443913",
       "platform": "Instahyre",
       "title": "Java Developer",
       "company": "Wissen Technology",
-      "location": "Pune, Pune",
-      "url": "https://www.instahyre.com/job-442633-java-developer-at-wissen-technology-pune/",
-      "normalizedUrl": "https://www.instahyre.com/job-442633-java-developer-at-wissen-technology-pune/",
+      "location": "Bangalore, Bangalore",
+      "url": "https://www.instahyre.com/job-443913-java-developer-at-wissen-technology-bangalore/",
+      "normalizedUrl": "https://www.instahyre.com/job-443913-java-developer-at-wissen-technology-bangalore/",
       "matchScore": 90,
       "overallFitScore": 90,
       "technicalScore": 90,
@@ -19564,8 +19564,8 @@
       "status": "FAILED_RETRYABLE",
       "normalizedStatus": "FAILED_RETRYABLE",
       "skipReason": null,
-      "appliedAt": "2026-11-16T06:27:44.253Z",
-      "timestamp": "2026-11-16T06:27:44.253Z",
+      "appliedAt": "2026-11-16T06:54:22.900Z",
+      "timestamp": "2026-11-16T06:54:22.900Z",
       "directApplicationUrl": "",
       "applicationMethod": "platform_auto",
       "questionsAnswered": [],
@@ -19583,7 +19583,9 @@
           "Spring Boot",
           "Spring MVC",
           "Spring Security / JWT",
+          "Microservices",
           "REST APIs",
+          "JavaScript",
           "SQL, PostgreSQL, MySQL"
         ],
         "missingRequiredSkills": [],
@@ -27195,8 +27197,8 @@
       "status": "FAILED_RETRYABLE",
       "normalizedStatus": "FAILED_RETRYABLE",
       "skipReason": null,
-      "appliedAt": "2026-11-16T06:54:06.757Z",
-      "timestamp": "2026-11-16T06:54:06.757Z",
+      "appliedAt": "2026-11-16T06:54:14.624Z",
+      "timestamp": "2026-11-16T06:54:14.624Z",
       "directApplicationUrl": "",
       "applicationMethod": "platform_auto",
       "questionsAnswered": [],
