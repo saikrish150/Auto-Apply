@@ -728,28 +728,54 @@ class LinkedInBot {
                       jobRecord.externalUrl = extUrl;
                       jobRecord.directApplicationUrl = extUrl;
 
-                      if (this.settings.automation?.closeCareerTabAfterSubmit !== false) {
-                        try {
-                          await this.randomDelay(2000, 3000);
-                          if (!externalTab.isClosed()) await externalTab.close();
-                        } catch (e) {}
+                      // Auto-apply to external career portal if enabled
+                      if (this.settings.automation?.autoSubmitCareerSites !== false && this.careerSiteBot) {
+                        this.logger('action', 'LinkedIn', `Automating external application for "${jobDetails.title}" at ${jobDetails.company}...`);
+                        const careerRes = await this.careerSiteBot.applyToCareerPage(externalTab, {
+                          title: jobDetails.title,
+                          company: jobDetails.company
+                        });
+
+                        jobRecord.status = careerRes.status || ApplicationStates.MANUAL_ACTION_REQUIRED;
+                        jobRecord.reason = careerRes.reason || (careerRes.status?.includes('applied') ? 'Applied on company career site' : 'External form needs manual review');
+                        jobRecord.questionsAnswered = careerRes.questionsAnswered || [];
+
+                        if (careerRes.status === ApplicationStates.APPLIED_CONFIRMED) {
+                          this.logger('success', 'LinkedIn', `Confirmed applied on external portal for "${jobDetails.title}" at ${jobDetails.company}!`);
+                        } else {
+                          this.logger('info', 'LinkedIn', `External application preserved in queue: ${jobRecord.reason}`);
+                        }
+
+                        if (this.settings.automation?.closeCareerTabAfterSubmit !== false && careerRes.status === ApplicationStates.APPLIED_CONFIRMED) {
+                          try {
+                            if (!externalTab.isClosed()) await externalTab.close();
+                          } catch (e) {}
+                        }
                       } else {
-                        this.logger('info', 'LinkedIn', `Tab retained for manual inspection: ${extUrl}`);
+                        if (this.settings.automation?.closeCareerTabAfterSubmit !== false) {
+                          try {
+                            await this.randomDelay(1000, 2000);
+                            if (!externalTab.isClosed()) await externalTab.close();
+                          } catch (e) {}
+                        }
+                        jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                        jobRecord.actionRequired = true;
+                        jobRecord.reason = `High match (${evaluation.score}%) - LinkedIn external employer application preserved in Manual Apply Queue`;
                       }
+                    } else {
+                      jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                      jobRecord.actionRequired = true;
+                      jobRecord.directApplicationUrl = extUrl;
+                      jobRecord.applicationMethod = 'manual_shortlist';
+                      jobRecord.reason = `High match (${evaluation.score}%) - LinkedIn external employer application preserved in Manual Apply Queue`;
                     }
 
-                    jobRecord.status = 'MANUAL_ACTION_REQUIRED';
-                    jobRecord.actionRequired = true;
-                    jobRecord.directApplicationUrl = extUrl;
-                    jobRecord.applicationMethod = 'manual_shortlist';
-                    jobRecord.reason = `High match (${evaluation.score}%) - LinkedIn external employer application preserved in Manual Apply Queue`;
                     totalProcessedCount++;
 
                     markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
 
                     if (onJobProcessed) onJobProcessed(jobRecord);
-                    this.logger('success', 'LinkedIn', `Preserved "${jobDetails.title}" at ${jobDetails.company} in Manual Apply Queue.`);
-                    await this.randomDelay(1500, 2500);
+                    await this.randomDelay(1000, 1800);
                     continue;
                   }
 

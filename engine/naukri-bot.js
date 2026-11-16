@@ -405,14 +405,39 @@ class NaukriBot {
                         this.logger('info', 'Naukri', `Naukri apply opened dedicated page: ${newUrl}. Processing application on this tab...`);
                         jobTab = newTab;
                       } else {
-                        try {
-                          if (!newTab.isClosed()) await newTab.close();
-                        } catch (e) {}
-                        this.logger('info', 'Naukri', `Closed external tab: ${newUrl} (Naukri external apply links disabled).`);
-                        jobRecord.status = 'skipped';
-                        jobRecord.skipReason = 'External company site link (Naukri external applies disabled)';
-                        if (onJobProcessed) onJobProcessed(jobRecord);
-                        continue;
+                        if (this.settings.automation?.autoSubmitCareerSites !== false && this.careerSiteBot) {
+                          this.logger('action', 'Naukri', `Auto-applying to external career portal: ${newUrl}...`);
+                          const careerRes = await this.careerSiteBot.applyToCareerPage(newTab, {
+                            title: jobMeta.title,
+                            company: jobMeta.company
+                          });
+
+                          jobRecord.status = careerRes.status || ApplicationStates.MANUAL_ACTION_REQUIRED;
+                          jobRecord.reason = careerRes.reason || (careerRes.status?.includes('applied') ? 'Applied on external career portal' : 'Manual action required');
+                          jobRecord.questionsAnswered = careerRes.questionsAnswered || [];
+
+                          if (careerRes.status === ApplicationStates.APPLIED_CONFIRMED) {
+                            this.logger('success', 'Naukri', `Confirmed applied on external portal for "${jobMeta.title}" at ${jobMeta.company}!`);
+                          }
+
+                          if (this.settings.automation?.closeCareerTabAfterSubmit !== false) {
+                            try {
+                              if (!newTab.isClosed()) await newTab.close();
+                            } catch (e) {}
+                          }
+                          totalProcessedCount++;
+                          if (onJobProcessed) onJobProcessed(jobRecord);
+                          continue;
+                        } else {
+                          try {
+                            if (!newTab.isClosed()) await newTab.close();
+                          } catch (e) {}
+                          this.logger('info', 'Naukri', `Closed external tab: ${newUrl} (Naukri external apply links disabled).`);
+                          jobRecord.status = 'skipped';
+                          jobRecord.skipReason = 'External company site link';
+                          if (onJobProcessed) onJobProcessed(jobRecord);
+                          continue;
+                        }
                       }
                     }
 
