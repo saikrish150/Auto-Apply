@@ -137,11 +137,11 @@
     "platform": "Naukri",
     "jobTitle": "Stuck Job",
     "company": "Some Corp",
-    "reason": "No semantically matching option for unrecognized question",
+    "reason": "No option semantically fits the unrecognized question",
     "status": "pending",
-    "occurrences": 8,
+    "occurrences": 10,
     "createdAt": "2026-11-05T15:03:19.716Z",
-    "lastEncountered": "2026-11-16T06:39:50.604Z"
+    "lastEncountered": "2026-11-16T06:53:52.870Z"
   },
   {
     "id": "unfilled-1793887776135-f5cno",

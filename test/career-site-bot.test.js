@@ -97,4 +97,74 @@ describe('CareerSiteBot - Autonomous Career Portal Form Automation', () => {
     assert.strictEqual(canonical.career.totalYearsExperience, 3);
     assert.strictEqual(canonical.education.graduationYear, 2023);
   });
+
+  test('Resolves ATS portal credentials accurately from configuration', () => {
+    const bot = new CareerSiteBot(null, mockAi, mockSettings, () => {});
+    
+    // Test Workday URL mapping
+    const workdayCreds = bot.getCredentialsForUrl('https://ge.myworkdayjobs.com/en-US/GE_Careers/job/Engineer_123');
+    assert.ok(workdayCreds, 'Workday credentials object should be returned');
+    assert.strictEqual(workdayCreds.email, 'gsaikrishna150@gmail.com');
+    assert.ok(workdayCreds.portalName.includes('Workday'));
+
+    // Test Greenhouse URL mapping
+    const ghCreds = bot.getCredentialsForUrl('https://boards.greenhouse.io/stripe/jobs/45678');
+    assert.ok(ghCreds, 'Greenhouse credentials object should be returned');
+    assert.strictEqual(ghCreds.email, 'gsaikrishna150@gmail.com');
+
+    // Test Lever URL mapping
+    const leverCreds = bot.getCredentialsForUrl('https://jobs.lever.co/netflix/98765');
+    assert.ok(leverCreds, 'Lever credentials object should be returned');
+    assert.strictEqual(leverCreds.email, 'gsaikrishna150@gmail.com');
+  });
+
+  test('Speed optimization: randomDelay scales down delays when speedMode is active', async () => {
+    const fastSettings = {
+      automation: {
+        speedMode: 'turbo',
+        humanDelayMinMs: 100,
+        humanDelayMaxMs: 200
+      }
+    };
+    const bot = new CareerSiteBot(null, mockAi, fastSettings, () => {});
+    
+    const start = Date.now();
+    await bot.randomDelay(150, 300);
+    const elapsed = Date.now() - start;
+
+    // In turbo mode with factor 0.35, delay of 150-300ms should execute in ~100-250ms
+    assert.ok(elapsed < 400, `Delay (${elapsed}ms) should be fast and under 400ms`);
+  });
+
+  test('ATS automated login: fills email and password and returns success status', async () => {
+    const bot = new CareerSiteBot(null, mockAi, mockSettings, () => {});
+    
+    let filledForm = false;
+    let clickedSubmit = false;
+
+    const mockPage = {
+      url: () => 'https://example.icims.com/login',
+      evaluate: async (fn, ...args) => {
+        if (args.length >= 2) {
+          filledForm = true;
+          return { found: true, filledEmail: true, filledPassword: true };
+        }
+        if (!clickedSubmit) {
+          clickedSubmit = true;
+          return { clicked: true, text: 'Sign In' };
+        }
+        return { stuck: false };
+      }
+    };
+
+    const loginRes = await bot.attemptATSLogin(mockPage, {
+      email: 'test@example.com',
+      password: 'SamplePassword123!',
+      portalName: 'iCIMS'
+    });
+
+    assert.strictEqual(loginRes.success, true);
+    assert.strictEqual(filledForm, true);
+    assert.strictEqual(clickedSubmit, true);
+  });
 });

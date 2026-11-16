@@ -34,8 +34,12 @@ class CareerSiteBot {
     return null;
   }
 
-  async randomDelay(min = 1200, max = 2500) {
-    const delay = Math.floor(Math.random() * (max - min + 1)) + min;
+  async randomDelay(min = 600, max = 1200) {
+    const speedMode = this.settings?.automation?.speedMode || 'fast';
+    const factor = speedMode === 'turbo' ? 0.35 : (speedMode === 'fast' ? 0.55 : 1.0);
+    const effMin = Math.max(150, Math.round(min * factor));
+    const effMax = Math.max(effMin + 50, Math.round(max * factor));
+    const delay = Math.floor(Math.random() * (effMax - effMin + 1)) + effMin;
     return new Promise(r => setTimeout(r, delay));
   }
 
@@ -222,6 +226,309 @@ class CareerSiteBot {
   }
 
   /**
+   * Loads credentials from config/credentials.json
+   */
+  loadCredentials() {
+    try {
+      const credPath = path.join(__dirname, '..', 'config', 'credentials.json');
+      if (fs.existsSync(credPath)) {
+        return JSON.parse(fs.readFileSync(credPath, 'utf-8'));
+      }
+    } catch (e) {
+      this.logger('warning', 'CareerSite', `Could not load credentials: ${e.message}`);
+    }
+    return null;
+  }
+
+  /**
+   * Resolves the correct email and password for a given ATS URL
+   */
+  getCredentialsForUrl(url = '') {
+    const creds = this.loadCredentials();
+    if (!creds) return null;
+
+    const lowerUrl = (url || '').toLowerCase();
+
+    // Map common ATS domains to portal keys
+    const portalMap = [
+      { key: 'workday', patterns: ['myworkdayjobs.com', 'myworkday.com', 'wd3.myworkday', 'wd5.myworkday', 'workday'] },
+      { key: 'greenhouse', patterns: ['greenhouse.io', 'boards.greenhouse'] },
+      { key: 'lever', patterns: ['jobs.lever.co', 'lever.co'] },
+      { key: 'icims', patterns: ['icims.com'] },
+      { key: 'taleo', patterns: ['taleo.net'] },
+      { key: 'successfactors', patterns: ['successfactors.com', 'successfactors.eu'] },
+      { key: 'smartrecruiters', patterns: ['smartrecruiters.com'] },
+      { key: 'bamboohr', patterns: ['bamboohr.com'] },
+      { key: 'freshteam', patterns: ['freshteam.com', 'freshworks.com'] }
+    ];
+
+    let portalKey = null;
+    for (const pm of portalMap) {
+      if (pm.patterns.some(p => lowerUrl.includes(p))) {
+        portalKey = pm.key;
+        break;
+      }
+    }
+
+    // Check custom portals
+    if (!portalKey && Array.isArray(creds.customPortals)) {
+      const custom = creds.customPortals.find(cp =>
+        cp.domain && lowerUrl.includes(cp.domain.toLowerCase())
+      );
+      if (custom) {
+        return {
+          email: custom.email || creds.globalEmail || '',
+          password: custom.password || creds.globalPassword || '',
+          portalName: custom.label || custom.domain,
+          portalKey: 'custom'
+        };
+      }
+    }
+
+    if (!portalKey) {
+      // Use global credentials fallback if available
+      if (creds.globalEmail && creds.globalPassword) {
+        return {
+          email: creds.globalEmail,
+          password: creds.globalPassword,
+          portalName: 'Generic ATS',
+          portalKey: 'generic'
+        };
+      }
+      return null;
+    }
+
+    const portal = creds.portals?.[portalKey];
+    const email = (portal && !portal.useGlobal && portal.email) ? portal.email : (creds.globalEmail || portal?.email || '');
+    const password = (portal && !portal.useGlobal && portal.password) ? portal.password : (creds.globalPassword || portal?.password || '');
+
+    if (!email) return null;
+
+    return {
+      email,
+      password,
+      hasPassword: !!password,
+      portalName: portal?.label || portalKey,
+      portalKey
+    };
+  }
+
+  /**
+   * Attempts to log into an ATS portal using stored candidate credentials.
+   * Handles Workday, Taleo, iCIMS, and standard enterprise login forms.
+   */
+  async attemptATSLogin(page, credentials) {
+    if (!credentials || !credentials.email || !credentials.password) {
+      return { success: false, reason: 'No email or password provided' };
+    }
+
+    try {
+      this.logger('action', 'CareerSite', `Attempting automated ATS login for ${credentials.portalName} (${credentials.email})...`);
+      await this.randomDelay(400, 800);
+
+      const url = page.url().toLowerCase();
+
+      // --- Workday Special Handling ---
+      if (url.includes('myworkdayjobs') || url.includes('myworkday') || url.includes('workday')) {
+        await page.evaluate(() => {
+          const links = Array.from(document.querySelectorAll('a, button, [role="button"], [data-automation-id]'));
+          const target = links.find(el => {
+            const txt = (el.innerText || el.textContent || '').trim().toLowerCase();
+            const autoId = el.getAttribute('data-automation-id') || '';
+            return (
+              autoId === 'adventureButton' ||
+              autoId === 'signInSubmitButton' ||
+              autoId === 'createAccountLink' ||
+              txt === 'sign in' ||
+              txt === 'log in' ||
+              txt === 'apply' ||
+              txt === 'apply manually' ||
+              txt.includes('sign in with email')
+            );
+          });
+          if (target && target.offsetParent !== null) {
+            target.click();
+          }
+        });
+        await this.randomDelay(800, 1500);
+      }
+
+      // Check if login or registration fields exist
+      const loginResult = await page.evaluate((candEmail, candPassword) => {
+        function triggerEvents(el) {
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+          el.dispatchEvent(new Event('blur', { bubbles: true }));
+        }
+
+        // Email / Username selectors
+        const emailSelectors = [
+          'input[data-automation-id="email"]',
+          'input[data-automation-id="username"]',
+          'input[type="email"]',
+          'input[name*="email" i]',
+          'input[name*="user" i]',
+          'input[name*="login" i]',
+          'input[id*="email" i]',
+          'input[id*="user" i]',
+          'input[id*="login" i]',
+          'input[autocomplete="email"]',
+          'input[autocomplete="username"]',
+          'input[placeholder*="email" i]',
+          'input[placeholder*="username" i]'
+        ];
+
+        let emailInput = null;
+        for (const sel of emailSelectors) {
+          const el = document.querySelector(sel);
+          if (el && el.offsetParent !== null && !el.disabled && el.type !== 'hidden') {
+            emailInput = el;
+            break;
+          }
+        }
+
+        // Password input
+        const pwdSelectors = [
+          'input[data-automation-id="password"]',
+          'input[type="password"]',
+          'input[name*="password" i]',
+          'input[id*="password" i]'
+        ];
+
+        let pwdInput = null;
+        for (const sel of pwdSelectors) {
+          const el = document.querySelector(sel);
+          if (el && el.offsetParent !== null && !el.disabled) {
+            pwdInput = el;
+            break;
+          }
+        }
+
+        if (!emailInput && !pwdInput) {
+          return { found: false, reason: 'No login input fields discovered' };
+        }
+
+        if (emailInput) {
+          emailInput.focus();
+          emailInput.value = candEmail;
+          const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+          if (setter) { try { setter.call(emailInput, candEmail); } catch(e) {} }
+          triggerEvents(emailInput);
+        }
+
+        if (pwdInput) {
+          pwdInput.focus();
+          pwdInput.value = candPassword;
+          const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+          if (setter) { try { setter.call(pwdInput, candPassword); } catch(e) {} }
+          triggerEvents(pwdInput);
+        }
+
+        // Also check for Confirm Password in case of create account page
+        const confirmPwdInput = document.querySelector('input[data-automation-id*="confirm" i], input[name*="confirm" i][type="password"]');
+        if (confirmPwdInput && confirmPwdInput.offsetParent !== null) {
+          confirmPwdInput.focus();
+          confirmPwdInput.value = candPassword;
+          const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+          if (setter) { try { setter.call(confirmPwdInput, candPassword); } catch(e) {} }
+          triggerEvents(confirmPwdInput);
+        }
+
+        // Check terms checkbox if present on login/registration form
+        const termsCheckbox = document.querySelector('input[type="checkbox"][data-automation-id*="terms" i], input[type="checkbox"][id*="terms" i], input[type="checkbox"][id*="agree" i]');
+        if (termsCheckbox && !termsCheckbox.checked) {
+          termsCheckbox.checked = true;
+          termsCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        return {
+          found: true,
+          filledEmail: !!emailInput,
+          filledPassword: !!pwdInput
+        };
+      }, credentials.email, credentials.password);
+
+      if (!loginResult.found) {
+        return { success: false, reason: loginResult.reason };
+      }
+
+      this.logger('action', 'CareerSite', `Credentials filled on ${credentials.portalName}. Submitting sign-in...`);
+      await this.randomDelay(300, 600);
+
+      // Click sign in button
+      const clicked = await page.evaluate(() => {
+        const prioritySelectors = [
+          'button[data-automation-id="signInSubmitButton"]',
+          'button[data-automation-id="createAccountSubmitButton"]',
+          'button[data-automation-id*="submit" i]',
+          'button[type="submit"]',
+          'input[type="submit"]'
+        ];
+
+        for (const sel of prioritySelectors) {
+          const el = document.querySelector(sel);
+          if (el && el.offsetParent !== null && !el.disabled) {
+            el.click();
+            return { clicked: true, text: el.innerText || el.value || 'Submit' };
+          }
+        }
+
+        const buttons = Array.from(document.querySelectorAll('button, [role="button"], input[type="button"], a.btn'));
+        const submitBtn = buttons.find(b => {
+          const txt = (b.innerText || b.value || b.textContent || '').trim().toLowerCase();
+          return (
+            txt === 'sign in' ||
+            txt === 'log in' ||
+            txt === 'login' ||
+            txt === 'create account' ||
+            txt === 'continue' ||
+            txt === 'next' ||
+            txt.includes('sign in') ||
+            txt.includes('log in')
+          ) && b.offsetParent !== null && !b.disabled;
+        });
+
+        if (submitBtn) {
+          submitBtn.click();
+          return { clicked: true, text: submitBtn.innerText || 'Sign In' };
+        }
+
+        const form = document.querySelector('form');
+        if (form && typeof form.submit === 'function') {
+          form.submit();
+          return { clicked: true, text: 'Form Submit' };
+        }
+
+        return { clicked: false };
+      });
+
+      if (!clicked.clicked) {
+        return { success: false, reason: 'Could not find Sign In button' };
+      }
+
+      await this.randomDelay(1500, 2500);
+
+      // Check if still stuck on password input
+      const stillStuck = await page.evaluate(() => {
+        const pwd = document.querySelector('input[type="password"]');
+        if (pwd && pwd.offsetParent !== null) {
+          const err = document.querySelector('.error, .alert-danger, [data-automation-id*="error" i], [class*="error" i]');
+          return { stuck: true, error: err ? err.innerText.trim() : 'Invalid credentials or verification code required' };
+        }
+        return { stuck: false };
+      });
+
+      if (stillStuck.stuck) {
+        return { success: false, reason: stillStuck.error || 'Password rejected' };
+      }
+
+      return { success: true };
+    } catch (err) {
+      return { success: false, reason: err.message };
+    }
+  }
+
+  /**
    * Universal Form Filler for Standalone Career Portals & ATS Forms
    */
   async applyToCareerPage(page, jobDetails = {}) {
@@ -258,16 +565,39 @@ class CareerSiteBot {
       // Step 1: Check for Workday or account registration wall
       const wallCheck = await this.isLoginWalled(page);
       if (wallCheck.isWalled) {
-        this.logger('warning', 'CareerSite', `Enterprise login wall detected: ${wallCheck.reason} (${currentUrl})`);
-        return {
-          success: false,
-          status: ApplicationStates.MANUAL_ACTION_REQUIRED,
-          applicationMethod: 'login_walled_portal',
-          skipReason: wallCheck.reason,
-          reason: wallCheck.reason,
-          directApplicationUrl: currentUrl,
-          questionsAnswered: []
-        };
+        this.logger('info', 'CareerSite', `Enterprise login wall detected: ${wallCheck.reason} (${currentUrl})`);
+
+        // Check if candidate has credentials configured for this portal
+        const credentials = this.getCredentialsForUrl(currentUrl);
+        if (credentials && credentials.email && credentials.password) {
+          const loginResult = await this.attemptATSLogin(page, credentials);
+          if (loginResult.success) {
+            this.logger('success', 'CareerSite', `Bypassed login wall on ${credentials.portalName}! Proceeding with application form...`);
+            await this.waitForPageReady(page);
+          } else {
+            this.logger('warning', 'CareerSite', `Auto-login attempt failed on ${credentials.portalName}: ${loginResult.reason}. Routing to manual queue.`);
+            return {
+              success: false,
+              status: ApplicationStates.MANUAL_ACTION_REQUIRED,
+              applicationMethod: 'login_walled_portal',
+              skipReason: `Login wall: ${loginResult.reason}`,
+              reason: `${wallCheck.reason} - Auto-login attempted but failed: ${loginResult.reason}`,
+              directApplicationUrl: currentUrl,
+              questionsAnswered: []
+            };
+          }
+        } else {
+          this.logger('warning', 'CareerSite', `No login credentials found for ${currentUrl}. Configure them in External ATS Logins. Routing to manual queue.`);
+          return {
+            success: false,
+            status: ApplicationStates.MANUAL_ACTION_REQUIRED,
+            applicationMethod: 'login_walled_portal',
+            skipReason: wallCheck.reason,
+            reason: `${wallCheck.reason} - Add credentials in External ATS Logins tab to auto-apply`,
+            directApplicationUrl: currentUrl,
+            questionsAnswered: []
+          };
+        }
       }
 
       // Step 2: Ensure form is present / click Apply Now button if required
@@ -841,6 +1171,10 @@ class CareerSiteBot {
 
       const submitResult = await page.evaluate(() => {
         const selectors = [
+          'button[data-automation-id="bottom-navigation-next-button"]',
+          'button[data-automation-id="submit-button"]',
+          'button[data-automation-id="page-footer-next-button"]',
+          'button[data-automation-id="save-and-continue"]',
           'button.app-submit',
           '.app-submit',
           'button[type="submit"]',

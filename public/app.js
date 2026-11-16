@@ -288,6 +288,14 @@ class AutoApplyApp {
 
     // Toast
     this.toastContainer = document.getElementById('toast-container');
+
+    // ATS Credentials Management
+    this.credGlobalEmail = document.getElementById('cred-global-email');
+    this.credGlobalPassword = document.getElementById('cred-global-password');
+    this.btnSaveCredentials = document.getElementById('btn-save-credentials');
+    this.btnTogglePwdVisibility = document.getElementById('btn-toggle-pwd-visibility');
+    this.credSaveAlert = document.getElementById('cred-save-alert');
+    this.credSaveAlertMsg = document.getElementById('cred-save-alert-msg');
   }
 
   bindEvents() {
@@ -308,8 +316,25 @@ class AutoApplyApp {
         if (btn.id === 'tab-btn-emails') {
           this.loadRecruiterEmails();
         }
+        if (btn.id === 'tab-btn-credentials') {
+          this.loadCredentials();
+        }
       });
     });
+
+    // ATS Credentials Events
+    if (this.btnTogglePwdVisibility) {
+      this.btnTogglePwdVisibility.addEventListener('click', () => {
+        if (!this.credGlobalPassword) return;
+        const isPwd = this.credGlobalPassword.type === 'password';
+        this.credGlobalPassword.type = isPwd ? 'text' : 'password';
+        this.btnTogglePwdVisibility.textContent = isPwd ? '🙈' : '👁️';
+      });
+    }
+
+    if (this.btnSaveCredentials) {
+      this.btnSaveCredentials.addEventListener('click', () => this.saveCredentials());
+    }
 
     // KPI Card click: navigate directly to Manual Apply Queue tab
     const kpiManualCard = document.getElementById('card-manual-queue-kpi');
@@ -826,11 +851,16 @@ class AutoApplyApp {
       case 'recruiter_email_updated':
         this.loadRecruiterEmails();
         break;
+
+      case 'credentials_updated':
+        this.loadCredentials();
+        break;
     }
   }
 
   async loadInitialData() {
     try {
+      this.loadCredentials();
       const [resProf, resSett, resStatus, resAiStatus, resQaAudit, resUnfilled, resApps, resStats] = await Promise.all([
         fetch('/api/profile').then(r => r.json()),
         fetch('/api/settings').then(r => r.json()),
@@ -3409,6 +3439,100 @@ class AutoApplyApp {
       this.showToast(`Error resetting cooldown: ${err.message}`, 'error');
     } finally {
       this.btnResetCooldown.disabled = false;
+    }
+  }
+
+  // ============================================================
+  // EXTERNAL ATS CREDENTIALS METHODS
+  // ============================================================
+
+  async loadCredentials() {
+    try {
+      const res = await fetch('/api/credentials').then(r => r.json());
+      if (res && res.success && res.credentials) {
+        const c = res.credentials;
+        if (this.credGlobalEmail && c.globalEmail) {
+          this.credGlobalEmail.value = c.globalEmail;
+        }
+        if (this.credGlobalPassword && c.globalPassword) {
+          this.credGlobalPassword.value = c.globalPassword;
+        }
+
+        const portals = ['workday', 'greenhouse', 'lever', 'icims', 'taleo', 'successfactors', 'smartrecruiters', 'bamboohr', 'freshteam'];
+        for (const p of portals) {
+          const el = document.getElementById(`portal-use-global-${p}`);
+          if (el && c.portals && c.portals[p]) {
+            el.checked = c.portals[p].useGlobal !== false;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load credentials:', err.message);
+    }
+  }
+
+  async saveCredentials() {
+    if (!this.btnSaveCredentials) return;
+    this.btnSaveCredentials.disabled = true;
+    this.btnSaveCredentials.textContent = 'Saving...';
+
+    try {
+      const globalEmail = this.credGlobalEmail ? this.credGlobalEmail.value.trim() : '';
+      const globalPassword = this.credGlobalPassword ? this.credGlobalPassword.value : '';
+
+      const portals = ['workday', 'greenhouse', 'lever', 'icims', 'taleo', 'successfactors', 'smartrecruiters', 'bamboohr', 'freshteam'];
+      const portalLabels = {
+        workday: 'Workday (myworkdayjobs.com)',
+        greenhouse: 'Greenhouse (boards.greenhouse.io)',
+        lever: 'Lever (jobs.lever.co)',
+        icims: 'iCIMS',
+        taleo: 'Oracle Taleo',
+        successfactors: 'SAP SuccessFactors',
+        smartrecruiters: 'SmartRecruiters',
+        bamboohr: 'BambooHR',
+        freshteam: 'Freshteam / Freshworks'
+      };
+
+      const portalsData = {};
+      for (const p of portals) {
+        const el = document.getElementById(`portal-use-global-${p}`);
+        portalsData[p] = {
+          label: portalLabels[p] || p,
+          email: globalEmail,
+          password: globalPassword,
+          useGlobal: el ? el.checked : true
+        };
+      }
+
+      const payload = {
+        globalEmail,
+        globalPassword,
+        portals: portalsData,
+        customPortals: []
+      };
+
+      const res = await fetch('/api/credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(r => r.json());
+
+      if (res && res.success) {
+        this.showToast('✅ ATS Credentials saved securely!', 'success');
+        if (this.credSaveAlert) {
+          this.credSaveAlert.style.display = 'flex';
+          setTimeout(() => {
+            if (this.credSaveAlert) this.credSaveAlert.style.display = 'none';
+          }, 4500);
+        }
+      } else {
+        this.showToast('Error saving credentials: ' + (res?.error || 'Unknown error'), 'error');
+      }
+    } catch (err) {
+      this.showToast('Error saving credentials: ' + err.message, 'error');
+    } finally {
+      this.btnSaveCredentials.disabled = false;
+      this.btnSaveCredentials.textContent = '💾 Save Credentials';
     }
   }
 }

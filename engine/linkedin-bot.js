@@ -114,9 +114,13 @@ class LinkedInBot {
     return await this.postsScanner.scanPosts(page);
   }
 
-  // Helper for human-like delay
+  // Helper for human-like delay with speed mode optimization
   async randomDelay(min = 1500, max = 3000) {
-    const delay = Math.floor(Math.random() * (max - min + 1)) + min;
+    const speed = this.settings?.automation?.speedMode || 'fast';
+    const factor = speed === 'turbo' ? 0.35 : (speed === 'fast' ? 0.6 : 1.0);
+    const effMin = Math.max(250, Math.round(min * factor));
+    const effMax = Math.max(effMin + 100, Math.round(max * factor));
+    const delay = Math.floor(Math.random() * (effMax - effMin + 1)) + effMin;
     return new Promise(r => setTimeout(r, delay));
   }
 
