@@ -1,20 +1,39 @@
 {
   "summary": {
-    "totalEmails": 18,
-    "newCount": 3,
+    "totalEmails": 19,
+    "newCount": 4,
     "contactedCount": 15,
     "repliedCount": 0,
     "archivedCount": 0,
     "byPlatform": {
       "LinkedIn": 1,
-      "Naukri": 7,
+      "Naukri": 8,
       "Foundit": 0,
       "Career Website": 10,
       "Other": 0
     },
-    "lastUpdated": "2026-11-13T12:50:51.511Z"
+    "lastUpdated": "2026-11-16T06:17:52.834Z"
   },
   "emails": [
+    {
+      "id": "recruiter-1794809872834-84aj8",
+      "email": "swathi@brainsnskills.com",
+      "recruiterName": "swathi",
+      "company": "Brains N Skills Chennai",
+      "jobTitle": "Java Full Stack Developer with React.Js-Diary Circle-Bangalore",
+      "jobTitles": [
+        "Java Full Stack Developer with React.Js-Diary Circle-Bangalore"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-java-full-stack-developer-with-react-js-diary-circle-bangalore-brains-n-skills-chennai-bengaluru-0-to-2-years-060825015774",
+      "platform": "Naukri",
+      "context": "...in React js, with min 2 years of exp, if interested contact swathi@brainsnskills.com or 9341818811 Role: Full Stack Developer Industry Type: Rec...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Java Full Stack Developer with React.Js-Diary Circle-Bangalore - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi swathi,\n\nI hope this email finds you well.\n\nI came across the Java Full Stack Developer with React.Js-Diary Circle-Bangalore opening at Brains N Skills Chennai and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Brains N Skills Chennai.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-16T06:17:52.834Z",
+      "lastSeenAt": "2026-11-16T06:17:52.834Z"
+    },
     {
       "id": "recruiter-1794498271636-o9mt0",
       "email": "sushank@kaizentek.com",

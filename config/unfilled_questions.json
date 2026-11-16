@@ -317,13 +317,13 @@
     "inputType": "text",
     "options": [],
     "platform": "LinkedIn",
-    "jobTitle": "Java Backend Developer",
-    "company": "JioStar",
-    "reason": "Middle name is not provided in the candidate knowledge base (only First Name: Sai Krishna, Last Name: G are specified).",
+    "jobTitle": "Software Engineer Backend",
+    "company": "EXL",
+    "reason": "Middle name not provided in candidate profile",
     "status": "pending",
-    "occurrences": 2,
+    "occurrences": 3,
     "createdAt": "2026-11-01T07:27:55.513Z",
-    "lastEncountered": "2026-11-13T02:15:52.825Z"
+    "lastEncountered": "2026-11-15T08:51:46.243Z"
   },
   {
     "id": "unfilled-1793517115954-gx14t",
