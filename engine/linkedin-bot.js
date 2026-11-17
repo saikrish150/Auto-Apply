@@ -270,9 +270,34 @@ class LinkedInBot {
             // Find job cards using clean selector hierarchy (supports new SDUI LazyColumn & classic layouts)
             const fetchJobCards = async () => {
               // 1. SDUI / React LazyColumn cards (Current LinkedIn interface)
-              let cards = await page.$$(
-                '[data-testid="lazy-column"] > div[data-display-contents="true"], [data-component-type="LazyColumn"] > div[data-display-contents="true"], [componentkey*="job-card-component-ref-"]'
-              );
+              // Tag only authentic job cards, strictly filtering out upsell banners, surveys, alert toggles, pagination, and footers
+              await page.evaluate(() => {
+                const col = document.querySelector('[data-testid="lazy-column"], [data-component-type="LazyColumn"]');
+                if (!col) return;
+                const children = Array.from(col.children);
+                children.forEach((child) => {
+                  // Reject upsell, survey, or premium elements
+                  if (child.querySelector('a[href*="premium"], a[href*="survey"], a[href*="upsell"], [upsellslotid]')) {
+                    child.removeAttribute('data-autoapply-job-card');
+                    return;
+                  }
+                  const text = (child.innerText || '').trim();
+                  if (!text || text.length < 5 || /^(previous|next|about|accessibility|help center|get job alerts|we found more results|are these results helpful)/i.test(text)) {
+                    child.removeAttribute('data-autoapply-job-card');
+                    return;
+                  }
+                  const hasJobKey = !!child.querySelector('[componentkey*="job-card-component-ref-"]') || (child.getAttribute('componentkey') || '').includes('job-card-component-ref-');
+                  const hasJobLink = !!child.querySelector('a[href*="/jobs/view/"]');
+                  const hasJobId = !!child.querySelector('[data-occludable-job-id], [data-job-id]');
+                  if (hasJobKey || hasJobLink || hasJobId) {
+                    child.setAttribute('data-autoapply-job-card', 'true');
+                  } else {
+                    child.removeAttribute('data-autoapply-job-card');
+                  }
+                });
+              }).catch(() => {});
+
+              let cards = await page.$$('[data-autoapply-job-card="true"]');
               if (cards && cards.length > 0) return cards;
 
               // 2. Top-level classic list item containers
@@ -306,6 +331,17 @@ class LinkedInBot {
               let isGenericKey = true;
 
               try {
+                // Navigation guard: if tab ever navigated away from search results (e.g. to premium/survey), restore search page
+                const currentTabUrl = page.url();
+                if (currentTabUrl.includes('linkedin.com/premium') || currentTabUrl.includes('linkedin.com/survey') || (!currentTabUrl.includes('/jobs/search') && !currentTabUrl.includes('currentJobId'))) {
+                  this.logger('warning', 'LinkedIn', `Tab navigated away to ${currentTabUrl}. Returning to job search page...`);
+                  await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
+                  await this.randomDelay(2000, 3000);
+                  jobCards = await fetchJobCards();
+                  card = jobCards[i];
+                  if (!card) continue;
+                }
+
                 // Smoothly scroll the left list as we advance so lazy-loaded items render
                 if (i > 0 && i % 3 === 0) {
                   await page.evaluate(() => {
@@ -439,8 +475,14 @@ class LinkedInBot {
                 // Click card anchor or container to load job details in the right pane
                 await card.evaluate(el => {
                   const target = el.querySelector(
-                    'div[role="button"][tabindex="0"], a.job-card-list__title, a.job-card-container__link, [data-control-name="job_card_click"], a[href*="/jobs/view/"], .job-card-container, a'
+                    'div[role="button"][tabindex="0"], div[role="button"], a.job-card-list__title, a.job-card-container__link, [data-control-name="job_card_click"], a[href*="/jobs/view/"], .job-card-container'
                   ) || el;
+                  // Strictly avoid clicking any upsell or survey links
+                  if (target.tagName === 'A' && (target.href.includes('premium') || target.href.includes('survey') || target.href.includes('upsell'))) {
+                    el.scrollIntoView({ block: 'center', inline: 'nearest' });
+                    el.click();
+                    return;
+                  }
                   target.scrollIntoView({ block: 'center', inline: 'nearest' });
                   ['mouseenter', 'mouseover', 'mousedown', 'mouseup', 'click'].forEach(evt => {
                     target.dispatchEvent(new MouseEvent(evt, { bubbles: true, cancelable: true, view: window, buttons: 1 }));
@@ -863,10 +905,12 @@ class LinkedInBot {
                 });
 
                 let easyApplyEl = easyApplyBtnHandle.asElement();
+                let openedDirectView = false;
                 if (!easyApplyEl && detailJobId) {
                   // Direct job view fallback if button not rendered in split view
                   this.logger('info', 'LinkedIn', `Easy Apply button not found in split pane for "${jobDetails.title}". Opening direct view (/jobs/view/${detailJobId}/)...`);
                   await page.goto(`https://www.linkedin.com/jobs/view/${detailJobId}/`, { waitUntil: 'domcontentloaded', timeout: 25000 });
+                  openedDirectView = true;
                   await this.randomDelay(1500, 2500);
                   const directBtnHandle = await page.evaluateHandle(() => {
                     const btns = Array.from(document.querySelectorAll('button, a.jobs-apply-button'));
@@ -881,6 +925,11 @@ class LinkedInBot {
 
                 if (!easyApplyEl) {
                   this.logger('info', 'LinkedIn', `Could not click Easy Apply button for "${jobDetails.title}".`);
+                  if (openedDirectView) {
+                    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
+                    await this.randomDelay(1500, 2500);
+                    jobCards = await fetchJobCards();
+                  }
                   markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                   continue;
                 }
@@ -923,11 +972,24 @@ class LinkedInBot {
 
                 markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                 if (onJobProcessed) onJobProcessed(jobRecord);
+
+                // Restore search results page if direct view was used so subsequent cards can be processed
+                if (openedDirectView || page.url().includes('/jobs/view/')) {
+                  this.logger('info', 'LinkedIn', 'Returning to job search page...');
+                  await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
+                  await this.randomDelay(1500, 2500);
+                  jobCards = await fetchJobCards();
+                }
+
                 await this.randomDelay(2000, 3500);
 
               } catch (jobErr) {
                 this.logger('error', 'LinkedIn', `Error processing LinkedIn job: ${jobErr.message}`);
                 try {
+                  if (page.url().includes('/jobs/view/') || page.url().includes('premium') || page.url().includes('survey')) {
+                    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
+                    jobCards = await fetchJobCards();
+                  }
                   if (cardPre?.jobId) this.seenJobKeys.add(String(cardPre.jobId));
                   if (titleKey && !isGenericKey) this.seenJobKeys.add(titleKey);
                 } catch (e) {}

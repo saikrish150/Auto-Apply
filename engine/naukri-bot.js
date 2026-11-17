@@ -252,39 +252,40 @@ class NaukriBot {
               }
 
               // 2. Pre-filter external company applies via intercepted Naukri Search API
-              // Exclusively process native 1-Click Fast Apply / Easy Apply jobs
+              // If external ATS automation is enabled, allow external jobs to be processed via CareerSiteBot
+              const allowExternal = (this.settings.automation?.autoSubmitCareerSites !== false && this.careerSiteBot) || this.settings.automation?.shortlistNonEasyApplyJobs !== false;
               const apiMeta = jobMeta.jobId ? jobMetadataMap.get(String(jobMeta.jobId)) : null;
-              if (apiMeta && apiMeta.companyApplyJob === true) {
-                this.logger('info', 'Naukri', `[Pre-check] Skipping "${jobMeta.title}" at ${jobMeta.company} - External company site link (Naukri external applies disabled; exclusively processing native Easy / Fast Apply).`);
+              if (apiMeta && apiMeta.companyApplyJob === true && !allowExternal) {
+                this.logger('info', 'Naukri', `[Pre-check] Skipping "${jobMeta.title}" at ${jobMeta.company} - External company site link (external applications disabled in settings).`);
                 if (titleKey) this.seenJobKeys.add(titleKey);
                 if (normUrl) this.seenJobKeys.add(normUrl);
                 jobRecord.status = 'skipped';
-                jobRecord.skipReason = 'External company apply link (Naukri external applies disabled)';
+                jobRecord.skipReason = 'External company apply link (external applications disabled)';
                 if (onJobProcessed) onJobProcessed(jobRecord);
                 continue;
               }
 
-              // Guard 0: Skip if card URL itself is an external company portal (not on naukri.com)
-              if (jobMeta.url && !jobMeta.url.includes('naukri.com')) {
-                this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - External company link on card (${jobMeta.url}). Naukri external applies are disabled.`);
+              // Guard 0: If card URL itself is an external company portal
+              if (jobMeta.url && !jobMeta.url.includes('naukri.com') && !allowExternal) {
+                this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - External company link on card (${jobMeta.url}).`);
                 if (titleKey) this.seenJobKeys.add(titleKey);
                 if (normUrl) this.seenJobKeys.add(normUrl);
                 jobRecord.status = 'skipped';
-                jobRecord.skipReason = 'External company link on card (Naukri external applies disabled)';
+                jobRecord.skipReason = 'External company link on card';
                 if (onJobProcessed) onJobProcessed(jobRecord);
                 continue;
               }
 
-              // Guard 0b: Strictly skip jobs requiring >4 years of experience (0-3 or 0-4 years maximum)
+              // Guard 0b: Skip jobs requiring >5 years of experience (0-4 or 0-5 years maximum)
               const cardExpMatch = String(jobMeta.experience || '').match(/(\d+(?:\.\d+)?)/);
               const cardMinExp = cardExpMatch ? parseFloat(cardExpMatch[1]) : null;
               const isCardSenior = /senior|sr\.|lead|architect|principal|staff|director|vp|head/i.test(jobMeta.title);
-              if ((cardMinExp !== null && cardMinExp > 4.0) || (isCardSenior && cardMinExp !== null && cardMinExp > 3.0)) {
-                this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - Experience requirement (${jobMeta.experience}) exceeds 0-4 years maximum.`);
+              if ((cardMinExp !== null && cardMinExp > 5.0) || (isCardSenior && cardMinExp !== null && cardMinExp > 4.0)) {
+                this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - Experience requirement (${jobMeta.experience}) exceeds candidate profile limit.`);
                 if (titleKey) this.seenJobKeys.add(titleKey);
                 if (normUrl) this.seenJobKeys.add(normUrl);
                 jobRecord.status = 'skipped';
-                jobRecord.skipReason = `Experience requirement (${jobMeta.experience}) exceeds 0-4 years maximum`;
+                jobRecord.skipReason = `Experience requirement (${jobMeta.experience}) exceeds candidate profile limit`;
                 if (onJobProcessed) onJobProcessed(jobRecord);
                 continue;
               }
@@ -333,17 +334,49 @@ class NaukriBot {
                 jobTab = pagesAfter.find(p => !pagesBefore.includes(p)) || pagesAfter[pagesAfter.length - 1];
                 
                 if (jobTab && jobTab !== page) {
-                  // Guard 1: Verify the opened tab is strictly a naukri.com domain page
+                  // Guard 1: Check if the opened tab is an external employer site
                   const initialUrl = (jobTab.url() || '').toLowerCase();
                   if (!initialUrl.includes('naukri.com')) {
-                    this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - Opened external employer site (${jobTab.url()}). Naukri external applies are disabled.`);
-                    try {
-                      if (!jobTab.isClosed()) await jobTab.close();
-                    } catch (e) {}
-                    jobRecord.status = 'skipped';
-                    jobRecord.skipReason = 'Opened external employer site (Naukri external applies disabled)';
-                    if (onJobProcessed) onJobProcessed(jobRecord);
-                    continue;
+                    if (this.settings.automation?.autoSubmitCareerSites !== false && this.careerSiteBot) {
+                      this.logger('action', 'Naukri', `Auto-applying to external career portal: ${jobTab.url()}...`);
+                      const careerRes = await this.careerSiteBot.applyToCareerPage(jobTab, {
+                        title: jobMeta.title,
+                        company: jobMeta.company
+                      });
+                      jobRecord.status = careerRes.status || ApplicationStates.MANUAL_ACTION_REQUIRED;
+                      jobRecord.reason = careerRes.reason || (careerRes.status?.includes('applied') ? 'Applied on external career portal' : 'Manual action required');
+                      jobRecord.questionsAnswered = careerRes.questionsAnswered || [];
+                      if (careerRes.status === ApplicationStates.APPLIED_CONFIRMED) {
+                        this.logger('success', 'Naukri', `Confirmed applied on external portal for "${jobMeta.title}" at ${jobMeta.company}!`);
+                      }
+                      if (this.settings.automation?.closeCareerTabAfterSubmit !== false) {
+                        try {
+                          if (!jobTab.isClosed()) await jobTab.close();
+                        } catch (e) {}
+                      }
+                      totalProcessedCount++;
+                      if (onJobProcessed) onJobProcessed(jobRecord);
+                      continue;
+                    } else if (this.settings.automation?.shortlistNonEasyApplyJobs !== false) {
+                      jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                      jobRecord.directApplicationUrl = jobTab.url();
+                      jobRecord.applicationMethod = 'manual_shortlist';
+                      jobRecord.reason = `High match (${evaluation.score}%) - External company application shortlisted for manual review`;
+                      try {
+                        if (!jobTab.isClosed()) await jobTab.close();
+                      } catch (e) {}
+                      if (onJobProcessed) onJobProcessed(jobRecord);
+                      continue;
+                    } else {
+                      this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - Opened external employer site (${jobTab.url()}).`);
+                      try {
+                        if (!jobTab.isClosed()) await jobTab.close();
+                      } catch (e) {}
+                      jobRecord.status = 'skipped';
+                      jobRecord.skipReason = 'Opened external employer site (external applies disabled)';
+                      if (onJobProcessed) onJobProcessed(jobRecord);
+                      continue;
+                    }
                   }
 
                   // Scan job details & recruiter contacts for recruiter emails
@@ -380,14 +413,46 @@ class NaukriBot {
 
                     const isExternal = applyResult.isExternal;
                     if (isExternal) {
-                      this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - External company site apply link (Naukri external links are disabled; only 1-Click Fast Apply is allowed).`);
-                      try {
-                        if (!jobTab.isClosed()) await jobTab.close();
-                      } catch (e) {}
-                      jobRecord.status = 'skipped';
-                      jobRecord.skipReason = 'External company site apply link (Naukri external links disabled)';
-                      if (onJobProcessed) onJobProcessed(jobRecord);
-                      continue;
+                      if (this.settings.automation?.autoSubmitCareerSites !== false && this.careerSiteBot) {
+                        this.logger('action', 'Naukri', `External apply button detected for "${jobMeta.title}". Triggering external career portal...`);
+                        const pagesBefore = await this.chrome.browser.pages();
+                        await applyResult.button.evaluate(b => b.click());
+                        await this.randomDelay(2500, 4000);
+                        const pagesAfter = await this.chrome.browser.pages();
+                        const extTab = pagesAfter.find(p => !pagesBefore.includes(p)) || jobTab;
+                        const careerRes = await this.careerSiteBot.applyToCareerPage(extTab, {
+                          title: jobMeta.title,
+                          company: jobMeta.company
+                        });
+                        jobRecord.status = careerRes.status || ApplicationStates.MANUAL_ACTION_REQUIRED;
+                        jobRecord.reason = careerRes.reason || (careerRes.status?.includes('applied') ? 'Applied on external career portal' : 'Manual action required');
+                        jobRecord.questionsAnswered = careerRes.questionsAnswered || [];
+                        if (careerRes.status === ApplicationStates.APPLIED_CONFIRMED) {
+                          this.logger('success', 'Naukri', `Confirmed applied on external portal for "${jobMeta.title}" at ${jobMeta.company}!`);
+                        }
+                        if (extTab !== jobTab && !extTab.isClosed()) {
+                          try { await extTab.close(); } catch (e) {}
+                        }
+                        totalProcessedCount++;
+                        if (onJobProcessed) onJobProcessed(jobRecord);
+                        continue;
+                      } else if (this.settings.automation?.shortlistNonEasyApplyJobs !== false) {
+                        jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                        jobRecord.directApplicationUrl = jobMeta.url;
+                        jobRecord.applicationMethod = 'manual_shortlist';
+                        jobRecord.reason = `High match (${evaluation.score}%) - External company application shortlisted for manual review`;
+                        if (onJobProcessed) onJobProcessed(jobRecord);
+                        continue;
+                      } else {
+                        this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" at ${jobMeta.company} - External company site apply link.`);
+                        try {
+                          if (!jobTab.isClosed()) await jobTab.close();
+                        } catch (e) {}
+                        jobRecord.status = 'skipped';
+                        jobRecord.skipReason = 'External company site apply link (external applications disabled)';
+                        if (onJobProcessed) onJobProcessed(jobRecord);
+                        continue;
+                      }
                     }
 
                     this.logger('action', 'Naukri', `Submitting 1-Click Fast Apply for "${jobMeta.title}"...`);
@@ -445,14 +510,31 @@ class NaukriBot {
                     // Guard 3: Check if the current jobTab redirected to an external domain
                     const currentTabUrl = (jobTab.url() || '').toLowerCase();
                     if (!currentTabUrl.includes('naukri.com')) {
-                      this.logger('info', 'Naukri', `Closed redirected external tab: ${jobTab.url()} (Naukri external apply links disabled).`);
-                      try {
-                        if (!jobTab.isClosed()) await jobTab.close();
-                      } catch (e) {}
-                      jobRecord.status = 'skipped';
-                      jobRecord.skipReason = 'Redirected to external company site (Naukri external applies disabled)';
-                      if (onJobProcessed) onJobProcessed(jobRecord);
-                      continue;
+                      if (this.settings.automation?.autoSubmitCareerSites !== false && this.careerSiteBot) {
+                        this.logger('action', 'Naukri', `Auto-applying to redirected career portal: ${jobTab.url()}...`);
+                        const careerRes = await this.careerSiteBot.applyToCareerPage(jobTab, {
+                          title: jobMeta.title,
+                          company: jobMeta.company
+                        });
+                        jobRecord.status = careerRes.status || ApplicationStates.MANUAL_ACTION_REQUIRED;
+                        jobRecord.reason = careerRes.reason || (careerRes.status?.includes('applied') ? 'Applied on external career portal' : 'Manual action required');
+                        jobRecord.questionsAnswered = careerRes.questionsAnswered || [];
+                        if (careerRes.status === ApplicationStates.APPLIED_CONFIRMED) {
+                          this.logger('success', 'Naukri', `Confirmed applied on external portal for "${jobMeta.title}" at ${jobMeta.company}!`);
+                        }
+                        totalProcessedCount++;
+                        if (onJobProcessed) onJobProcessed(jobRecord);
+                        continue;
+                      } else {
+                        this.logger('info', 'Naukri', `Closed redirected external tab: ${jobTab.url()}.`);
+                        try {
+                          if (!jobTab.isClosed()) await jobTab.close();
+                        } catch (e) {}
+                        jobRecord.status = 'skipped';
+                        jobRecord.skipReason = 'Redirected to external company site';
+                        if (onJobProcessed) onJobProcessed(jobRecord);
+                        continue;
+                      }
                     }
 
                     // Check for real visible login modal
