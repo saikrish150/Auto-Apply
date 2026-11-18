@@ -1,5 +1,53 @@
 [
   {
+    "id": "unfilled-1794926071699-jrx2z",
+    "semanticKey": "norm:your current job location",
+    "question": "Your Current Job Location",
+    "label": "Your Current Job Location",
+    "inputType": "text",
+    "options": [],
+    "platform": "LinkedIn",
+    "jobTitle": "Software Specialist",
+    "company": "PTC",
+    "reason": "Required field left blank",
+    "status": "pending",
+    "occurrences": 14,
+    "createdAt": "2026-11-17T14:34:31.699Z",
+    "lastEncountered": "2026-11-17T14:41:16.455Z"
+  },
+  {
+    "id": "unfilled-1794926071686-aestx",
+    "semanticKey": "norm:what are your annual salary expectations",
+    "question": "What are your annual salary expectations?",
+    "label": "What are your annual salary expectations?",
+    "inputType": "text",
+    "options": [],
+    "platform": "LinkedIn",
+    "jobTitle": "Software Specialist",
+    "company": "PTC",
+    "reason": "Required field left blank",
+    "status": "pending",
+    "occurrences": 14,
+    "createdAt": "2026-11-17T14:34:31.686Z",
+    "lastEncountered": "2026-11-17T14:41:16.455Z"
+  },
+  {
+    "id": "unfilled-1794926071663-0ryap",
+    "semanticKey": "norm:what is your desired start date",
+    "question": "What is your desired start date?",
+    "label": "What is your desired start date?",
+    "inputType": "text",
+    "options": [],
+    "platform": "LinkedIn",
+    "jobTitle": "Software Specialist",
+    "company": "PTC",
+    "reason": "Required field left blank",
+    "status": "pending",
+    "occurrences": 27,
+    "createdAt": "2026-11-17T14:34:31.663Z",
+    "lastEncountered": "2026-11-17T15:41:35.573Z"
+  },
+  {
     "id": "unfilled-1794572645372-lbo80",
     "semanticKey": "norm:pune district maharashtra india",
     "question": "Pune District, Maharashtra, India",
@@ -137,11 +185,11 @@
     "platform": "Naukri",
     "jobTitle": "Stuck Job",
     "company": "Some Corp",
-    "reason": "The question is unrecognized and none of the provided options (\"Option 1\",\"Option 2\") are applicable",
+    "reason": "Question is unrecognized and none of the provided options are applicable",
     "status": "pending",
-    "occurrences": 11,
+    "occurrences": 20,
     "createdAt": "2026-11-05T15:03:19.716Z",
-    "lastEncountered": "2026-11-16T07:00:53.947Z"
+    "lastEncountered": "2026-11-18T05:43:57.851Z"
   },
   {
     "id": "unfilled-1793887776135-f5cno",
@@ -317,13 +365,13 @@
     "inputType": "text",
     "options": [],
     "platform": "LinkedIn",
-    "jobTitle": "Software Engineer Backend",
-    "company": "EXL",
+    "jobTitle": "Software Specialist",
+    "company": "PTC",
     "reason": "Middle name not provided in candidate profile",
     "status": "pending",
-    "occurrences": 3,
+    "occurrences": 6,
     "createdAt": "2026-11-01T07:27:55.513Z",
-    "lastEncountered": "2026-11-15T08:51:46.243Z"
+    "lastEncountered": "2026-11-17T15:48:55.950Z"
   },
   {
     "id": "unfilled-1793517115954-gx14t",

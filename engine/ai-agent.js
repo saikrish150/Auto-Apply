@@ -1179,7 +1179,7 @@ Respond in this JSON format only:
         /\b(?:which\s*part\s*of\s+[a-z\s]+are\s*your\s*currently\s*located)\b/i.test(norm)) {
       return 'intent:state_part_location';
     }
-    if (/\b(?:city|current\s*city|city\s*of\s*residence|current\s*location|where\s*(?:are|do)\s*you\s*(?:live|reside))\b/i.test(norm)) return 'intent:city';
+    if (/\b(?:city|current\s*city|city\s*of\s*residence|current\s*(?:job\s*|work\s*)?location|preferred\s*(?:job\s*|work\s*)?location|base\s*location|work\s*location|where\s*(?:are|do)\s*you\s*(?:live|reside))\b/i.test(norm)) return 'intent:city';
     if (/\b(?:country|current\s*country|citizenship|nationality)\b/i.test(norm)) return 'intent:country';
     if (/\b(?:state|province|region)\b/i.test(norm)) return 'intent:state';
     if (/\b(?:postal\s*code|zip\s*code|pincode|pin\s*code)\b/i.test(norm)) return 'intent:postal_code';
@@ -1400,7 +1400,7 @@ Respond in this JSON format only:
 
     // D. Current Compensation / CTC
     if (semanticKey === 'intent:ctc_current') {
-      const numVal = (career.currentSalaryLPA || '4.10').match(/\d+(?:\.\d+)?/)?.[0] || '4.10';
+      const numVal = String(career.currentSalaryLPA || '4.10').match(/\d+(?:\.\d+)?/)?.[0] || '4.10';
       return {
         answer: this.sanitizeAnswerForInputType(numVal, inputType, options),
         confidence: 0.98,
@@ -1412,7 +1412,7 @@ Respond in this JSON format only:
 
     // E. Expected Compensation / CTC
     if (semanticKey === 'intent:ctc_expected') {
-      const numVal = (career.expectedSalaryLPA || '10').match(/\d+(?:\.\d+)?/)?.[0] || '10';
+      const numVal = String(career.expectedSalaryLPA || '10').match(/\d+(?:\.\d+)?/)?.[0] || '10';
       return {
         answer: this.sanitizeAnswerForInputType(numVal, inputType, options),
         confidence: 0.98,
@@ -1702,7 +1702,11 @@ Respond in this JSON format only:
       };
     }
 
-    // 3. Notice period questions
+    // 3. Notice period & start date questions
+    if (q.includes('start date') || q.includes('joining date') || q.includes('earliest joining')) {
+      const ans = inputType === 'number' ? '30' : (inputType === 'date' ? new Date(Date.now() + 30*86400000).toISOString().split('T')[0] : 'Immediately');
+      return { answer: this.sanitizeAnswerForInputType(ans, inputType, options), confidence: 0.95, source: 'Local Fallback — Start date / joining date', aiPowered: false };
+    }
     if (q.includes('notice period') || q.includes('days to join') || q.includes('how soon can you start') || q.includes('joining time')) {
       if (options.length > 0) {
         const opt = this.sanitizeAnswerForInputType('30 days', 'select', options);
@@ -1720,13 +1724,13 @@ Respond in this JSON format only:
 
     // 4. Salary / CTC questions
     if (q.includes('current ctc') || q.includes('current salary') || q.includes('current annual')) {
-      const numVal = (career.currentSalaryLPA || '4.10').match(/\d+(?:\.\d+)?/)?.[0] || '4.10';
-      const ans = inputType === 'number' ? numVal : (career.currentSalaryLPA || '4.10 LPA');
+      const numVal = String(career.currentSalaryLPA || '4.10').match(/\d+(?:\.\d+)?/)?.[0] || '4.10';
+      const ans = inputType === 'number' ? numVal : (career.currentSalaryFormatted || `${career.currentSalaryLPA || '4.10'} LPA`);
       return { answer: this.sanitizeAnswerForInputType(ans, inputType, options), confidence: 0.9, source: 'Local Fallback — Current compensation', aiPowered: false };
     }
     if (q.includes('expected ctc') || q.includes('expected salary') || q.includes('salary expectation')) {
-      const numVal = (career.expectedSalaryLPA || '11').match(/\d+(?:\.\d+)?/)?.[0] || '11';
-      const ans = inputType === 'number' ? numVal : (career.expectedSalaryLPA || '11 LPA');
+      const numVal = String(career.expectedSalaryLPA || '11').match(/\d+(?:\.\d+)?/)?.[0] || '11';
+      const ans = inputType === 'number' ? numVal : (career.expectedSalaryFormatted || `${career.expectedSalaryLPA || '11'} LPA`);
       return { answer: this.sanitizeAnswerForInputType(ans, inputType, options), confidence: 0.9, source: 'Local Fallback — Expected compensation', aiPowered: false };
     }
 
@@ -1751,7 +1755,7 @@ Respond in this JSON format only:
     }
 
     // 7. Location & Address Specific Patterns (City, State, Country, Postal Code, Address)
-    if (/\bcity\b|current city|city of residence|location preference/i.test(q)) {
+    if (/\bcity\b|current\s*city|city\s*of\s*residence|current\s*(?:job\s*|work\s*)?location|preferred\s*(?:job\s*|work\s*)?location|location\s*preference/i.test(q)) {
       const ans = this.sanitizeAnswerForInputType(personal.city || 'Hyderabad', inputType, options);
       return { answer: ans, confidence: 0.96, source: 'Local Fallback — Candidate City', aiPowered: false };
     }
@@ -1762,6 +1766,16 @@ Respond in this JSON format only:
     if (/\bstate\b|province|region/i.test(q)) {
       const ans = this.sanitizeAnswerForInputType(personal.state || 'Telangana', inputType, options);
       return { answer: ans, confidence: 0.96, source: 'Local Fallback — Candidate State', aiPowered: false };
+    }
+
+    // 7B. Education Degree & Field of Study
+    if (/\b(?:degree|education\s*degree|highest\s*(?:level\s*of\s*)?education|highest\s*degree|degree\s*level|qualification)\b/i.test(q)) {
+      const deg = options.length > 0 ? (options.find(o => /bachelor|b\.?tech|undergraduate|graduation/i.test(o)) || options[0]) : "Bachelor's Degree";
+      return { answer: deg, confidence: 0.95, source: 'Local Fallback — Education degree', aiPowered: false };
+    }
+    if (/\b(?:field\s*of\s*study|major|specialization|discipline|branch\s*of\s*study|course\s*of\s*study)\b/i.test(q)) {
+      const fos = options.length > 0 ? (options.find(o => /computer|information|engineering|electronics/i.test(o)) || options[0]) : "Computer Science and Engineering";
+      return { answer: fos, confidence: 0.95, source: 'Local Fallback — Field of study', aiPowered: false };
     }
     if (/postal code|zip code|pincode|pin code/i.test(q)) {
       const ans = this.sanitizeAnswerForInputType(personal.postalCode || '500081', inputType, options);

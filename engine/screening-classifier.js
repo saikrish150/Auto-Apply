@@ -53,6 +53,7 @@ class ScreeningClassifier {
       PREVIOUS_EMPLOYEE: 'INTENT_PREVIOUS_EMPLOYEE',
       CURRENTLY_EMPLOYED: 'INTENT_CURRENTLY_EMPLOYED',
       EDUCATION_DEGREE: 'INTENT_EDUCATION_DEGREE',
+      FIELD_OF_STUDY: 'INTENT_FIELD_OF_STUDY',
       GRADUATION_YEAR: 'INTENT_GRADUATION_YEAR',
       PF_ACCOUNT: 'INTENT_PF_ACCOUNT',
       INTERVIEW_AVAILABILITY: 'INTENT_INTERVIEW_AVAILABILITY',
@@ -179,9 +180,9 @@ class ScreeningClassifier {
     const isCurrentCTC = /\b(?:current\s*ctc|current\s*salary|present\s*ctc|present\s*salary|current\s*annual|cctc|current\s*package)\b/i.test(norm) ||
       (norm.includes('current') && (norm.includes('ctc') || norm.includes('salary') || norm.includes('compensation') || norm.includes('package')));
 
-    const isExpectedCTC = /\b(?:expected\s*ctc|expected\s*salary|desired\s*salary|salary\s*expectation|ectc|expected\s*package|base\s*salary|salary\s*range|salary.*looking\s*for|compensation.*looking\s*for|expected\s*remuneration|salary\s*requirement)\b/i.test(norm) ||
-      (norm.includes('expected') && (norm.includes('ctc') || norm.includes('salary') || norm.includes('compensation') || norm.includes('package'))) ||
-      (/\b(?:base\s*salary|salary\s*range|salary|compensation)\b/i.test(norm) && /\b(?:looking\s*for|requirement|expect|desired|in\s*local\s*currency)\b/i.test(norm));
+    const isExpectedCTC = /\b(?:expected\s*ctc|expected\s*salary|desired\s*salary|salary\s*expectations?|compensation\s*expectations?|ectc|expected\s*package|base\s*salary|salary\s*range|salary.*looking\s*for|compensation.*looking\s*for|expected\s*remuneration|salary\s*requirements?)\b/i.test(norm) ||
+      (norm.includes('expect') && (norm.includes('ctc') || norm.includes('salary') || norm.includes('compensation') || norm.includes('package') || norm.includes('annual'))) ||
+      (/\b(?:base\s*salary|salary\s*range|salary|compensation|annual\s*(?:salary|ctc|package))\b/i.test(norm) && /\b(?:looking\s*for|requirements?|expects?(?:ations?)?|desired|in\s*local\s*currency)\b/i.test(norm));
 
     const isINR = /\b(?:in\s*inr|in\s*rupees|inr|rupees|annual\s*compensation|annual\s*ctc|annual\s*salary|local\s*currency)\b/i.test(norm) || /\b(?:example\s*:\s*\d{5,})\b/i.test(raw);
     const isLPA = /\b(?:in\s*lpa|in\s*lakhs?|lpa|lakhs?)\b/i.test(norm);
@@ -201,26 +202,38 @@ class ScreeningClassifier {
       return { intent: this.INTENTS.CURRENT_CTC, confidence: this.CONFIDENCE_LEVELS.MEDIUM, params: compParams };
     }
 
-    // 5. NOTICE PERIOD & JOINING TIME
+    // 5. NOTICE PERIOD & JOINING TIME / START DATE
+    if (/\b(?:last\s*working\s*day|last\s*working\s*date|lwd|end\s*date\s*of\s*notice)\b/i.test(norm)) {
+      return { intent: this.INTENTS.LAST_WORKING_DAY, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
     if (/\b(?:serving\s*notice|currently\s*serving|on\s*notice)\b/i.test(norm)) {
       return { intent: this.INTENTS.CURRENTLY_SERVING_NOTICE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
-    if (/\b(?:earliest\s*(?:possible\s*)?joining|when\s*can\s*you\s*join|joining\s*date|available\s*to\s*start\s*from)\b/i.test(norm)) {
+    if (/\b(?:(?:desired|earliest|target|intended|expected)?\s*(?:start\s*date|joining\s*date)|earliest\s*(?:possible\s*)?joining|when\s*can\s*your?\s*join|available\s*to\s*start(?:\s*from)?|how\s*soon\s*can\s*your?\s*start)\b/i.test(norm)) {
       return { intent: this.INTENTS.EARLIEST_JOINING_DATE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
     if (/\b(?:negotiable\s*notice|can\s*you\s*negotiate\s*notice|minimum\s*days\s*to\s*join)\b/i.test(norm)) {
       return { intent: this.INTENTS.NEGOTIABLE_NOTICE_PERIOD, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
-    if (/\b(?:notice\s*period|days\s*to\s*join|how\s*soon\s*can\s*you\s*join|how\s*soon\s*can\s*you\s*start|np\s*in\s*days)\b/i.test(norm)) {
+    if (/\b(?:notice\s*period|days\s*to\s*join|np\s*in\s*days)\b/i.test(norm)) {
       return { intent: this.INTENTS.OFFICIAL_NOTICE_PERIOD, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
-    // 6. SKILL-SPECIFIC EXPERIENCE vs TOTAL EXPERIENCE
+    // 6. TOTAL EXPERIENCE (Check BEFORE skill experience so "total experience in years" is not parsed as skill "years"!)
+    if (/\b(?:total\s*(?:years\s*(?:of\s*)?)?(?:work\s*)?experience|overall\s*experience|total\s*it\s*experience|total\s*experience)\b/i.test(norm) ||
+        /\bhow\s*many\s*years\s*(?:of\s*)?work\s*experience\b/i.test(norm) ||
+        norm === 'how many years of work experience do you have' ||
+        norm === 'total years of experience' ||
+        norm === 'total experience') {
+      return { intent: this.INTENTS.TOTAL_EXPERIENCE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // 6B. SKILL-SPECIFIC EXPERIENCE
     const skillExpMatch = norm.match(/(?:years|experience).*(?:with|in|using|on)\s+([a-zA-Z0-9#\+\.\s_-]+)/i) ||
                           norm.match(/(?:with|in|using|on)\s+([a-zA-Z0-9#\+\.\s_-]+)\s*(?:experience|years)/i);
     if (skillExpMatch && skillExpMatch[1]) {
       const candidateTech = skillExpMatch[1].trim().toLowerCase().replace(/[^a-z0-9#+.]/g, '');
-      const nonSkillWords = ['total', 'overall', 'it', 'software', 'softwaredevelopment', 'fullstack', 'all', 'industry', 'field', 'role', 'programming', 'localcurrency', 'currency', 'salary', 'compensation', 'responsibilities', 'base', 'basesalary'];
+      const nonSkillWords = ['total', 'overall', 'it', 'software', 'softwaredevelopment', 'fullstack', 'all', 'industry', 'field', 'role', 'programming', 'localcurrency', 'currency', 'salary', 'compensation', 'responsibilities', 'base', 'basesalary', 'years', 'year', 'yrs', 'yr', 'months', 'month'];
       if (!nonSkillWords.includes(candidateTech) && candidateTech.length > 1) {
         return {
           intent: this.INTENTS.SKILL_EXPERIENCE,
@@ -230,24 +243,17 @@ class ScreeningClassifier {
       }
     }
 
-    if (/\b(?:total\s*(?:years\s*(?:of\s*)?)?(?:work\s*)?experience|overall\s*experience|total\s*it\s*experience|total\s*experience)\b/i.test(norm) ||
-        norm === 'how many years of work experience do you have' ||
-        norm === 'total years of experience' ||
-        norm === 'total experience') {
-      return { intent: this.INTENTS.TOTAL_EXPERIENCE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
-    }
-
-    // 6B. CLIENT HANDLING & INTERACTION
+    // 6C. CLIENT HANDLING & INTERACTION
     if (/\b(?:handling\s*clients?|client\s*(?:facing|handling|interaction|communication)|experience\s*(?:with|handling)\s*clients?)\b/i.test(norm)) {
       return { intent: this.INTENTS.CLIENT_HANDLING, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
-    // 6C. LEGAL WORK AUTHORIZATION (CRITICAL: Must evaluate BEFORE generic 'country'!)
+    // 6D. LEGAL WORK AUTHORIZATION (CRITICAL: Must evaluate BEFORE generic 'country'!)
     if (/\b(?:legally\s*(?:authorized|eligible|permitted)|authorized\s*to\s*work|legal\s*(?:right|status)\s*to\s*work|eligible\s*to\s*work|eligibility\s*to\s*work|work\s*authorization|legally\s*work)\b/i.test(norm)) {
       return { intent: this.INTENTS.WORK_AUTHORIZATION, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
-    // 6D. AI TOOLS, VIBE CODING, CHATGPT, COPILOT, CLAUDE, GEMINI, ANTIGRAVITY, AI AGENTS
+    // 6E. AI TOOLS, VIBE CODING, CHATGPT, COPILOT, CLAUDE, GEMINI, ANTIGRAVITY, AI AGENTS
     if (/\b(?:vibe\s*coding|white\s*coding|ai\s*assisted\s*coding|coding\s*with\s*ai|ai\s*agents?|chatgpt|chat\s*gpt|copilot|github\s*copilot|claude|gemini|antigravity|generative\s*ai|gen\s*ai|prompt\s*engineering)\b/i.test(norm)) {
       return { intent: this.INTENTS.AI_EXPERIENCE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: { norm } };
     }
@@ -257,7 +263,7 @@ class ScreeningClassifier {
         /\b(?:which\s*part\s*of\s+[a-z\s]+are\s*your\s*currently\s*located)\b/i.test(norm)) {
       return { intent: this.INTENTS.SPECIFIC_STATE_LOCATION, confidence: this.CONFIDENCE_LEVELS.HIGH, params: { norm } };
     }
-    if (/\b(?:city|current\s*city|city\s*of\s*residence|current\s*location)\b/i.test(norm)) {
+    if (/\b(?:city|current\s*city|city\s*of\s*residence|current\s*(?:job\s*|work\s*)?location|preferred\s*(?:job\s*|work\s*)?location|base\s*location|work\s*location|job\s*location)\b/i.test(norm)) {
       return { intent: this.INTENTS.CITY, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
     if (/\b(?:country|current\s*country|nationality)\b/i.test(norm)) {
@@ -275,6 +281,14 @@ class ScreeningClassifier {
     if (/\b(?:street\s*address|residence\s*address|residential\s*address|home\s*address|address\s*line)\b/i.test(norm) ||
         (norm.includes('address') && !norm.includes('email') && !norm.includes('mail') && !norm.includes('web'))) {
       return { intent: this.INTENTS.RESIDENTIAL_ADDRESS, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+
+    // 7B. EDUCATION DEGREE & FIELD OF STUDY
+    if (/\b(?:degree|education\s*degree|highest\s*(?:level\s*of\s*)?education|highest\s*degree|degree\s*level|qualification)\b/i.test(norm)) {
+      return { intent: this.INTENTS.EDUCATION_DEGREE, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
+    }
+    if (/\b(?:field\s*of\s*study|major|specialization|discipline|branch\s*of\s*study|course\s*of\s*study)\b/i.test(norm)) {
+      return { intent: this.INTENTS.FIELD_OF_STUDY, confidence: this.CONFIDENCE_LEVELS.HIGH, params: {} };
     }
 
     // 8. WORK PREFERENCES & LEGAL AUTHORIZATION
@@ -548,23 +562,39 @@ class ScreeningClassifier {
 
       case this.INTENTS.EDUCATION_DEGREE: {
         const edu = profile.education || {};
-        const fullDegree = edu.degree || 'B.Tech in Computer Science';
+        const fullDegree = edu.degree || "Bachelor's Degree";
         if (options && options.length > 0) {
+          const matchBtech = options.find(o => /bachelor|b\.?tech|\bb\.?e\b|undergraduate|graduation|college/i.test(o));
+          if (matchBtech) {
+            proposedAnswer = matchBtech;
+            sourceField = 'education.degree';
+            break;
+          }
           const matchUG = options.find(o => /^ug\b|under\s*grad/i.test(o));
           if (matchUG) {
             proposedAnswer = matchUG;
             sourceField = 'education.degree';
             break;
           }
-          const matchBtech = options.find(o => /b\.?tech|bachelor|b\.?e/i.test(o));
-          if (matchBtech) {
-            proposedAnswer = matchBtech;
-            sourceField = 'education.degree';
-            break;
-          }
         }
         proposedAnswer = fullDegree;
         sourceField = 'education.degree';
+        break;
+      }
+
+      case this.INTENTS.FIELD_OF_STUDY: {
+        const edu = profile.education || {};
+        const fos = edu.fieldOfStudy || edu.stream || 'Computer Science and Engineering';
+        if (options && options.length > 0) {
+          const cOpt = options.find(o => /computer|information|engineering|electronics|technology/i.test(o));
+          if (cOpt) {
+            proposedAnswer = cOpt;
+            sourceField = 'education.fieldOfStudy';
+            break;
+          }
+        }
+        proposedAnswer = fos;
+        sourceField = 'education.fieldOfStudy';
         break;
       }
 
@@ -582,8 +612,8 @@ class ScreeningClassifier {
         break;
 
       case this.INTENTS.TOTAL_EXPERIENCE:
-        const totalVal = career.totalYearsExperience !== undefined ? career.totalYearsExperience : 2.7;
-        proposedAnswer = inputType === 'number' ? String(totalVal) : (totalVal % 1 === 0 ? String(totalVal) : totalVal.toFixed(1));
+        const totalVal = career.totalYearsExperience !== undefined ? career.totalYearsExperience : 3.0;
+        proposedAnswer = inputType === 'number' ? String(Math.round(totalVal) || 3) : (totalVal % 1 === 0 ? String(totalVal) : totalVal.toFixed(1));
         sourceField = 'career.totalYearsExperience';
         break;
 
@@ -687,20 +717,23 @@ class ScreeningClassifier {
       }
 
       case this.INTENTS.OFFICIAL_NOTICE_PERIOD:
-        proposedAnswer = String(career.officialNoticePeriodDays || career.noticePeriodDays || 90);
+        proposedAnswer = String(career.officialNoticePeriodDays || career.noticePeriodDays || 30);
         sourceField = 'career.officialNoticePeriodDays';
         break;
 
       case this.INTENTS.NEGOTIABLE_NOTICE_PERIOD:
-        proposedAnswer = String(career.negotiableNoticePeriodDays || 45);
+        proposedAnswer = String(career.negotiableNoticePeriodDays || 30);
         sourceField = 'career.negotiableNoticePeriodDays';
         break;
 
       case this.INTENTS.EARLIEST_JOINING_DATE:
         if (inputType === 'number') {
           proposedAnswer = String(career.negotiableNoticePeriodDays || 30);
+        } else if (inputType === 'date') {
+          const d = new Date(Date.now() + 30 * 86400000);
+          proposedAnswer = d.toISOString().split('T')[0];
         } else {
-          proposedAnswer = 'Yes, an earlier release can be negotiated. Official notice is 30 days.';
+          proposedAnswer = 'Immediately';
         }
         sourceField = 'career.negotiableNoticePeriodDays';
         break;

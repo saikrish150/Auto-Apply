@@ -131,15 +131,17 @@ class NaukriBot {
     try {
       const scenarios = this.getScenarios();
       const dateParam = this.getDateFilterParam(this.settings.search?.datePosted);
-      const expParam = this.getExperienceParam(this.settings.search?.experienceLevel);
+      // Relax URL experience filter by default (unless strictExperienceFilter is enabled in search settings)
+      // so Naukri doesn't omit 85%+ of jobs missing recruiter experience tags. The AI evaluation engine strictly validates candidate fit.
+      const expParam = this.settings.search?.strictExperienceFilter ? (this.getExperienceParam(this.settings.search?.experienceLevel) || '') : '';
       const queryParts = [expParam, dateParam].filter(Boolean);
       const searchQueryParams = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
       const rawMaxApps = this.settings.automation?.maxApplicationsPerSession;
       const maxApps = (rawMaxApps === 0 || rawMaxApps === null || rawMaxApps === undefined) ? Infinity : Number(rawMaxApps);
-      const maxPages = this.settings.automation?.maxPagesPerScenario || 2;
+      const maxPages = this.settings.automation?.maxPagesPerScenario || 4;
       let totalProcessedCount = 0;
 
-      this.logger('info', 'Naukri', `Naukri bot initialized with ${scenarios.length} scenarios (All Locations | Deduplication Filter Disabled). Freshness: ${this.settings.search?.datePosted || 'past_24h'}. Exp Filter: ${expParam || 'None'}.`);
+      this.logger('info', 'Naukri', `Naukri bot initialized with ${scenarios.length} scenarios (All Locations | Deduplication Filter Disabled). Freshness: ${this.settings.search?.datePosted || 'past_24h'}. Exp Filter: ${expParam || 'All'}.`);
 
       for (let sIdx = 0; sIdx < scenarios.length; sIdx++) {
         if (this.shouldStop || totalProcessedCount >= maxApps) break;
@@ -573,13 +575,33 @@ class NaukriBot {
                       }
                     }
                   } else {
-                    // Guard 4: No 1-Click apply button found on Naukri detail page
-                    this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" - No 1-Click Fast Apply button found on Naukri (Naukri external applies are disabled).`);
+                    // Guard 4: No native 1-Click apply button found on Naukri detail page
+                    if (this.settings.automation?.autoSubmitCareerSites !== false && this.careerSiteBot) {
+                      this.logger('action', 'Naukri', `No native 1-Click button; attempting external career application on page for "${jobMeta.title}"...`);
+                      const careerRes = await this.careerSiteBot.applyToCareerPage(jobTab, {
+                        title: jobMeta.title,
+                        company: jobMeta.company
+                      });
+                      jobRecord.status = careerRes.status || ApplicationStates.MANUAL_ACTION_REQUIRED;
+                      jobRecord.reason = careerRes.reason || (careerRes.status?.includes('applied') ? 'Applied on external career portal' : 'Manual action required');
+                      jobRecord.questionsAnswered = careerRes.questionsAnswered || [];
+                      if (careerRes.status === ApplicationStates.APPLIED_CONFIRMED) {
+                        this.logger('success', 'Naukri', `Confirmed applied on external portal for "${jobMeta.title}" at ${jobMeta.company}!`);
+                      }
+                      totalProcessedCount++;
+                    } else if (this.settings.automation?.shortlistNonEasyApplyJobs !== false) {
+                      jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                      jobRecord.directApplicationUrl = jobMeta.url;
+                      jobRecord.applicationMethod = 'manual_shortlist';
+                      jobRecord.reason = `High match (${evaluation.score}%) - External company application preserved in Manual Apply Queue`;
+                    } else {
+                      this.logger('info', 'Naukri', `Skipping "${jobMeta.title}" - No 1-Click Fast Apply button found on Naukri.`);
+                      jobRecord.status = 'skipped';
+                      jobRecord.skipReason = 'No 1-Click Fast Apply button';
+                    }
                     try {
                       if (!jobTab.isClosed()) await jobTab.close();
                     } catch (e) {}
-                    jobRecord.status = 'skipped';
-                    jobRecord.skipReason = 'No 1-Click Fast Apply button (Naukri external applies disabled)';
                   }
                 }
               }

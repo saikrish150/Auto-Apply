@@ -269,30 +269,51 @@ class LinkedInBot {
 
             // Find job cards using clean selector hierarchy (supports new SDUI LazyColumn & classic layouts)
             const fetchJobCards = async () => {
-              // 1. SDUI / React LazyColumn cards (Current LinkedIn interface)
-              // Tag only authentic job cards, strictly filtering out upsell banners, surveys, alert toggles, pagination, and footers
+              // Tag authentic job cards, strictly filtering out upsell banners, surveys, alert toggles, pagination, and footers
               await page.evaluate(() => {
-                const col = document.querySelector('[data-testid="lazy-column"], [data-component-type="LazyColumn"]');
-                if (!col) return;
-                const children = Array.from(col.children);
-                children.forEach((child) => {
-                  // Reject upsell, survey, or premium elements
-                  if (child.querySelector('a[href*="premium"], a[href*="survey"], a[href*="upsell"], [upsellslotid]')) {
-                    child.removeAttribute('data-autoapply-job-card');
+                const isJunkOrUpsell = (el) => {
+                  if (!el) return true;
+                  const text = (el.innerText || el.textContent || '').trim().toLowerCase();
+                  if (!text || text.length < 5) return true;
+                  if (text.includes('are these results helpful') || text.includes('try premium') || text.includes('get job alerts') || text.includes('feedback') || text.includes('we found more results')) return true;
+                  if (el.querySelector('a[href*="premium"], a[href*="survey"], a[href*="upsell"], [upsellslotid]')) return true;
+                  const links = Array.from(el.querySelectorAll('a'));
+                  if (links.some(a => a.href && (a.href.includes('premium') || a.href.includes('survey') || a.href.includes('upsell')))) return true;
+                  return false;
+                };
+
+                const listContainers = document.querySelectorAll(
+                  '[data-testid="lazy-column"], [data-component-type="LazyColumn"], .scaffold-layout__list-container, .jobs-search-results-list, ul.jobs-search__results-list'
+                );
+
+                listContainers.forEach(container => {
+                  const children = Array.from(container.children);
+                  children.forEach(child => {
+                    if (isJunkOrUpsell(child)) {
+                      child.removeAttribute('data-autoapply-job-card');
+                      return;
+                    }
+                    const hasJobKey = !!child.querySelector('[componentkey*="job-card-component-ref-"]') || (child.getAttribute('componentkey') || '').includes('job-card-component-ref-');
+                    const hasJobLink = !!child.querySelector('a[href*="/jobs/view/"], a[href*="currentJobId="]');
+                    const hasJobId = !!child.querySelector('[data-occludable-job-id], [data-job-id]');
+                    if (hasJobKey || hasJobLink || hasJobId) {
+                      child.setAttribute('data-autoapply-job-card', 'true');
+                    } else {
+                      child.removeAttribute('data-autoapply-job-card');
+                    }
+                  });
+                });
+
+                const standalone = document.querySelectorAll('.jobs-search-results__list-item, .job-card-container, .job-search-card');
+                standalone.forEach(card => {
+                  if (isJunkOrUpsell(card)) {
+                    card.removeAttribute('data-autoapply-job-card');
                     return;
                   }
-                  const text = (child.innerText || '').trim();
-                  if (!text || text.length < 5 || /^(previous|next|about|accessibility|help center|get job alerts|we found more results|are these results helpful)/i.test(text)) {
-                    child.removeAttribute('data-autoapply-job-card');
-                    return;
-                  }
-                  const hasJobKey = !!child.querySelector('[componentkey*="job-card-component-ref-"]') || (child.getAttribute('componentkey') || '').includes('job-card-component-ref-');
-                  const hasJobLink = !!child.querySelector('a[href*="/jobs/view/"]');
-                  const hasJobId = !!child.querySelector('[data-occludable-job-id], [data-job-id]');
-                  if (hasJobKey || hasJobLink || hasJobId) {
-                    child.setAttribute('data-autoapply-job-card', 'true');
-                  } else {
-                    child.removeAttribute('data-autoapply-job-card');
+                  const hasLink = !!card.querySelector('a[href*="/jobs/view/"], a[href*="currentJobId="]');
+                  const hasId = !!card.getAttribute('data-occludable-job-id') || !!card.getAttribute('data-job-id');
+                  if (hasLink || hasId) {
+                    card.setAttribute('data-autoapply-job-card', 'true');
                   }
                 });
               }).catch(() => {});
@@ -300,18 +321,8 @@ class LinkedInBot {
               let cards = await page.$$('[data-autoapply-job-card="true"]');
               if (cards && cards.length > 0) return cards;
 
-              // 2. Top-level classic list item containers
-              cards = await page.$$(
-                'ul.jobs-search__results-list > li, .jobs-search-results-list > .jobs-search-results__list-item, .scaffold-layout__list-container > .jobs-search-results__list-item, .scaffold-layout__list-container > li, .jobs-search-results__list-item'
-              );
-              if (cards && cards.length > 0) return cards;
-
-              // 3. Standalone card containers
-              cards = await page.$$('.job-card-container, .job-search-card, .base-card');
-              if (cards && cards.length > 0) return cards;
-
-              // 4. Fallback links
-              return await page.$$('a[href*="/jobs/view/"]');
+              // Fallback only to authentic job links (NEVER upsell/survey links)
+              return await page.$$('a[href*="/jobs/view/"], a[href*="currentJobId="]');
             };
 
             let jobCards = await fetchJobCards();
@@ -338,8 +349,7 @@ class LinkedInBot {
                   await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
                   await this.randomDelay(2000, 3000);
                   jobCards = await fetchJobCards();
-                  card = jobCards[i];
-                  if (!card) continue;
+                  continue;
                 }
 
                 // Smoothly scroll the left list as we advance so lazy-loaded items render
@@ -436,6 +446,16 @@ class LinkedInBot {
                   };
                 });
 
+                // Immediate pre-check: discard non-job cards (upsell banners, survey cards, feedback)
+                const isNonJob = (!cardPre.jobId && !cardPre.title) ||
+                                 /are these results helpful|try premium|get job alerts|feedback|we found more/i.test(cardPre.title || '') ||
+                                 /premium|survey|upsell/i.test(cardPre.href || '') ||
+                                 /premium|survey|upsell/i.test(cardPre.title || '');
+                if (isNonJob) {
+                  this.logger('info', 'LinkedIn', `[Pre-check] Skipping non-job card ("${cardPre.title || 'Upsell/Survey'}").`);
+                  continue;
+                }
+
                 const rawTitle = (cardPre.title || '').trim();
                 const rawComp = (cardPre.company || '').trim();
                 titleKey = (rawTitle && rawComp) ? `${rawTitle.toLowerCase()}|${rawComp.toLowerCase()}` : '';
@@ -474,13 +494,14 @@ class LinkedInBot {
 
                 // Click card anchor or container to load job details in the right pane
                 await card.evaluate(el => {
+                  const badLink = el.querySelector('a[href*="premium"], a[href*="survey"], a[href*="upsell"]');
+                  if (badLink) return;
+
                   const target = el.querySelector(
-                    'div[role="button"][tabindex="0"], div[role="button"], a.job-card-list__title, a.job-card-container__link, [data-control-name="job_card_click"], a[href*="/jobs/view/"], .job-card-container'
+                    'a.job-card-list__title, a.job-card-container__link, a[href*="/jobs/view/"], a[href*="currentJobId="], [data-control-name="job_card_click"], div[role="button"][tabindex="0"]'
                   ) || el;
                   // Strictly avoid clicking any upsell or survey links
                   if (target.tagName === 'A' && (target.href.includes('premium') || target.href.includes('survey') || target.href.includes('upsell'))) {
-                    el.scrollIntoView({ block: 'center', inline: 'nearest' });
-                    el.click();
                     return;
                   }
                   target.scrollIntoView({ block: 'center', inline: 'nearest' });
@@ -514,11 +535,15 @@ class LinkedInBot {
                 const effectiveJobId = cardPre.jobId || currentUrlJobId;
                 const detailJobId = effectiveJobId;
 
-                // Skip if this specific job ID was already processed
+                // Skip if this specific job ID was already processed (unless unsubmitted Easy Apply is available in Easy Apply phase)
                 if (effectiveJobId && this.seenJobKeys.has(effectiveJobId)) {
-                  this.logger('info', 'LinkedIn', `[Detail-check] Skipping "${rawTitle || 'Job'}" (${effectiveJobId}) - already processed.`);
-                  markJobSeen(rawTitle, rawComp, effectiveJobId);
-                  continue;
+                  if (phase.easyApplyOnly && cardPre.hasEasyApply && !cardPre.isApplied) {
+                    this.logger('info', 'LinkedIn', `[Detail-check] "${rawTitle || 'Job'}" (${effectiveJobId}) was previously seen, but unapplied Easy Apply is available. Proceeding with application...`);
+                  } else {
+                    this.logger('info', 'LinkedIn', `[Detail-check] Skipping "${rawTitle || 'Job'}" (${effectiveJobId}) - already processed.`);
+                    markJobSeen(rawTitle, rawComp, effectiveJobId);
+                    continue;
+                  }
                 }
 
                 // Extract job details from right-hand details pane with robust fallback to cardPre
@@ -653,18 +678,17 @@ class LinkedInBot {
                   let extHref = '';
 
                   for (const b of buttons) {
-                    if (b.closest('[componentkey*="job-card-component-ref-"], div[data-display-contents="true"]')) continue;
+                    if (b.closest('[componentkey*="job-card-component-ref-"]')) continue;
                     if (listEl && listEl.contains(b) && !b.closest('div[class*="mxtlkh"], [data-sdui-screen*="JobDetails"]')) continue;
                     if (!isVisible(b)) continue;
-
-                    const rect = b.getBoundingClientRect();
-                    // In split view, the apply action button must be in the right details pane (x > 500)
-                    if (rect.x < 500 && rect.width < 250) continue;
 
                     const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
                     const aria = (b.getAttribute('aria-label') || '').toLowerCase();
                     const cls = (b.className || '').toLowerCase();
                     const href = (b.getAttribute('href') || '').toLowerCase();
+
+                    // Reject any upsell or survey elements
+                    if (href.includes('premium') || href.includes('survey') || href.includes('upsell') || aria.includes('premium') || txt.includes('premium')) continue;
 
                     if (txt.includes('already applied') || aria.includes('already applied')) {
                       return { status: 'already_applied' };
@@ -673,7 +697,7 @@ class LinkedInBot {
                     if (isEasy) {
                       hasEasy = true;
                     }
-                    const isExt = href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || txt.includes('apply on') || (b.tagName.toLowerCase() === 'a' && href.startsWith('http') && !isEasy);
+                    const isExt = href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || txt.includes('apply on') || (cls.includes('jobs-apply-button') && !isEasy);
                     if (isExt && !isEasy) {
                       hasExt = true;
                       extHref = b.href || href;
@@ -714,15 +738,16 @@ class LinkedInBot {
                       }
                       const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
                       const listEl = document.querySelector('.jobs-search-results-list, .scaffold-layout__list');
-                      const links = Array.from(detailPane.querySelectorAll('a[href*="/jobs/view/externalApply/"], a[aria-label*="company website"], button[aria-label*="company website"], a[href*="http"], a.jobs-apply-button'));
+                      const links = Array.from(detailPane.querySelectorAll('a[href*="/jobs/view/externalApply/"], a[aria-label*="company website" i], button[aria-label*="company website" i], a.jobs-apply-button'));
                       return links.find(el => {
                         if (listEl && listEl.contains(el)) return false;
                         if (!isVisible(el)) return false;
                         const txt = (el.innerText || el.textContent || '').trim().toLowerCase();
                         const aria = (el.getAttribute('aria-label') || '').toLowerCase();
                         const href = (el.getAttribute('href') || '').toLowerCase();
+                        if (href.includes('premium') || href.includes('survey') || href.includes('upsell') || aria.includes('premium') || txt.includes('premium')) return false;
                         if (txt.includes('easy apply') || aria.includes('easy apply')) return false;
-                        return href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || (el.tagName.toLowerCase() === 'a' && href.startsWith('http'));
+                        return href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || (el.className || '').includes('jobs-apply-button');
                       }) || null;
                     });
                     const extEl = extBtn.asElement();
@@ -789,15 +814,16 @@ class LinkedInBot {
                     }
                     const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
                     const listEl = document.querySelector('.jobs-search-results-list, .scaffold-layout__list');
-                    const links = Array.from(detailPane.querySelectorAll('a[href*="/jobs/view/externalApply/"], a[aria-label*="company website"], button[aria-label*="company website"], a[href*="http"], a.jobs-apply-button'));
+                    const links = Array.from(detailPane.querySelectorAll('a[href*="/jobs/view/externalApply/"], a[aria-label*="company website" i], button[aria-label*="company website" i], a.jobs-apply-button'));
                     return links.find(el => {
                       if (listEl && listEl.contains(el)) return false;
                       if (!isVisible(el)) return false;
                       const txt = (el.innerText || el.textContent || '').trim().toLowerCase();
                       const aria = (el.getAttribute('aria-label') || '').toLowerCase();
                       const href = (el.getAttribute('href') || '').toLowerCase();
+                      if (href.includes('premium') || href.includes('survey') || href.includes('upsell') || aria.includes('premium') || txt.includes('premium')) return false;
                       if (txt.includes('easy apply') || aria.includes('easy apply')) return false;
-                      return href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || (el.tagName.toLowerCase() === 'a' && href.startsWith('http'));
+                      return href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || (el.className || '').includes('jobs-apply-button');
                     }) || null;
                   });
 
@@ -889,15 +915,14 @@ class LinkedInBot {
                   const listEl = document.querySelector('[data-testid="lazy-column"], [data-component-type="LazyColumn"], .jobs-search-results-list, .scaffold-layout__list, div[class*="mxtlke"]');
                   const buttons = Array.from(detailPane.querySelectorAll('button, a.jobs-apply-button'));
                   return buttons.find(b => {
-                    if (b.closest('[componentkey*="job-card-component-ref-"], div[data-display-contents="true"]')) return false;
+                    if (b.closest('[componentkey*="job-card-component-ref-"]')) return false;
                     if (listEl && listEl.contains(b) && !b.closest('div[class*="mxtlkh"], [data-sdui-screen*="JobDetails"]')) return false;
                     if (!isVisible(b)) return false;
-                    const rect = b.getBoundingClientRect();
-                    if (rect.x < 500 && rect.width < 250) return false;
                     const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
                     const aria = (b.getAttribute('aria-label') || '').toLowerCase();
                     const cls = (b.className || '').toLowerCase();
                     const href = (b.getAttribute('href') || '').toLowerCase();
+                    if (href.includes('premium') || href.includes('survey') || href.includes('upsell') || aria.includes('premium') || txt.includes('premium')) return false;
                     if (txt.includes('already applied') || aria.includes('already applied')) return false;
                     const isEasy = (aria.includes('easy apply') || txt === 'easy apply' || /^(?:⚡\s*)?easy apply$/i.test(txt) || (cls.includes('jobs-apply-button') && !href.includes('external') && !txt.includes('company') && !aria.includes('company'))) && !aria.includes('filter');
                     return isEasy;
@@ -912,11 +937,23 @@ class LinkedInBot {
                   await page.goto(`https://www.linkedin.com/jobs/view/${detailJobId}/`, { waitUntil: 'domcontentloaded', timeout: 25000 });
                   openedDirectView = true;
                   await this.randomDelay(1500, 2500);
+
+                  if (page.url().includes('linkedin.com/premium') || page.url().includes('linkedin.com/survey')) {
+                    this.logger('warning', 'LinkedIn', `Direct view redirected to premium/survey page (${page.url()}). Returning to search page.`);
+                    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
+                    await this.randomDelay(1500, 2500);
+                    jobCards = await fetchJobCards();
+                    markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
+                    continue;
+                  }
+
                   const directBtnHandle = await page.evaluateHandle(() => {
                     const btns = Array.from(document.querySelectorAll('button, a.jobs-apply-button'));
                     return btns.find(b => {
                       const a = (b.getAttribute('aria-label') || '').toLowerCase();
                       const t = (b.innerText || '').trim().toLowerCase();
+                      const h = (b.getAttribute('href') || '').toLowerCase();
+                      if (h.includes('premium') || h.includes('survey') || h.includes('upsell') || a.includes('premium') || t.includes('premium')) return false;
                       return (a.includes('easy apply') || t === 'easy apply') && !a.includes('filter');
                     }) || null;
                   });
@@ -1138,6 +1175,8 @@ class LinkedInBot {
         return { action: 'none' };
       });
 
+      this.logger('info', 'LinkedIn', `Step action result: ${JSON.stringify(stepAction)}`);
+
       if (stepAction.action === 'submit_clicked') {
         this.logger('success', 'LinkedIn', 'Submit button clicked!');
         await this.randomDelay(2500, 4000);
@@ -1158,8 +1197,24 @@ class LinkedInBot {
       }
 
       if (stepAction.action === 'review_clicked' || stepAction.action === 'next_clicked') {
-        consecutiveUnchangedSteps = 0;
-        await this.randomDelay(1000, 1800);
+        await this.randomDelay(1200, 2000);
+        const stepErrors = await page.evaluate(() => {
+          const errs = document.querySelectorAll('.artdeco-inline-feedback--error, [aria-invalid="true"], .fb-dash-form-element__error-field');
+          return Array.from(errs).map(e => (e.innerText || e.textContent || '').trim()).filter(Boolean);
+        });
+
+        if (stepErrors.length > 0) {
+          consecutiveUnchangedSteps++;
+          this.logger('warning', 'LinkedIn', `Form validation on step: ${stepErrors.slice(0, 3).join('; ')}`);
+        } else {
+          consecutiveUnchangedSteps = 0;
+        }
+
+        if (consecutiveUnchangedSteps >= 2) {
+          await this.scanAndRecordUnfilledFields(page, jobDetails);
+          this.logger('warning', 'LinkedIn', `Application blocked by incomplete fields. Enqueued for manual completion.`);
+          break;
+        }
         continue;
       }
 
@@ -1555,14 +1610,35 @@ class LinkedInBot {
             const inOpt = opts.find(o => o.text.includes('+91') || o.text.toLowerCase().includes('india'));
             if (inOpt) return inOpt.value;
           }
-          const exact = opts.find(o => o.text.trim().toLowerCase() === ans.toLowerCase());
+          const ansStr = String(ans || '').trim();
+          if (!ansStr) {
+            // Contextual fallback for common dropdowns
+            if (/degree|qualification/i.test(s.name || s.id || '')) {
+              const bach = opts.find(o => /bachelor|b\.?tech|\bb\.?e\b|undergraduate|graduation/i.test(o.text));
+              if (bach) return bach.value;
+            }
+            if (/field|study|major/i.test(s.name || s.id || '')) {
+              const eng = opts.find(o => /computer|information|engineering|electronics|technology/i.test(o.text));
+              if (eng) return eng.value;
+            }
+            return null;
+          }
+          const exact = opts.find(o => o.text.trim().toLowerCase() === ansStr.toLowerCase());
           if (exact) return exact.value;
-          const sub = opts.find(o => o.text.toLowerCase().includes(ans.toLowerCase()) || ans.toLowerCase().includes(o.text.toLowerCase()));
+          const sub = opts.find(o => o.text.toLowerCase().includes(ansStr.toLowerCase()) || (ansStr.length >= 3 && ansStr.toLowerCase().includes(o.text.toLowerCase())));
           if (sub) return sub.value;
-          const num = ans.match(/\d+/);
+          const num = ansStr.match(/\d+/);
           if (num) {
             const numOpt = opts.find(o => o.text.includes(num[0]));
             if (numOpt) return numOpt.value;
+          }
+          if (/degree|qualification/i.test(s.name || s.id || '')) {
+            const bach = opts.find(o => /bachelor|b\.?tech|\bb\.?e\b|undergraduate|graduation/i.test(o.text));
+            if (bach) return bach.value;
+          }
+          if (/field|study|major/i.test(s.name || s.id || '')) {
+            const eng = opts.find(o => /computer|information|engineering|electronics|technology/i.test(o.text));
+            if (eng) return eng.value;
           }
           return null;
         }, answerObj.answer, isCountryCode);
@@ -1634,13 +1710,15 @@ class LinkedInBot {
               const opts = Array.from(document.querySelectorAll(
                 '[role="listbox"] [role="option"], .artdeco-dropdown__item, .artdeco-dropdown__content li, ul[role="listbox"] li'
               )).filter(o => isVis(o) && (o.innerText || o.textContent || '').trim().length > 0);
-              const tLower = targetAns.toLowerCase();
+              const tAns = String(targetAns || '').trim();
+              if (!tAns) return;
+              const tLower = tAns.toLowerCase();
               let match = opts.find(o => {
                 const t = (o.innerText || o.textContent || '').trim().toLowerCase();
-                return t === tLower || t.includes(tLower) || tLower.includes(t);
+                return t === tLower || t.includes(tLower) || (tLower.length >= 3 && tLower.includes(t));
               });
               if (!match) {
-                const num = targetAns.match(/\d+/);
+                const num = tAns.match(/\d+/);
                 if (num) match = opts.find(o => o.innerText.includes(num[0]));
               }
               if (!match && /yes/i.test(tLower)) match = opts.find(o => /yes/i.test(o.innerText));
@@ -1876,7 +1954,9 @@ class LinkedInBot {
 
         if (shouldFill) {
           const answerObj = await this.ai.answerScreeningQuestionAI(qText, [], 'text', qaContext);
-          let fullAnswer = answerObj.answer;
+          let fullAnswer = String(answerObj.answer || '').trim();
+          if (!fullAnswer && isCityQuestion) fullAnswer = 'Hyderabad';
+          if (!fullAnswer && isCountryQuestion) fullAnswer = 'India';
 
           // For city/country typeaheads, the search prefix gets the most targeted suggestions
           let searchTerm = fullAnswer;
@@ -1884,6 +1964,9 @@ class LinkedInBot {
             searchTerm = fullAnswer.split(',')[0].trim();
           } else if (isCountryQuestion) {
             searchTerm = fullAnswer.includes('(') ? fullAnswer.split('(')[0].trim() : 'India';
+          }
+          if (!searchTerm) {
+            searchTerm = isCityQuestion ? 'Hyderabad' : (isCountryQuestion ? 'India' : 'Hyderabad');
           }
 
           // 1. Scroll and focus
@@ -2008,16 +2091,19 @@ class LinkedInBot {
 
         const fullQ = (qText + ' ' + (fieldInfo.helperText || '') + ' ' + (fieldInfo.placeholder || '')).trim();
         const isWholeNumber = /whole number|integer/i.test(fullQ);
-        const isNoticePeriod = /notice period|days to join|joining time/i.test(fullQ);
+        const isLastWorkingDay = /last\s*working\s*day|last\s*working\s*date|lwd|end\s*date/i.test(fullQ);
+        const isStartDate = /start\s*date|joining\s*date|available\s*from/i.test(fullQ);
+        const isDateQuestion = isLastWorkingDay || isStartDate || /date/i.test(qText) || fieldInfo.type === 'date' || /dd\/mm|mm\/dd|yyyy/i.test(fieldInfo.placeholder + ' ' + fieldInfo.helperText);
+        const isNoticePeriod = !isDateQuestion && /notice period|days to join|joining time/i.test(fullQ);
         const isCompensation = /compensation|salary|ctc|package|gross/i.test(fullQ);
-        const isNumeric = isWholeNumber ||
+        const isNumeric = (isWholeNumber ||
                           isNoticePeriod ||
                           isCompensation ||
                           /how many years|years of experience|work experience|gpa|percentage/i.test(fullQ) ||
                           fieldInfo.type === 'number' ||
                           fieldInfo.inputMode === 'numeric' ||
                           fieldInfo.pattern === '[0-9]*' ||
-                          /^\s*e\.?g\.?\s*\d+/i.test(fieldInfo.placeholder);
+                          /^\s*e\.?g\.?\s*\d+/i.test(fieldInfo.placeholder)) && !isDateQuestion;
         const inferredType = isNumeric ? 'number' : 'text';
 
         // Check if we need to refill or fill
@@ -2044,6 +2130,18 @@ class LinkedInBot {
           if (isNoticePeriod) {
             const d = String(finalVal).match(/\d+/);
             finalVal = d ? d[0] : String(this.ai?.profile?.career?.noticePeriodDays || 30);
+          } else if (isLastWorkingDay) {
+            finalVal = this.ai?.profile?.career?.lastWorkingDay || '30/11/2026';
+          } else if (isStartDate) {
+            if (/date|dd|mm|yyyy/i.test(fieldInfo.placeholder + ' ' + fieldInfo.helperText) || fieldInfo.type === 'date') {
+              const d = new Date(Date.now() + 30 * 86400000);
+              finalVal = d.toISOString().split('T')[0];
+            } else if (fieldInfo.type === 'date') {
+              const d = new Date(Date.now() + 30 * 86400000);
+              finalVal = d.toISOString().split('T')[0];
+            } else {
+              finalVal = finalVal || 'Immediately';
+            }
           } else if (isCompensation) {
             const isINR = /in\s*inr|in\s*rupees|rupees|annual.*compensation|\bexample\s*:\s*\d{5,}/i.test(fullQ);
             const isLPA = /in\s*lpa|in\s*lakhs|\blpa\b/i.test(fullQ);
@@ -2078,31 +2176,47 @@ class LinkedInBot {
             if (/^(yes|no|true|false)$/i.test(String(finalVal).trim())) {
               finalVal = this.ai?.profile?.personal?.linkedInUrl || 'https://www.linkedin.com/in/saikrishnag150';
             }
+          } else if (/location|city/i.test(fullQ) && !finalVal) {
+            finalVal = 'Hyderabad';
+          } else if (/degree|qualification/i.test(fullQ) && !finalVal) {
+            finalVal = "Bachelor's Degree";
+          } else if (/field\s*of\s*study|major/i.test(fullQ) && !finalVal) {
+            finalVal = 'Computer Science and Engineering';
           }
 
           // Clean input clearing and typing (handles React, Ember, and native HTML)
           await input.evaluate(el => el.scrollIntoView({ block: 'center', inline: 'center' })).catch(() => {});
-          await input.click({ clickCount: 3 });
-          await page.keyboard.press('Backspace');
+          try {
+            await input.click({ clickCount: 3 });
+            await page.keyboard.press('Backspace');
+          } catch (e) {}
           await input.evaluate(el => {
             el.focus();
             el.value = '';
             el.dispatchEvent(new Event('input', { bubbles: true }));
           });
 
-          await input.type(String(finalVal), { delay: 25 });
-          await input.evaluate((el, val) => {
-            // Also call prototype setter in case React controlled state wasn't updated by typing
-            const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
-            if (setter) {
-              try { setter.call(el, val); } catch (e) {}
-            } else {
+          if (fieldInfo.type === 'date') {
+            await input.evaluate((el, val) => {
               el.value = val;
-            }
-            el.dispatchEvent(new Event('input', { bubbles: true }));
-            el.dispatchEvent(new Event('change', { bubbles: true }));
-            el.dispatchEvent(new Event('blur', { bubbles: true }));
-          }, String(finalVal));
+              el.dispatchEvent(new Event('input', { bubbles: true }));
+              el.dispatchEvent(new Event('change', { bubbles: true }));
+              el.dispatchEvent(new Event('blur', { bubbles: true }));
+            }, String(finalVal));
+          } else {
+            await input.type(String(finalVal), { delay: 25 });
+            await input.evaluate((el, val) => {
+              const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+              if (setter) {
+                try { setter.call(el, val); } catch (e) {}
+              } else {
+                el.value = val;
+              }
+              el.dispatchEvent(new Event('input', { bubbles: true }));
+              el.dispatchEvent(new Event('change', { bubbles: true }));
+              el.dispatchEvent(new Event('blur', { bubbles: true }));
+            }, String(finalVal));
+          }
 
           const aiTag = answerObj.aiPowered ? ' 🤖' : ' ⚡';
           this.logger('action', 'LinkedIn', `${aiTag} Filled: [${finalVal}] for "${qText.slice(0, 35)}..."`);
