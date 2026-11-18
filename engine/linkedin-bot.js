@@ -216,12 +216,17 @@ class LinkedInBot {
 
         for (const phase of phases) {
           if (this.shouldStop || totalProcessedCount >= maxApps) break;
+          if (phase.easyApplyOnly && this.dailyEasyApplyLimitReached) {
+            this.logger('info', 'LinkedIn', 'Skipping Easy Apply phase (daily limit reached on this account).');
+            continue;
+          }
 
           const phaseLabel = phase.easyApplyOnly ? '⚡ Easy Apply' : '⭐ Normal Jobs Discovery';
           this.logger('action', 'LinkedIn', `[Scenario ${sIdx + 1}/${scenarios.length}] Commencing ${phaseLabel} for "${currentScenario}"...`);
 
           for (let pageNum = 0; pageNum < maxPages; pageNum++) {
             if (this.shouldStop || totalProcessedCount >= maxApps) break;
+            if (phase.easyApplyOnly && this.dailyEasyApplyLimitReached) break;
 
             const startParam = pageNum > 0 ? `&start=${pageNum * 25}` : '';
             const easyApplyParam = phase.easyApplyOnly ? 'f_AL=true&' : '';
@@ -672,7 +677,7 @@ class LinkedInBot {
                     return { status: 'already_applied' };
                   }
 
-                  const buttons = Array.from(detailPane.querySelectorAll('button, a.jobs-apply-button'));
+                  const buttons = Array.from(detailPane.querySelectorAll('button, a, [role="button"]'));
                   let hasEasy = false;
                   let hasExt = false;
                   let extHref = '';
@@ -913,7 +918,7 @@ class LinkedInBot {
                   }
                   const detailPane = document.querySelector('div[class*="mxtlkh"], [data-sdui-screen*="JobDetails"], .scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
                   const listEl = document.querySelector('[data-testid="lazy-column"], [data-component-type="LazyColumn"], .jobs-search-results-list, .scaffold-layout__list, div[class*="mxtlke"]');
-                  const buttons = Array.from(detailPane.querySelectorAll('button, a.jobs-apply-button'));
+                  const buttons = Array.from(detailPane.querySelectorAll('button, a, [role="button"]'));
                   return buttons.find(b => {
                     if (b.closest('[componentkey*="job-card-component-ref-"]')) return false;
                     if (listEl && listEl.contains(b) && !b.closest('div[class*="mxtlkh"], [data-sdui-screen*="JobDetails"]')) return false;
@@ -948,7 +953,7 @@ class LinkedInBot {
                   }
 
                   const directBtnHandle = await page.evaluateHandle(() => {
-                    const btns = Array.from(document.querySelectorAll('button, a.jobs-apply-button'));
+                    const btns = Array.from(document.querySelectorAll('button, a, [role="button"]'));
                     return btns.find(b => {
                       const a = (b.getAttribute('aria-label') || '').toLowerCase();
                       const t = (b.innerText || '').trim().toLowerCase();
@@ -1000,15 +1005,28 @@ class LinkedInBot {
                   // Cleanly dismiss and discard the modal to unblock page
                   await this.dismissAndDiscardModal(page);
 
-                  jobRecord.status = 'MANUAL_ACTION_REQUIRED';
-                  jobRecord.actionRequired = true;
-                  jobRecord.directApplicationUrl = page.url();
-                  jobRecord.reason = `Application for "${jobDetails.title}" requires manual verification or custom input`;
-                  this.logger('warning', 'LinkedIn', `Application for "${jobDetails.title}" requires manual verification. Enqueued into Manual Apply Queue.`);
+                  if (this.dailyEasyApplyLimitReached) {
+                    jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                    jobRecord.actionRequired = true;
+                    jobRecord.directApplicationUrl = page.url();
+                    jobRecord.reason = `LinkedIn account daily Easy Apply limit reached (paused by LinkedIn until tomorrow)`;
+                    this.logger('warning', 'LinkedIn', `LinkedIn daily Easy Apply limit reached. Preserving "${jobDetails.title}" in Manual Apply Queue.`);
+                  } else {
+                    jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                    jobRecord.actionRequired = true;
+                    jobRecord.directApplicationUrl = page.url();
+                    jobRecord.reason = `Application for "${jobDetails.title}" requires manual verification or custom input`;
+                    this.logger('warning', 'LinkedIn', `Application for "${jobDetails.title}" requires manual verification. Enqueued into Manual Apply Queue.`);
+                  }
                 }
 
                 markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                 if (onJobProcessed) onJobProcessed(jobRecord);
+
+                if (this.dailyEasyApplyLimitReached && phase.easyApplyOnly) {
+                  this.logger('warning', 'LinkedIn', 'Exiting Easy Apply phase because account daily limit was reached.');
+                  break;
+                }
 
                 // Restore search results page if direct view was used so subsequent cards can be processed
                 if (openedDirectView || page.url().includes('/jobs/view/')) {

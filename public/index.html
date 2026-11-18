@@ -1347,6 +1347,18 @@
                   </span>
                 </label>
               </div>
+
+              <div class="form-group checkbox-group" style="margin-top: 10px; background: rgba(16, 185, 129, 0.08); padding: 12px 14px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.25);">
+                <label class="checkbox-label" for="sett-autoSubmitCareerSites" style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+                  <input type="checkbox" id="sett-autoSubmitCareerSites" style="margin-top: 3px; cursor: pointer; width: 18px; height: 18px;">
+                  <span>
+                    <strong style="color: var(--text-primary);">External Career Sites & ATS Portals Auto-Apply (Workday, Greenhouse, Lever)</strong><br>
+                    <small style="color: var(--text-secondary); line-height: 1.4; display: block; margin-top: 3px;">
+                      Toggle <strong>ON</strong> to enable automated form submission on external ATS portals. Toggle <strong>OFF</strong> (recommended) to ignore external portals on Naukri and route external company postings straight to the Manual Apply Queue without automatic form filling.
+                    </small>
+                  </span>
+                </label>
+              </div>
             </div>
 
             <div class="form-section">
@@ -1478,7 +1490,11 @@
                 When external applications (Workday, Greenhouse, Lever, Taleo, iCIMS, etc.) require an account or sign-in, AutoApply automatically uses your configured email and password so login walls are bypassed autonomously.
               </p>
             </div>
-            <div class="table-actions">
+            <div class="table-actions" style="display: flex; align-items: center; gap: 14px;">
+              <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-primary); background: rgba(255,255,255,0.06); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);">
+                <input type="checkbox" id="toggle-external-ats-master" style="width: 16px; height: 16px; cursor: pointer;">
+                <span>External ATS Auto-Apply</span>
+              </label>
               <button class="btn btn-primary btn-sm" id="btn-save-credentials">
                 💾 Save Credentials
               </button>

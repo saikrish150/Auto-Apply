@@ -1,7 +1,7 @@
 {
   "summary": {
-    "totalEmails": 19,
-    "newCount": 4,
+    "totalEmails": 41,
+    "newCount": 26,
     "contactedCount": 15,
     "repliedCount": 0,
     "archivedCount": 0,
@@ -9,12 +9,430 @@
       "LinkedIn": 1,
       "Naukri": 8,
       "Foundit": 0,
-      "Career Website": 10,
+      "Career Website": 32,
       "Other": 0
     },
-    "lastUpdated": "2026-11-16T06:17:52.834Z"
+    "lastUpdated": "2026-11-18T06:53:24.194Z"
   },
   "emails": [
+    {
+      "id": "recruiter-1794984803650-0ysb1",
+      "email": "hradmin@swanirmit.com",
+      "recruiterName": "admin",
+      "company": "Swanirmit Technologies",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://swanirmit.in/career/",
+      "platform": "Career Website",
+      "context": "...er Computer Hardware Engineer Send Your Updated Resume to : hradmin@swanirmit.com You Can Contact to : +91 81 8000 9888 SwaNirmit Technologie...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi admin,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Swanirmit Technologies and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Swanirmit Technologies.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:53:23.650Z",
+      "lastSeenAt": "2026-11-18T06:53:24.192Z"
+    },
+    {
+      "id": "recruiter-1794984801532-dvax1",
+      "email": "sales@swanirmit.com",
+      "recruiterName": "Us",
+      "company": "Swanirmit Technologies",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://swanirmit.in/career/",
+      "platform": "Career Website",
+      "context": "sales@swanirmit.com sales@swanirmit.com Skip to content Contact Us +918180009...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Us,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Swanirmit Technologies and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Swanirmit Technologies.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:53:21.532Z",
+      "lastSeenAt": "2026-11-18T06:53:24.193Z"
+    },
+    {
+      "id": "recruiter-1794984556213-o62no",
+      "email": "timir@antimtechnologies.com",
+      "recruiterName": "Hiring Team",
+      "company": "Antim Technologies",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.antimtechnologies.com/career.html",
+      "platform": "Career Website",
+      "context": "timir@antimtechnologies.com HOME ABOUT US SERVICES PORTFOLIO OUR TEAM GALLERY CAREER CO...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Antim Technologies and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Antim Technologies.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:49:16.213Z",
+      "lastSeenAt": "2026-11-18T06:49:16.235Z"
+    },
+    {
+      "id": "recruiter-1794984553338-90u2y",
+      "email": "timir@antimtechnologies.com",
+      "recruiterName": "Hiring Team",
+      "company": "Rosix Technology",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.antimtechnologies.com/career.html",
+      "platform": "Career Website",
+      "context": "timir@antimtechnologies.com HOME ABOUT US SERVICES PORTFOLIO OUR TEAM GALLERY CAREER CO...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Rosix Technology and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Rosix Technology.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:49:13.338Z",
+      "lastSeenAt": "2026-11-18T06:49:13.668Z"
+    },
+    {
+      "id": "recruiter-1794984362563-ualtg",
+      "email": "hr@appindia.com",
+      "recruiterName": "Hiring Team",
+      "company": "WRT Infotech",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.appindia.co.in/career-with-us.html",
+      "platform": "Career Website",
+      "context": "support@appindia.com hr@appindia.com support@appindia.com support@appindia.com support@appindia....",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at WRT Infotech and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to WRT Infotech.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:46:02.563Z",
+      "lastSeenAt": "2026-11-18T06:46:02.566Z"
+    },
+    {
+      "id": "recruiter-1794984317259-2jqua",
+      "email": "sales@agicent.com",
+      "recruiterName": "AI App",
+      "company": "Frenzin Softwares",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.agicent.com/careers",
+      "platform": "Career Website",
+      "context": "career@agicent.com sales@agicent.com About Us Services Case Studies Pricing Blog Contact AI App...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi AI App,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Frenzin Softwares and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Frenzin Softwares.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:45:17.259Z",
+      "lastSeenAt": "2026-11-18T06:45:17.262Z"
+    },
+    {
+      "id": "recruiter-1794984317257-p2loe",
+      "email": "career@agicent.com",
+      "recruiterName": "Hiring Team",
+      "company": "Frenzin Softwares",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.agicent.com/careers",
+      "platform": "Career Website",
+      "context": "career@agicent.com sales@agicent.com About Us Services Case Studies Pricing Bl...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Frenzin Softwares and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Frenzin Softwares.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:45:17.257Z",
+      "lastSeenAt": "2026-11-18T06:45:17.261Z"
+    },
+    {
+      "id": "recruiter-1794984306734-c08xn",
+      "email": "contact@boltware.in",
+      "recruiterName": "Hiring Team",
+      "company": "Bloatware It Solutions",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://boltware.in/career/#open-position",
+      "platform": "Career Website",
+      "context": "contact@boltware.in contact@boltware.in contact@boltware.in contact@boltware.in...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Bloatware It Solutions and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Bloatware It Solutions.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:45:06.734Z",
+      "lastSeenAt": "2026-11-18T06:45:06.968Z"
+    },
+    {
+      "id": "recruiter-1794984289681-ijf88",
+      "email": "hello@thefastmedia.com",
+      "recruiterName": "Us Angular",
+      "company": "WRT Infotech",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.thefastmedia.com/angular-developer.html",
+      "platform": "Career Website",
+      "context": "hello@thefastmedia.com Home Career About Us Contact Us Angular Developer IT Develo...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Us Angular,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at WRT Infotech and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to WRT Infotech.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:44:49.681Z",
+      "lastSeenAt": "2026-11-18T06:44:49.683Z"
+    },
+    {
+      "id": "recruiter-1794984197347-x8e21",
+      "email": "training@mspconcepts.com",
+      "recruiterName": "Hiring Team",
+      "company": "The Fast Media",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.mspconcepts.com/careers/#1569587833015-36d50985-0572",
+      "platform": "Career Website",
+      "context": "...@msp-group.co.uk sales@mspconcepts.com info@mspconcepts.com training@mspconcepts.com hr@msp-group.co.uk skip to Main Content Services About Us H...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at The Fast Media and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to The Fast Media.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:43:17.347Z",
+      "lastSeenAt": "2026-11-18T06:43:17.347Z"
+    },
+    {
+      "id": "recruiter-1794984197343-ld4ly",
+      "email": "sales@mspconcepts.com",
+      "recruiterName": "Hiring Team",
+      "company": "The Fast Media",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.mspconcepts.com/careers/#1569587833015-36d50985-0572",
+      "platform": "Career Website",
+      "context": "hr@msp-group.co.uk sales@mspconcepts.com info@mspconcepts.com training@mspconcepts.com hr@msp-group....",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at The Fast Media and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to The Fast Media.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:43:17.343Z",
+      "lastSeenAt": "2026-11-18T06:43:17.343Z"
+    },
+    {
+      "id": "recruiter-1794984197339-55h85",
+      "email": "hr@msp-group.co.uk",
+      "recruiterName": "Hiring Team",
+      "company": "The Fast Media",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.mspconcepts.com/careers/#1569587833015-36d50985-0572",
+      "platform": "Career Website",
+      "context": "hr@msp-group.co.uk sales@mspconcepts.com info@mspconcepts.com training@mspconc...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at The Fast Media and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to The Fast Media.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:43:17.339Z",
+      "lastSeenAt": "2026-11-18T06:43:17.350Z"
+    },
+    {
+      "id": "recruiter-1794984196136-9apev",
+      "email": "training@mspconcepts.com",
+      "recruiterName": "Hiring Team",
+      "company": "Inevitable Infotech",
+      "jobTitle": "Angular Developer (Typescript)",
+      "jobTitles": [
+        "Angular Developer (Typescript)"
+      ],
+      "jobUrl": "https://www.mspconcepts.com/careers/#1569587833015-36d50985-0572",
+      "platform": "Career Website",
+      "context": "...@msp-group.co.uk sales@mspconcepts.com info@mspconcepts.com training@mspconcepts.com hr@msp-group.co.uk skip to Main Content Services About Us H...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer (Typescript) - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer (Typescript) opening at Inevitable Infotech and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Inevitable Infotech.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:43:16.136Z",
+      "lastSeenAt": "2026-11-18T06:43:16.136Z"
+    },
+    {
+      "id": "recruiter-1794984196135-fnivz",
+      "email": "sales@mspconcepts.com",
+      "recruiterName": "Hiring Team",
+      "company": "Inevitable Infotech",
+      "jobTitle": "Angular Developer (Typescript)",
+      "jobTitles": [
+        "Angular Developer (Typescript)"
+      ],
+      "jobUrl": "https://www.mspconcepts.com/careers/#1569587833015-36d50985-0572",
+      "platform": "Career Website",
+      "context": "hr@msp-group.co.uk sales@mspconcepts.com info@mspconcepts.com training@mspconcepts.com hr@msp-group....",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer (Typescript) - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer (Typescript) opening at Inevitable Infotech and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Inevitable Infotech.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:43:16.135Z",
+      "lastSeenAt": "2026-11-18T06:43:16.135Z"
+    },
+    {
+      "id": "recruiter-1794984196133-upcut",
+      "email": "hr@msp-group.co.uk",
+      "recruiterName": "Hiring Team",
+      "company": "Inevitable Infotech",
+      "jobTitle": "Angular Developer (Typescript)",
+      "jobTitles": [
+        "Angular Developer (Typescript)"
+      ],
+      "jobUrl": "https://www.mspconcepts.com/careers/#1569587833015-36d50985-0572",
+      "platform": "Career Website",
+      "context": "hr@msp-group.co.uk sales@mspconcepts.com info@mspconcepts.com training@mspconc...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer (Typescript) - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer (Typescript) opening at Inevitable Infotech and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Inevitable Infotech.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:43:16.133Z",
+      "lastSeenAt": "2026-11-18T06:43:17.262Z"
+    },
+    {
+      "id": "recruiter-1794984048211-wsivt",
+      "email": "info.uk@laderatechnology.com",
+      "recruiterName": "Hiring Team",
+      "company": "Ladera Technology",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://laderatechnology.com/careers/",
+      "platform": "Career Website",
+      "context": "talent@laderatechnology.com info.uk@laderatechnology.com info@laderatechnology.com info.uk@laderatechnology.com info...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Ladera Technology and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Ladera Technology.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:40:48.211Z",
+      "lastSeenAt": "2026-11-18T06:40:48.217Z"
+    },
+    {
+      "id": "recruiter-1794984048194-sf4xp",
+      "email": "talent@laderatechnology.com",
+      "recruiterName": "Hiring Team",
+      "company": "Ladera Technology",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://laderatechnology.com/careers/",
+      "platform": "Career Website",
+      "context": "talent@laderatechnology.com info.uk@laderatechnology.com info@laderatechnology.com info...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Ladera Technology and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Ladera Technology.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:40:48.194Z",
+      "lastSeenAt": "2026-11-18T06:40:48.194Z"
+    },
+    {
+      "id": "recruiter-1794983998266-k4wmu",
+      "email": "hr@daksyam.com",
+      "recruiterName": "Us Office",
+      "company": "Daksham",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.daksyam.com/careers.html",
+      "platform": "Career Website",
+      "context": "...ure /GCP/AWS) Angular Developer Please send your resumes to hr@daksyam.com Contact Us Office Location Suite No. 13, Maan Sarovar Towe...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Us Office,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Daksham and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Daksham.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:39:58.266Z",
+      "lastSeenAt": "2026-11-18T06:39:58.266Z"
+    },
+    {
+      "id": "recruiter-1794983998265-jqccq",
+      "email": "careers@daksyam.com",
+      "recruiterName": "Hiring Team",
+      "company": "Daksham",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.daksyam.com/careers.html",
+      "platform": "Career Website",
+      "context": "info@daksyam.com careers@daksyam.com Spark up the transformation with us today! Home About...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Daksham and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Daksham.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:39:58.265Z",
+      "lastSeenAt": "2026-11-18T06:39:58.267Z"
+    },
+    {
+      "id": "recruiter-1794983988849-97mz0",
+      "email": "contact@emsyne.com",
+      "recruiterName": "Hiring Team",
+      "company": "Emsyne Muthoot Systems Technologies",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.emsyne.com/careers.html",
+      "platform": "Career Website",
+      "context": "...@emsyne.com jobs@emsyne.com jobs@emsyne.com jobs@emsyne.com contact@emsyne.com contact@emsyne.com contact@emsyne.com Home About Portfolio...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Emsyne Muthoot Systems Technologies and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Emsyne Muthoot Systems Technologies.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:39:48.849Z",
+      "lastSeenAt": "2026-11-18T06:39:48.854Z"
+    },
+    {
+      "id": "recruiter-1794983988720-88hvd",
+      "email": "jobs@emsyne.com",
+      "recruiterName": "Hiring Team",
+      "company": "Emsyne Muthoot Systems Technologies",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://www.emsyne.com/careers.html",
+      "platform": "Career Website",
+      "context": "jobs@emsyne.com jobs@emsyne.com jobs@emsyne.com jobs@emsyne.com jobs@emsyne...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Emsyne Muthoot Systems Technologies and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Emsyne Muthoot Systems Technologies.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:39:48.720Z",
+      "lastSeenAt": "2026-11-18T06:39:48.833Z"
+    },
+    {
+      "id": "recruiter-1794983943211-syomh",
+      "email": "hrd@coresl.com",
+      "recruiterName": "at hrd",
+      "company": "Core Solucomm Limited",
+      "jobTitle": "Angular Developer",
+      "jobTitles": [
+        "Angular Developer"
+      ],
+      "jobUrl": "https://coresl.com/devops-engineer.php",
+      "platform": "Career Website",
+      "context": "...ystem like Express (edited) For more information contact at hrd@coresl.com Know CORE Our Story Our Team Engineering Tech Stack Develop...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Angular Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi at hrd,\n\nI hope this email finds you well.\n\nI came across the Angular Developer opening at Core Solucomm Limited and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Core Solucomm Limited.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-18T06:39:03.211Z",
+      "lastSeenAt": "2026-11-18T06:39:03.919Z"
+    },
     {
       "id": "recruiter-1794809872834-84aj8",
       "email": "swathi@brainsnskills.com",

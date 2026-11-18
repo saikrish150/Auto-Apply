@@ -336,6 +336,33 @@ class AutoApplyApp {
       this.btnSaveCredentials.addEventListener('click', () => this.saveCredentials());
     }
 
+    // External ATS Auto-Apply Toggle synchronization
+    const toggleExternalTop = document.getElementById('toggle-external-ats-master');
+    const chkAutoCareer = document.getElementById('sett-autoSubmitCareerSites');
+
+    const handleExternalToggle = async (val) => {
+      if (toggleExternalTop) toggleExternalTop.checked = val;
+      if (chkAutoCareer) chkAutoCareer.checked = val;
+      if (this.settings?.automation) {
+        this.settings.automation.autoSubmitCareerSites = val;
+      }
+      try {
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.settings)
+        });
+        this.showToast(val ? 'External ATS Auto-Apply Enabled' : 'External ATS Auto-Apply Disabled (Ignored / Manual Queue)', 'info');
+      } catch (e) {}
+    };
+
+    if (toggleExternalTop) {
+      toggleExternalTop.addEventListener('change', (e) => handleExternalToggle(e.target.checked));
+    }
+    if (chkAutoCareer) {
+      chkAutoCareer.addEventListener('change', (e) => handleExternalToggle(e.target.checked));
+    }
+
     // KPI Card click: navigate directly to Manual Apply Queue tab
     const kpiManualCard = document.getElementById('card-manual-queue-kpi');
     if (kpiManualCard) {
@@ -1700,6 +1727,15 @@ class AutoApplyApp {
       chkShortlist.checked = s.automation?.shortlistNonEasyApplyJobs !== false;
     }
 
+    const chkAutoCareer = document.getElementById('sett-autoSubmitCareerSites');
+    if (chkAutoCareer) {
+      chkAutoCareer.checked = s.automation?.autoSubmitCareerSites === true;
+    }
+    const toggleExternalTop = document.getElementById('toggle-external-ats-master');
+    if (toggleExternalTop) {
+      toggleExternalTop.checked = s.automation?.autoSubmitCareerSites === true;
+    }
+
     this.updateModeDisplay();
   }
 
@@ -1726,6 +1762,7 @@ class AutoApplyApp {
       automation: {
         ...this.settings.automation,
         shortlistNonEasyApplyJobs: document.getElementById('sett-shortlistNonEasyApply') ? document.getElementById('sett-shortlistNonEasyApply').checked : true,
+        autoSubmitCareerSites: document.getElementById('sett-autoSubmitCareerSites') ? document.getElementById('sett-autoSubmitCareerSites').checked : (document.getElementById('toggle-external-ats-master') ? document.getElementById('toggle-external-ats-master').checked : false),
         minMatchScore: parseInt(this.rangeMinScore.value, 10),
         maxApplicationsPerSession: parseInt(document.getElementById('sett-maxApps').value, 10),
         maxPagesPerScenario: this.inputMaxPages ? (parseInt(this.inputMaxPages.value, 10) || 2) : 2,
