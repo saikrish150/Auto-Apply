@@ -1,20 +1,134 @@
 {
   "summary": {
-    "totalEmails": 41,
-    "newCount": 26,
+    "totalEmails": 47,
+    "newCount": 32,
     "contactedCount": 15,
     "repliedCount": 0,
     "archivedCount": 0,
     "byPlatform": {
       "LinkedIn": 1,
-      "Naukri": 8,
+      "Naukri": 14,
       "Foundit": 0,
       "Career Website": 32,
       "Other": 0
     },
-    "lastUpdated": "2026-11-18T06:53:24.194Z"
+    "lastUpdated": "2026-11-20T05:59:47.419Z"
   },
   "emails": [
+    {
+      "id": "recruiter-1795153484208-843ch",
+      "email": "na00813838@techmahindra.com",
+      "recruiterName": "Hiring Team",
+      "company": "Tech Mahindra",
+      "jobTitle": "Backend Developer",
+      "jobTitles": [
+        "Backend Developer"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-backend-developer-tech-mahindra-chennai-2-to-4-years-191126022293",
+      "platform": "Naukri",
+      "context": "...mportant Instructions: Please share your updated resume to NA00813838@techmahindra.com Eligibility Criteria: Education: B.E., B.Tech., M.E., M...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Backend Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Backend Developer opening at Tech Mahindra and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Tech Mahindra.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-20T05:44:44.208Z",
+      "lastSeenAt": "2026-11-20T05:44:44.208Z"
+    },
+    {
+      "id": "recruiter-1795153261471-lfd0j",
+      "email": "saparna@altimetrik.com",
+      "recruiterName": "Executive Disclaimer",
+      "company": "Altimetrik",
+      "jobTitle": "Urgent Opening For Java Developer @Hyderabad who Can join immediately.",
+      "jobTitles": [
+        "Urgent Opening For Java Developer @Hyderabad who Can join immediately."
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-urgent-opening-for-java-developer-hyderabad-who-can-join-immediately-altimetrik-hyderabad-3-to-8-years-051026018613",
+      "platform": "Naukri",
+      "context": "...ll hear from you soon : Thanks and Regards Aparna Sharma saparna@altimetrik.com Sr HR Executive Disclaimer : The sender of this email is...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Urgent Opening For Java Developer @Hyderabad who Can join immediately. - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Executive Disclaimer,\n\nI hope this email finds you well.\n\nI came across the Urgent Opening For Java Developer @Hyderabad who Can join immediately. opening at Altimetrik and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Altimetrik.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-20T05:41:01.471Z",
+      "lastSeenAt": "2026-11-20T05:41:01.471Z"
+    },
+    {
+      "id": "recruiter-1795062628028-yui25",
+      "email": "shari.gopal@quest-global.com",
+      "recruiterName": "Hiring Team",
+      "company": "Quest Global",
+      "jobTitle": "Software Engineer",
+      "jobTitles": [
+        "Software Engineer"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-software-engineer-quest-global-kochi-nagercoil-thiruvananthapuram-3-to-8-years-091126007021",
+      "platform": "Naukri",
+      "context": "...s. Perks and benefits Please share updated resume to Shari.gopal@quest-global.com Role: Back End Developer Industry Type: IT Services & Cons...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Software Engineer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Software Engineer opening at Quest Global and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Quest Global.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-19T04:30:28.028Z",
+      "lastSeenAt": "2026-11-20T05:59:47.419Z"
+    },
+    {
+      "id": "recruiter-1795062037769-ty1p4",
+      "email": "rvl@opentext.com",
+      "recruiterName": "Hiring Team",
+      "company": "Opentext",
+      "jobTitle": "OpenText is hiring For Software Engineers - Bangalore",
+      "jobTitles": [
+        "OpenText is hiring For Software Engineers - Bangalore"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-opentext-is-hiring-for-software-engineers-bangalore-opentext-bengaluru-3-to-5-years-031126019282",
+      "platform": "Naukri",
+      "context": "...view on 5th November, please share your updated resume to **rvl@opentext.com** along with the following details: Current CTC: Expected...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for OpenText is hiring For Software Engineers - Bangalore - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the OpenText is hiring For Software Engineers - Bangalore opening at Opentext and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Opentext.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-19T04:20:37.769Z",
+      "lastSeenAt": "2026-11-20T05:51:54.188Z"
+    },
+    {
+      "id": "recruiter-1795061788091-jc3vq",
+      "email": "harishwar.reddy@smartims.com",
+      "recruiterName": "Hiring Team",
+      "company": "Smart Ims",
+      "jobTitle": "Java Back End Developer",
+      "jobTitles": [
+        "Java Back End Developer"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-java-back-end-developer-smart-ims-bengaluru-3-to-5-years-261026016153",
+      "platform": "Naukri",
+      "context": "...egards, Harishwar Reddy (Senior- TA) (C) +91-8466060197 Harishwar.Reddy@smartims.com 103, Morgan Lane, Plainsboro, NJ 08536 Block A, L5, W2,...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Java Back End Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Java Back End Developer opening at Smart Ims and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Smart Ims.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-19T04:16:28.091Z",
+      "lastSeenAt": "2026-11-19T04:16:28.091Z"
+    },
+    {
+      "id": "recruiter-1795060898218-6iw8r",
+      "email": "sphurti.vaidya@sapwood.net",
+      "recruiterName": "Hiring Team",
+      "company": "Sapwood Ventures",
+      "jobTitle": "Java Developer",
+      "jobTitles": [
+        "Java Developer"
+      ],
+      "jobUrl": "https://www.naukri.com/job-listings-java-developer-sapwood-ventures-kochi-3-to-4-years-291026003628",
+      "platform": "Naukri",
+      "context": "...t &amp; client Relationship, Contact:+91 9860825129 mail to sphurti.vaidya@sapwood.net Beware of imposters! Naukri.com does not promise a job or a...",
+      "status": "new",
+      "notes": "",
+      "subjectTemplate": "Application for Java Developer - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
+      "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Java Developer opening at Sapwood Ventures and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Sapwood Ventures.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
+      "foundAt": "2026-11-19T04:01:38.218Z",
+      "lastSeenAt": "2026-11-19T04:01:38.218Z"
+    },
     {
       "id": "recruiter-1794984803650-0ysb1",
       "email": "hradmin@swanirmit.com",
@@ -537,7 +651,8 @@
       "company": "Honeybee Tech Solutions",
       "jobTitle": "Java Full Stack Developer - L1 Support",
       "jobTitles": [
-        "Java Full Stack Developer - L1 Support"
+        "Java Full Stack Developer - L1 Support",
+        "Angular Developer version 21"
       ],
       "jobUrl": "https://www.naukri.com/job-listings-java-full-stack-developer-l1-support-honeybee-tech-solutions-pune-1-to-4-years-121026011503",
       "platform": "Naukri",
@@ -547,7 +662,7 @@
       "subjectTemplate": "Application for Java Full Stack Developer - L1 Support - Sai Krishna G (3 Yrs Exp | Full Stack Angular & Spring Boot)",
       "bodyTemplate": "Hi Hiring Team,\n\nI hope this email finds you well.\n\nI came across the Java Full Stack Developer - L1 Support opening at Honeybee Tech Solutions and wanted to reach out directly to express my strong interest.\n\nHere is a quick summary of my profile:\n• Experience: 3 Years as Full Stack Developer at Tech Mahindra (GE Aerospace Client).\n• Core Tech Stack: Angular 17/18, TypeScript, Java, Spring Boot, Microservices, RESTful APIs, PostgreSQL, AWS Lambda, Docker.\n• Current Location: Hyderabad (Open to Bengaluru, Pune, Remote & Relocation).\n• Notice Period: 30 Days (Currently serving notice period - fast joiner).\n• Portfolio & Projects: https://gsaikrishna-portfolio.netlify.app/\n• LinkedIn: https://www.linkedin.com/in/saikrishnag150\n• GitHub: https://github.com/saikrish150\n\nI have attached my updated resume for your reference. I would love the opportunity to discuss how my hands-on background in enterprise Angular and Spring Boot can add immediate value to Honeybee Tech Solutions.\n\nLooking forward to hearing from you!\n\nBest regards,\nSai Krishna G\nPhone: +91 8688373517\nEmail: gsaikrishna150@gmail.com",
       "foundAt": "2026-10-31T08:11:01.297Z",
-      "lastSeenAt": "2026-10-31T08:11:18.814Z",
+      "lastSeenAt": "2026-11-19T03:52:37.543Z",
       "contactedAt": "2026-11-01T06:08:42.744Z",
       "updatedAt": "2026-11-01T06:08:42.744Z"
     },
