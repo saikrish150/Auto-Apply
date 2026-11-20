@@ -23,7 +23,6 @@
       "SKIPPED_LOW_MATCH": 707,
       "skipped": 704,
       "applied": 74,
-      "already_applied_or_external": 1,
       "MANUAL_ACTION_REQUIRED": 153
     },
     "recruiterEmails": {
@@ -39,9 +38,9 @@
         "Career Website": 32,
         "Other": 0
       },
-      "lastUpdated": "2026-11-20T06:25:51.344Z"
+      "lastUpdated": "2026-11-20T07:37:48.288Z"
     },
-    "lastUpdated": "2026-11-20T06:25:51.344Z"
+    "lastUpdated": "2026-11-20T07:37:48.288Z"
   },
   "applications": [
     {
@@ -3812,9 +3811,9 @@
       "overallFitScore": 90,
       "technicalScore": 90,
       "experienceCompatibility": "meets_required",
-      "status": "already_applied_or_external",
+      "status": "MANUAL_ACTION_REQUIRED",
       "normalizedStatus": "MANUAL_ACTION_REQUIRED",
-      "skipReason": null,
+      "skipReason": "External company portal application required",
       "appliedAt": "2026-11-20T06:01:48.194Z",
       "timestamp": "2026-11-20T06:01:48.194Z",
       "directApplicationUrl": "",

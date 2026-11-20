@@ -688,6 +688,8 @@ input:checked + .slider:before {
 
 .chip-waiting { background: rgba(255, 255, 255, 0.08); color: var(--text-muted); }
 .chip-applied { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.chip-already-applied { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
+.chip-manual { background: rgba(234, 179, 8, 0.2); color: #fde047; }
 .chip-skipped { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
 
 .link-btn {

@@ -69,10 +69,10 @@ class FounditBot {
 
         const currentScenario = scenarios[sIdx];
         const dateFilter = dateParam ? `&${dateParam}` : '';
-        const expFilter = '&experienceRanges=1~4';
-        const searchUrl = `https://www.foundit.in/srp/results?query=${encodeURIComponent(currentScenario)}${expFilter}${dateFilter}&quickApplyJobs=true&sort=1`;
+        // Search all matching listings for scenario; let calibrated MatchingEngine evaluate seniority and match score
+        let searchUrl = `https://www.foundit.in/srp/results?query=${encodeURIComponent(currentScenario)}${dateFilter}&sort=1`;
 
-        this.logger('action', 'Foundit', `[Scenario ${sIdx + 1}/${scenarios.length}] Searching: "${currentScenario}" (1-Click Quick Apply | All Locations | Fresh jobs: ${this.settings.search?.datePosted || '24h'})...`);
+        this.logger('action', 'Foundit', `[Scenario ${sIdx + 1}/${scenarios.length}] Searching: "${currentScenario}" (All Locations | Fresh jobs: ${this.settings.search?.datePosted || 'recent'})...`);
         
         try {
           await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
@@ -102,29 +102,51 @@ class FounditBot {
 
           // Human-like smooth scroll down the list to trigger lazy loaded cards
           await page.evaluate(async () => {
-            for (let s = 0; s < 3; s++) {
+            for (let s = 0; s < 5; s++) {
               window.scrollBy({ top: 500, behavior: 'smooth' });
-              await new Promise(r => setTimeout(r, 400));
+              await new Promise(r => setTimeout(r, 350));
             }
           });
           await this.randomDelay(1500, 2500);
 
           // Find job cards using robust selectors
-          const jobCards = await page.$$(
+          let jobCards = await page.$$(
             '.cardContainer, .srpResultCard, [data-job-id], .card-body, .job-tuple, .card'
           );
           this.logger('info', 'Foundit', `Found ${jobCards.length} matching jobs for scenario "${currentScenario}".`);
+
+          if (jobCards.length === 0 && dateFilter) {
+            this.logger('info', 'Foundit', `No jobs with date filter for "${currentScenario}". Expanding to all recent listings...`);
+            searchUrl = `https://www.foundit.in/srp/results?query=${encodeURIComponent(currentScenario)}&sort=1`;
+            await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
+            await this.randomDelay(2500, 4000);
+            await page.evaluate(async () => {
+              for (let s = 0; s < 5; s++) {
+                window.scrollBy({ top: 500, behavior: 'smooth' });
+                await new Promise(r => setTimeout(r, 350));
+              }
+            });
+            await this.randomDelay(1500, 2500);
+            jobCards = await page.$$(
+              '.cardContainer, .srpResultCard, [data-job-id], .card-body, .job-tuple, .card'
+            );
+            this.logger('info', 'Foundit', `Found ${jobCards.length} matching jobs after expanding date filter.`);
+          }
 
           if (jobCards.length === 0) {
             this.logger('info', 'Foundit', `No fresh jobs found for "${currentScenario}". Advancing to next scenario.`);
             continue;
           }
 
+          const processedKeys = this.dataStore ? this.dataStore.getProcessedKeys() : new Set();
+
           for (let i = 0; i < jobCards.length; i++) {
             if (this.shouldStop || totalProcessedCount >= maxApps) break;
 
+            let openedTab = null;
             try {
               const card = jobCards[i];
+              const pagesBefore = this.chrome?.browser ? await this.chrome.browser.pages() : [];
               
               // Click card via DOM evaluate for background compatibility
               await card.evaluate(c => {
@@ -133,8 +155,15 @@ class FounditBot {
               });
               await this.randomDelay(1500, 2500);
 
+              if (this.chrome?.browser) {
+                const pagesAfter = await this.chrome.browser.pages();
+                openedTab = pagesAfter.find(p => !pagesBefore.includes(p));
+              }
+
+              const targetPage = openedTab || page;
+
               // Extract job details from card and details section
-              const jobDetails = await page.evaluate((cardEl) => {
+              const jobDetails = await targetPage.evaluate((cardEl) => {
                 const cardTitle = cardEl?.querySelector('#jobCardTitle, .jobTitle, .title');
                 const rightH1 = document.querySelector('h1, .jdContent h1, [class*="jobTitle"]');
                 const title = (cardTitle?.innerText || rightH1?.innerText || '').trim() || 'Software Developer';
@@ -156,7 +185,13 @@ class FounditBot {
                 const jobUrl = linkEl ? linkEl.href : '';
 
                 return { title, company, location, experience, description, jobUrl };
-              }, card);
+              }, openedTab ? null : card);
+
+              const comboKey = `${jobDetails.title.toLowerCase().trim()}|${jobDetails.company.toLowerCase().trim()}`;
+              if (processedKeys.has(comboKey)) {
+                this.logger('info', 'Foundit', `Already applied to "${jobDetails.title}" at ${jobDetails.company}. Skipping.`);
+                continue;
+              }
 
               this.logger('info', 'Foundit', `[${currentScenario}] Evaluating: "${jobDetails.title}" at ${jobDetails.company}...`);
 
@@ -203,20 +238,62 @@ class FounditBot {
                 await this.randomDelay(1500, 2500);
                 jobRecord.status = 'applied (simulated)';
                 totalProcessedCount++;
+                processedKeys.add(comboKey);
+                if (onJobProcessed) onJobProcessed(jobRecord);
+                continue;
+              }
+
+              // Check if already applied on Foundit
+              const isAlreadyApplied = await targetPage.evaluate(() => {
+                const currentBtn = document.querySelector('#applyNowBtn, button[id*="apply"], button.applyBtn, .btn-apply, [class*="apply"]');
+                const btnTxt = (currentBtn?.innerText || currentBtn?.textContent || '').trim().toLowerCase();
+                const statusEl = document.querySelector('.applied-status, [class*="already-applied"], [class*="applied-tag"], [class*="status-applied"]');
+                const statusTxt = (statusEl?.innerText || statusEl?.textContent || '').toLowerCase();
+                return btnTxt === 'applied' || statusTxt.includes('already applied') || btnTxt.includes('applied on');
+              });
+
+              if (isAlreadyApplied) {
+                this.logger('info', 'Foundit', `Already applied to "${jobDetails.title}".`);
+                jobRecord.status = 'already_applied';
+                processedKeys.add(comboKey);
                 if (onJobProcessed) onJobProcessed(jobRecord);
                 continue;
               }
 
               // Check for Apply Now / Quick Apply button on Foundit
-              const applyBtn = await page.$(
-                '#applyNowBtn, button[id*="apply"], button.applyBtn, .btn-apply, button[class*="apply"]:not([disabled])'
-              );
+              const applyBtnHandle = await targetPage.evaluateHandle(() => {
+                function isVisible(el) {
+                  if (!el) return false;
+                  const style = window.getComputedStyle(el);
+                  if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+                  const rect = el.getBoundingClientRect();
+                  return (rect.width > 0 && rect.height > 0) || el.getClientRects().length > 0;
+                }
+
+                const candidates = Array.from(document.querySelectorAll('#applyNowBtn, button[id*="apply"], button.applyBtn, .btn-apply, button[class*="apply"]:not([disabled]), a[class*="apply"], a[id*="apply"], button, a, [role="button"]'));
+                return candidates.find(el => {
+                  if (!isVisible(el)) return false;
+                  const txt = (el.innerText || el.textContent || el.value || '').trim().toLowerCase();
+                  const cls = (el.className || '').toLowerCase();
+                  const id = (el.id || '').toLowerCase();
+                  const disabled = el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true';
+                  if (disabled) return false;
+
+                  if (id === 'applynowbtn' || cls.includes('applybtn') || id.includes('applynow') || cls.includes('btn-apply')) return true;
+                  if (txt === 'apply' || txt === 'apply now' || txt === 'quick apply' || txt === '1-click apply') return true;
+                  if (txt.includes('apply') && !txt.includes('applied') && !txt.includes('company website') && !txt.includes('login')) return true;
+                  return false;
+                }) || null;
+              });
+
+              const applyBtn = applyBtnHandle?.asElement();
 
               if (applyBtn) {
-                const btnTextBefore = await applyBtn.evaluate(b => (b.innerText || '').trim().toLowerCase());
-                if (btnTextBefore === 'applied') {
+                const btnTextBefore = await applyBtn.evaluate(b => (b.innerText || b.textContent || '').trim().toLowerCase());
+                if (btnTextBefore === 'applied' || btnTextBefore.includes('already applied')) {
                   this.logger('info', 'Foundit', `Already applied to "${jobDetails.title}".`);
                   jobRecord.status = 'already_applied';
+                  processedKeys.add(comboKey);
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
                 }
@@ -226,23 +303,25 @@ class FounditBot {
                 await this.randomDelay(2200, 3200);
 
                 // Check if redirected to login page
-                const currentUrl = page.url();
+                const currentUrl = targetPage.url();
                 const isLoginRedirect = currentUrl.includes('/login') || currentUrl.includes('/rio/login');
 
                 if (isLoginRedirect) {
                   this.logger('warning', 'Foundit', `Foundit requires candidate login for "${jobDetails.title}". Please sign into Foundit in Chrome.`);
                   jobRecord.status = 'login_required';
                   if (onJobProcessed) onJobProcessed(jobRecord);
-                  await page.goBack().catch(() => {});
-                  await this.randomDelay(2000, 3000);
+                  if (!openedTab) {
+                    await page.goBack().catch(() => {});
+                    await this.randomDelay(2000, 3000);
+                  }
                   continue;
                 }
 
                 // Handle any screening modal / questionnaire if present
-                await this.handleFounditQuestionnaire(page, jobDetails);
+                await this.handleFounditQuestionnaire(targetPage, jobDetails);
 
                 // Inspect application feedback (toast, banner, or button text)
-                const applyResult = await page.evaluate(() => {
+                const applyResult = await targetPage.evaluate(() => {
                   const toastEl = document.querySelector('.toast, [class*="toast"], .snack-bar, [class*="banner"], [class*="notification"]');
                   const toastText = (toastEl?.innerText || '').toLowerCase();
                   const currentBtn = document.querySelector('#applyNowBtn, button[id*="apply"], button.applyBtn');
@@ -261,15 +340,22 @@ class FounditBot {
 
                 if (applyResult.isExternal) {
                   this.logger('info', 'Foundit', `Job "${jobDetails.title}" is an external company portal redirect.`);
-                  jobRecord.status = 'already_applied_or_external';
+                  jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                  jobRecord.actionRequired = true;
+                  jobRecord.skipReason = 'External company portal application required';
+                  jobRecord.reason = 'Foundit external company application - preserved in Manual Apply Queue';
                 } else {
                   jobRecord.status = 'applied';
                   totalProcessedCount++;
+                  processedKeys.add(comboKey);
                   this.logger('success', 'Foundit', `Successfully applied to "${jobDetails.title}" at ${jobDetails.company}!`);
                 }
               } else {
-                this.logger('info', 'Foundit', `No 1-Click apply found for "${jobDetails.title}".`);
-                jobRecord.status = 'already_applied_or_external';
+                this.logger('info', 'Foundit', `No direct 1-Click apply found for "${jobDetails.title}".`);
+                jobRecord.status = 'MANUAL_ACTION_REQUIRED';
+                jobRecord.actionRequired = true;
+                jobRecord.skipReason = 'No direct 1-Click apply button (manual application required)';
+                jobRecord.reason = 'High match - preserved in Manual Apply Queue';
               }
 
               if (onJobProcessed) onJobProcessed(jobRecord);
@@ -277,6 +363,12 @@ class FounditBot {
 
             } catch (cardErr) {
               this.logger('error', 'Foundit', `Error processing Foundit card: ${cardErr.message}`);
+            } finally {
+              if (openedTab) {
+                try {
+                  if (!openedTab.isClosed()) await openedTab.close();
+                } catch (e) {}
+              }
             }
           }
 

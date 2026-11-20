@@ -453,9 +453,14 @@ class DataStore {
     ]);
 
     for (const app of (this.applications || [])) {
-      const st = String(app.status || app.normalizedStatus || '').toLowerCase();
-      const isAppliedStatus = st.includes('applied') || st.includes('submitted') || st.includes('confirmed');
-      if (!isAppliedStatus) continue;
+      const rawStatus = String(app.status || '').toLowerCase();
+      const normStatus = String(app.normalizedStatus || StateMachine.normalizeStatus(rawStatus) || '').toLowerCase();
+
+      // Only treat confirmed applied or genuinely already applied listings as deduplicated keys
+      // Never treat external referrals, manual review, or failed jobs as already applied
+      const isConfirmed = StateMachine.isConfirmedApplied(app.status) || StateMachine.isConfirmedApplied(app.normalizedStatus);
+      const isAlreadyApplied = normStatus === 'already_applied' || rawStatus === 'already_applied';
+      if (!isConfirmed && !isAlreadyApplied) continue;
 
       if (app.id) {
         keys.add(app.id);

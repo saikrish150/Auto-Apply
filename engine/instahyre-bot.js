@@ -183,7 +183,7 @@ class InstahyreBot {
       // 6. Already Applied / Declined status
       const statusBox = el.querySelector('.application-status-box, .status-label, [class*="status-box"]');
       const statusText = statusBox ? statusBox.textContent.toLowerCase().trim() : '';
-      const isApplied = statusText.includes('applied');
+      const isApplied = (statusText.includes('applied') && !statusText.includes('not applied') && !statusText.includes('candidate')) || statusText === 'applied';
       const isDeclined = statusText.includes('declined') || statusText.includes('not interested');
 
       return {
@@ -232,30 +232,57 @@ class InstahyreBot {
       if (openedTab) {
         try {
           await openedTab.waitForFunction(() => {
-            const btns = Array.from(document.querySelectorAll('button, a.btn, .application-status-box'));
-            return btns.length > 3 || document.readyState === 'complete';
-          }, { timeout: 8000 }).catch(() => {});
-          await this.randomDelay(1200, 2200);
+            const btns = Array.from(document.querySelectorAll('button, a, div[role="button"], [class*="apply"], [class*="interested"], .application-status-box'));
+            return btns.length > 2;
+          }, { timeout: 10000 }).catch(() => {});
+          await this.randomDelay(1500, 2500);
 
           const tabState = await openedTab.evaluate(() => {
+            function isVisible(el) {
+              if (!el) return false;
+              const s = window.getComputedStyle(el);
+              if (s.display === 'none' || s.visibility === 'hidden' || s.opacity === '0') return false;
+              const rect = el.getBoundingClientRect();
+              return (rect.width > 0 && rect.height > 0) || el.getClientRects().length > 0;
+            }
+
             const statusBox = document.querySelector('.application-status-box, .status-label, [class*="status-box"]');
             const statusText = statusBox ? statusBox.textContent.toLowerCase().trim() : '';
-            if (statusText.includes('applied')) return { isApplied: true };
+            if (statusText.includes('applied') && !statusText.includes('not applied') && !statusText.includes('candidate')) {
+              return { isApplied: true };
+            }
 
-            const buttons = Array.from(document.querySelectorAll('button, a.btn, div[role="button"]'));
+            const allElements = Array.from(document.querySelectorAll('button, a, div[role="button"], input[type="button"], input[type="submit"], [class*="btn"], [class*="apply"]'));
+            const candidates = allElements.filter(isVisible);
+
             // Check for external apply
-            const extBtn = buttons.find(b => {
-              const txt = (b.innerText || '').toLowerCase();
+            const extBtn = candidates.find(b => {
+              const txt = (b.innerText || b.textContent || '').toLowerCase();
               const ng = (b.getAttribute('ng-click') || '').toLowerCase();
-              return txt.includes('apply on company') || ng.includes('trackexternal');
+              const href = (b.getAttribute('href') || '').toLowerCase();
+              return txt.includes('apply on company') || txt.includes('company website') || ng.includes('trackexternal') || href.includes('external');
             });
             if (extBtn) return { isExternal: true };
 
-            // Look for native Apply now button
-            const applyBtn = buttons.find(b => {
-              const txt = (b.innerText || '').toLowerCase().trim();
+            // Check for already applied button text
+            const appliedBtn = candidates.find(b => {
+              const txt = (b.innerText || b.textContent || '').trim().toLowerCase();
+              return txt === 'applied' || txt.includes('already applied') || txt.includes('you applied');
+            });
+            if (appliedBtn) return { isApplied: true };
+
+            // Look for native Apply / Interested button
+            const applyBtn = candidates.find(b => {
+              const txt = (b.innerText || b.textContent || b.value || '').trim().toLowerCase();
               const ng = (b.getAttribute('ng-click') || '').toLowerCase();
-              return (txt === 'apply now' || txt === 'apply') || ng.includes('submitchoice');
+              const cls = (b.className || '').toLowerCase();
+              const id = (b.id || '').toLowerCase();
+
+              if (cls.includes('btn-interested') || cls.includes('btn-apply') || id.includes('apply-btn')) return true;
+              if (ng.includes('submitchoice') || ng.includes('applyjob') || ng.includes('openapply') || ng.includes('apply')) return true;
+              if (txt === 'apply' || txt === 'apply now' || txt === 'interested' || txt === "i'm interested" || txt.startsWith('apply now') || txt.includes('1-click apply')) return true;
+              if (txt.includes('apply') && !txt.includes('company') && !txt.includes('login') && !txt.includes('applied')) return true;
+              return false;
             });
 
             if (applyBtn) {
@@ -263,7 +290,7 @@ class InstahyreBot {
               return { clickedApply: true };
             }
 
-            return { notFound: true };
+            return { notFound: true, availableButtons: candidates.map(b => (b.innerText || b.textContent || '').trim()).filter(Boolean).slice(0, 10) };
           });
 
           if (tabState.isApplied) {
@@ -273,19 +300,40 @@ class InstahyreBot {
             return { success: false, reason: 'Requires application on external company website', isExternal: true };
           }
           if (!tabState.clickedApply) {
-            return { success: false, reason: 'Could not find Apply button on dedicated job page' };
+            return { success: false, reason: `Could not find Apply button on dedicated job page (found buttons: [${(tabState.availableButtons || []).join(', ')}])` };
           }
 
-          // Wait for submit confirmation or bulk apply modal
+          // Wait for submit confirmation or screening modal on openedTab
+          await this.randomDelay(2000, 3200);
+          await openedTab.evaluate(async (candidatePitch) => {
+            // 1. Candidate Apply Modal (pitch / note)
+            const modal = document.querySelector('.candidate-apply-modal, [class*="candidate-apply-modal"], .application-modal-block');
+            if (modal) {
+              const noteInput = modal.querySelector('textarea[name="note"], [name="pitch"], textarea.form-control, textarea');
+              if (noteInput && !noteInput.value) {
+                noteInput.value = candidatePitch || 'Interested in this role. I bring ~3 years of experience in Java, Spring Boot, and Angular.';
+                noteInput.dispatchEvent(new Event('input', { bubbles: true }));
+                noteInput.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+              const modalSubmitBtn = modal.querySelector('.apply button, button.btn-primary, [type="submit"], [ng-click*="submitChoice"]');
+              if (modalSubmitBtn) modalSubmitBtn.click();
+            }
+
+            // 2. Active Check Modal: "Are you looking for a job actively?" -> Click Save
+            const activeCheck = document.querySelector('.active-check-modal');
+            if (activeCheck && window.getComputedStyle(activeCheck).display !== 'none') {
+              const saveBtn = activeCheck.querySelector('button.btn-filled, button[ng-click*="changeStatus"]');
+              if (saveBtn) saveBtn.click();
+            }
+
+            // 3. Dismiss bulk apply if it appears
+            const applyAll = document.querySelector('.apply-all-modal');
+            if (applyAll && window.getComputedStyle(applyAll).display !== 'none') {
+              const cancelBtn = applyAll.querySelector('button[ng-click*="applyBulkCancel"], .btn-outline');
+              if (cancelBtn) cancelBtn.click();
+            }
+          }, jobMeta.candidatePitch || '');
           await this.randomDelay(1500, 2500);
-          await openedTab.evaluate(() => {
-            // Dismiss bulk apply if it appears
-            const cancelBtn = document.querySelector('button[ng-click*="applyBulkCancel"], .apply-all-modal .btn-outline');
-            if (cancelBtn) cancelBtn.click();
-            const saveBtn = document.querySelector('.active-check-modal button.btn-filled, button[ng-click*="changeStatus"]');
-            if (saveBtn) saveBtn.click();
-          });
-          await this.randomDelay(800, 1500);
 
           return {
             success: true,
@@ -464,8 +512,8 @@ class InstahyreBot {
       const processCurrentOpportunitiesPage = async (sourceTag = 'Curated Feed') => {
         // Human-like smooth scroll down the list to trigger Angular lazy loading
         await page.evaluate(async () => {
-          for (let s = 0; s < 3; s++) {
-            window.scrollBy({ top: 400, behavior: 'smooth' });
+          for (let s = 0; s < 5; s++) {
+            window.scrollBy({ top: 500, behavior: 'smooth' });
             await new Promise(r => setTimeout(r, 350));
           }
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -487,19 +535,6 @@ class InstahyreBot {
 
             if (rawData.isApplied || isDup) {
               this.logger('info', 'Instahyre', `[Job ${i + 1}/${cardHandles.length}] Already applied to "${rawData.title}" at ${rawData.company}. Skipping.`);
-              if (!isDup && this.dataStore) {
-                const record = {
-                  id: rawData.jobId,
-                  platform: 'Instahyre',
-                  title: rawData.title,
-                  company: rawData.company,
-                  location: rawData.location,
-                  url: rawData.publicUrl || 'https://www.instahyre.com/candidate/opportunities/',
-                  status: ApplicationStates.ALREADY_APPLIED,
-                  appliedDate: new Date().toISOString()
-                };
-                if (onJobProcessed) onJobProcessed(record);
-              }
               continue;
             }
 

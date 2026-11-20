@@ -1109,6 +1109,25 @@ class AutoApplyApp {
     this.statSimSub.style.color = isSim ? '#e879f9' : '#34d399';
   }
 
+  getStatusChipClass(status) {
+    const s = String(status || '').toLowerCase();
+    if (s.includes('already')) return 'chip-already-applied';
+    if (s.includes('manual') || s.includes('action_required') || s.includes('review') || s.includes('login')) return 'chip-manual';
+    if (s.includes('applied') || s.includes('confirmed') || s.includes('submitted')) return 'chip-applied';
+    if (s.includes('skip') || s.includes('low_match')) return 'chip-skipped';
+    return 'chip-waiting';
+  }
+
+  getStatusLabel(status) {
+    const s = String(status || '').toLowerCase();
+    if (s === 'already_applied' || s === 'already applied') return 'Already Applied';
+    if (s === 'manual_action_required') return 'Manual Review';
+    if (s === 'applied_confirmed' || s === 'applied') return 'Applied';
+    if (s === 'skipped_low_match') return 'Skipped (Low Match)';
+    if (s === 'already_applied_or_external') return 'Manual Apply';
+    return status || 'evaluating';
+  }
+
   renderActiveJob(job) {
     if (!job) return;
     this.currentJobTitle.textContent = job.title || 'Software Engineer';
@@ -1143,8 +1162,8 @@ class AutoApplyApp {
     }
 
     // Status pill
-    this.currentJobStatus.textContent = job.status || 'evaluating';
-    this.currentJobStatus.className = `status-chip chip-${job.status?.includes('applied') ? 'applied' : job.status === 'skipped' ? 'skipped' : 'waiting'}`;
+    this.currentJobStatus.textContent = this.getStatusLabel(job.status);
+    this.currentJobStatus.className = `status-chip ${this.getStatusChipClass(job.status)}`;
 
     if (job.url && job.url.startsWith('http')) {
       this.currentJobLink.href = job.url;
@@ -1306,8 +1325,8 @@ class AutoApplyApp {
     if (this.modalQaTitle) this.modalQaTitle.textContent = job.title || 'Job Application';
     if (this.modalQaCompany) this.modalQaCompany.textContent = `${job.company || 'Direct Employer'} • ${job.location || 'India'}`;
     if (this.modalQaStatus) {
-      this.modalQaStatus.textContent = job.status || 'applied';
-      this.modalQaStatus.className = `status-chip ${job.status?.includes('applied') ? 'chip-applied' : job.status === 'skipped' ? 'chip-skipped' : 'chip-waiting'}`;
+      this.modalQaStatus.textContent = this.getStatusLabel(job.status);
+      this.modalQaStatus.className = `status-chip ${this.getStatusChipClass(job.status)}`;
     }
     if (this.modalQaScore) this.modalQaScore.textContent = `${job.matchScore || 0}%`;
 
@@ -1401,8 +1420,11 @@ class AutoApplyApp {
         const st = (job.status || '').toLowerCase();
         const norm = (job.normalizedStatus || '').toLowerCase();
         if (this.selectedStatus === 'applied') {
-          const isApp = st.includes('applied') || st.includes('submitted') || norm.includes('applied') || norm.includes('submitted');
+          const isApp = (st.includes('applied') || st.includes('submitted') || norm.includes('applied') || norm.includes('submitted')) && !st.includes('already');
           if (!isApp) return false;
+        } else if (this.selectedStatus === 'already_applied') {
+          const isAlready = st.includes('already') || norm.includes('already');
+          if (!isAlready) return false;
         } else if (this.selectedStatus === 'skipped') {
           const isSkip = st.includes('skip') || norm.includes('skip') || st.includes('ineligible') || norm.includes('ineligible');
           if (!isSkip) return false;
@@ -1466,7 +1488,8 @@ class AutoApplyApp {
       const appDate = job.appliedAt || job.timestamp;
       const dateObj = appDate ? new Date(appDate) : null;
       const timeStr = dateObj ? dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--';
-      const statusClass = job.status?.includes('applied') ? 'chip-applied' : job.status === 'skipped' ? 'chip-skipped' : 'chip-waiting';
+      const statusClass = this.getStatusChipClass(job.status);
+      const statusLabel = this.getStatusLabel(job.status);
       const qas = job.questionsAnswered || [];
       const qBadge = qas.length > 0
         ? `<button class="qa-badge-btn" onclick="app.openQaModal('${job.id}')" title="Click to view answered screening questions">
@@ -1496,7 +1519,7 @@ class AutoApplyApp {
             </span>
           </td>
           <td>
-            <span class="status-chip ${statusClass}">${job.status}</span>
+            <span class="status-chip ${statusClass}">${this.escapeHTML(statusLabel)}</span>
           </td>
           <td style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap;">${timeStr}</td>
           <td>
