@@ -1,5 +1,235 @@
 [
   {
+    "id": "unfilled-1795337908516-far38",
+    "semanticKey": "norm:where do your stay in mumbai",
+    "question": "Where do you stay in Mumbai?",
+    "label": "Where do you stay in Mumbai?",
+    "inputType": "text",
+    "options": [],
+    "platform": "Naukri",
+    "jobTitle": "Software Engineer - Java Spring Boot",
+    "company": "iSoftwarefactory Services LLP",
+    "reason": "Candidate has no Mumbai address in the knowledge base",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-22T08:58:28.517Z",
+    "lastEncountered": "2026-11-22T08:58:28.517Z"
+  },
+  {
+    "id": "unfilled-1795337883533-lu68y",
+    "semanticKey": "norm:what is your proficiency in english",
+    "question": "What is your proficiency in English?",
+    "label": "What is your proficiency in English?",
+    "inputType": "text",
+    "options": [],
+    "platform": "Naukri",
+    "jobTitle": "Junior Full Stack Developer Java & AI-Assisted Development",
+    "company": "Hedgeness",
+    "reason": "English proficiency not stored in knowledge base",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-22T08:58:03.533Z",
+    "lastEncountered": "2026-11-22T08:58:03.533Z"
+  },
+  {
+    "id": "unfilled-1795332981489-zd6lc",
+    "semanticKey": "norm:what is your level of proficiency in hin",
+    "question": "What is your level of proficiency in Hindi?",
+    "label": "What is your level of proficiency in Hindi?",
+    "inputType": "select",
+    "options": [
+      "None",
+      "Conversational",
+      "Professional",
+      "Native or bilingual"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": ".NET Full Stack Developer",
+    "company": "Dr Reddy's Foundation",
+    "reason": "Fact not in knowledge base",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-22T07:36:21.489Z",
+    "lastEncountered": "2026-11-22T07:36:21.489Z"
+  },
+  {
+    "id": "unfilled-1795332980044-opjqt",
+    "semanticKey": "norm:what is your level of proficiency in tel",
+    "question": "What is your level of proficiency in Telugu?",
+    "label": "What is your level of proficiency in Telugu?",
+    "inputType": "select",
+    "options": [
+      "None",
+      "Conversational",
+      "Professional",
+      "Native or bilingual"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": ".NET Full Stack Developer",
+    "company": "Dr Reddy's Foundation",
+    "reason": "Telugu proficiency not listed in candidate knowledge base",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-22T07:36:20.044Z",
+    "lastEncountered": "2026-11-22T07:36:20.044Z"
+  },
+  {
+    "id": "unfilled-1795332264969-86odz",
+    "semanticKey": "norm:if yes please provide their name s .",
+    "question": "If yes, please provide their name(s).",
+    "label": "If yes, please provide their name(s).",
+    "inputType": "text",
+    "options": [],
+    "platform": "LinkedIn",
+    "jobTitle": "Are these results helpful?",
+    "company": "Universal Electronics",
+    "reason": "Reference names not stored in candidate knowledge base",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-22T07:24:24.969Z",
+    "lastEncountered": "2026-11-22T07:24:24.969Z"
+  },
+  {
+    "id": "unfilled-1795275507523-vlsdk",
+    "semanticKey": "norm:we may use ai to review resumes ai does ",
+    "question": "We may use AI to review resumes; AI does not make hiring decisions. You may opt out with no impact on consideration; recruiters will review your resume.",
+    "label": "We may use AI to review resumes; AI does not make hiring decisions. You may opt out with no impact on consideration; recruiters will review your resume.",
+    "inputType": "select",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Senior/Lead Java Fullstack Engineer",
+    "company": "Rackspace",
+    "reason": "Candidate's preference for AI resume review not stored in knowledge base",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-21T15:38:27.523Z",
+    "lastEncountered": "2026-11-21T15:38:27.523Z"
+  },
+  {
+    "id": "unfilled-1795275341994-v25b7",
+    "semanticKey": "norm:current unvested options/rsu value",
+    "question": "Current Unvested Options/RSU value",
+    "label": "Current Unvested Options/RSU value",
+    "inputType": "text",
+    "options": [],
+    "platform": "LinkedIn",
+    "jobTitle": "Software Engineer (3-5 years), Symphony",
+    "company": "PhonePe",
+    "reason": "Required field left blank",
+    "status": "pending",
+    "occurrences": 11,
+    "createdAt": "2026-11-21T15:35:41.994Z",
+    "lastEncountered": "2026-11-21T15:36:14.113Z"
+  },
+  {
+    "id": "unfilled-1795275167380-lilkc",
+    "semanticKey": "norm:react",
+    "question": "React",
+    "label": "React",
+    "inputType": "text",
+    "options": [],
+    "platform": "LinkedIn",
+    "jobTitle": "Full Stack Engineer",
+    "company": "OmegaHires",
+    "reason": "Required field left blank",
+    "status": "pending",
+    "occurrences": 2,
+    "createdAt": "2026-11-21T15:32:47.380Z",
+    "lastEncountered": "2026-11-21T15:32:50.534Z"
+  },
+  {
+    "id": "unfilled-1795275000502-ag7g6",
+    "semanticKey": "norm:do your currently reside in this role s ",
+    "question": "Do you currently reside in this role's required location?",
+    "label": "Do you currently reside in this role's required location?",
+    "inputType": "radio",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Senior Software Development Engineer, Post Trade",
+    "company": "DriveWealth",
+    "reason": "Required location for the role is not specified in the provided information.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-21T15:30:00.502Z",
+    "lastEncountered": "2026-11-21T15:30:00.502Z"
+  },
+  {
+    "id": "unfilled-1795274954765-7yrwa",
+    "semanticKey": "norm:currency",
+    "question": "Currency",
+    "label": "Currency",
+    "inputType": "select",
+    "options": [
+      "British Pound (GBP)",
+      "Euro (EUR)",
+      "United States Dollar (USD)",
+      "Canadian Dollar (CAD)",
+      "Indian Rupee (INR)",
+      "Australian Dollar (AUD)",
+      "Belarusian Ruble (BYN)",
+      "Singapore Dollar (SGD)",
+      "United Arab Emirates Dirham (AED)",
+      "Japanese Yen (JPY)",
+      "Chinese Renminbi Yuan (CNY)",
+      "South African Rand (ZAR)"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "VN3076 - Full Stack Developer",
+    "company": "Smartstream",
+    "reason": "Required field left blank",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-21T15:29:14.765Z",
+    "lastEncountered": "2026-11-21T15:29:14.765Z"
+  },
+  {
+    "id": "unfilled-1795273484938-9kmds",
+    "semanticKey": "intent:country",
+    "question": "Do you currently reside in the country where this role is based?",
+    "label": "Do you currently reside in the country where this role is based?",
+    "inputType": "radio",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Are these results helpful?",
+    "company": "Endava",
+    "reason": "The role location is not specified in the candidate knowledge base, so we cannot determine if the candidate currently resides in that country.",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-21T15:04:44.938Z",
+    "lastEncountered": "2026-11-21T15:04:44.938Z"
+  },
+  {
+    "id": "unfilled-1795273483584-36078",
+    "semanticKey": "norm:as a global company english is essential",
+    "question": "As a global company, English is essential for daily communication. How would you rate your English language proficiency?",
+    "label": "As a global company, English is essential for daily communication. How would you rate your English language proficiency?",
+    "inputType": "select",
+    "options": [
+      "Advanced (C1/C2) – I can speak, write, and understand English fluently.",
+      "Upper-Intermediate (B2) – I can communicate effectively in English with only minor difficulties.",
+      "Intermediate (B1) – I can communicate in English with some difficulty.",
+      "Basic (A2) - I have limited English skills.",
+      "I do not speak English."
+    ],
+    "platform": "LinkedIn",
+    "jobTitle": "Are these results helpful?",
+    "company": "Endava",
+    "reason": "English proficiency level not stored in candidate knowledge base",
+    "status": "pending",
+    "occurrences": 1,
+    "createdAt": "2026-11-21T15:04:43.584Z",
+    "lastEncountered": "2026-11-21T15:04:43.584Z"
+  },
+  {
     "id": "unfilled-1795154143218-a0c0i",
     "semanticKey": "norm:how many year of experience your have as",
     "question": "How many year of experience you have as Full Stack Developer?",
@@ -11,11 +241,11 @@
     "platform": "Naukri",
     "jobTitle": "Full-stack Developer Kolkata",
     "company": "Vara Infrovate",
-    "reason": "No semantically matching option",
+    "reason": "No provided option matches the required answer; only 'Skip this question' is available, which is not a valid response to the experience query.",
     "status": "pending",
-    "occurrences": 1,
+    "occurrences": 3,
     "createdAt": "2026-11-20T05:55:43.218Z",
-    "lastEncountered": "2026-11-20T05:55:43.218Z"
+    "lastEncountered": "2026-11-22T08:54:09.577Z"
   },
   {
     "id": "unfilled-1795150405069-w3ao3",
@@ -95,11 +325,11 @@
     "platform": "Naukri",
     "jobTitle": "Java Developer",
     "company": "Mizuho Global Services",
-    "reason": "Candidate's current residential locality is in Hyderabad, not Chennai; no Chennai address in knowledge base",
+    "reason": "Candidate's current residential locality is in Hyderabad; no Chennai address is provided in the knowledge base",
     "status": "pending",
-    "occurrences": 2,
+    "occurrences": 4,
     "createdAt": "2026-11-19T03:55:02.276Z",
-    "lastEncountered": "2026-11-20T05:35:18.035Z"
+    "lastEncountered": "2026-11-22T08:39:03.741Z"
   },
   {
     "id": "unfilled-1795059886275-vij81",
@@ -193,9 +423,9 @@
     "company": "Enhanced Information Solutions (EIS)",
     "reason": "Required field left blank",
     "status": "pending",
-    "occurrences": 11,
+    "occurrences": 23,
     "createdAt": "2026-11-18T13:17:45.086Z",
-    "lastEncountered": "2026-11-18T13:18:16.775Z"
+    "lastEncountered": "2026-11-21T15:09:10.270Z"
   },
   {
     "id": "unfilled-1794984372257-8075n",
@@ -321,9 +551,9 @@
     "company": "PTC",
     "reason": "Required field left blank",
     "status": "pending",
-    "occurrences": 27,
+    "occurrences": 41,
     "createdAt": "2026-11-17T14:34:31.663Z",
-    "lastEncountered": "2026-11-17T15:41:35.573Z"
+    "lastEncountered": "2026-11-21T15:14:52.927Z"
   },
   {
     "id": "unfilled-1794572645372-lbo80",
@@ -442,13 +672,13 @@
     "inputType": "text",
     "options": [],
     "platform": "LinkedIn",
-    "jobTitle": "Angular Java Developer",
-    "company": "Docyt",
-    "reason": "Candidate photo URL or file path is not stored in the master knowledge base.",
+    "jobTitle": "VN3076 - Full Stack Developer",
+    "company": "Smartstream",
+    "reason": "Photo file or photo URL is not provided in the candidate knowledge base.",
     "status": "pending",
-    "occurrences": 1,
+    "occurrences": 2,
     "createdAt": "2026-11-06T02:58:56.398Z",
-    "lastEncountered": "2026-11-06T02:58:56.398Z"
+    "lastEncountered": "2026-11-21T15:29:14.438Z"
   },
   {
     "id": "unfilled-1793890999716-7qsum",
@@ -463,11 +693,11 @@
     "platform": "Naukri",
     "jobTitle": "Stuck Job",
     "company": "Some Corp",
-    "reason": "No semantically matching option",
+    "reason": "No option semantically fits the unrecognized question",
     "status": "pending",
-    "occurrences": 21,
+    "occurrences": 24,
     "createdAt": "2026-11-05T15:03:19.716Z",
-    "lastEncountered": "2026-11-18T14:23:25.282Z"
+    "lastEncountered": "2026-11-22T09:42:05.835Z"
   },
   {
     "id": "unfilled-1793887776135-f5cno",
@@ -643,13 +873,13 @@
     "inputType": "text",
     "options": [],
     "platform": "LinkedIn",
-    "jobTitle": "Angular Developer",
-    "company": "Quantela",
-    "reason": "Middle name not present in candidate profile.",
+    "jobTitle": "Software Specialist",
+    "company": "PTC",
+    "reason": "Middle name not provided in candidate profile",
     "status": "pending",
-    "occurrences": 8,
+    "occurrences": 9,
     "createdAt": "2026-11-01T07:27:55.513Z",
-    "lastEncountered": "2026-11-18T06:40:30.404Z"
+    "lastEncountered": "2026-11-21T15:13:01.836Z"
   },
   {
     "id": "unfilled-1793517115954-gx14t",

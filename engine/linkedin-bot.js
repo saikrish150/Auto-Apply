@@ -809,104 +809,11 @@ class LinkedInBot {
                   continue;
                 }
 
-                // If Easy Apply is NOT available, handle External Apply (User requested: only LinkedIn external links to be considered for manual data)
+                // If Easy Apply is NOT available, SKIP the job entirely (no external tabs)
                 if (applyBtnInfo.status !== 'easy_apply') {
-                  const externalApplyBtn = await page.evaluateHandle(() => {
-                    function isVisible(el) {
-                      if (!el) return false;
-                      const style = window.getComputedStyle(el);
-                      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
-                      const rect = el.getBoundingClientRect();
-                      return (rect.width > 0 && rect.height > 0) || el.getClientRects().length > 0;
-                    }
-                    const detailPane = document.querySelector('.scaffold-layout__detail, .jobs-search__job-details, .job-view-layout, main') || document;
-                    const listEl = document.querySelector('.jobs-search-results-list, .scaffold-layout__list');
-                    const links = Array.from(detailPane.querySelectorAll('a[href*="/jobs/view/externalApply/"], a[aria-label*="company website" i], button[aria-label*="company website" i], a.jobs-apply-button'));
-                    return links.find(el => {
-                      if (listEl && listEl.contains(el)) return false;
-                      if (!isVisible(el)) return false;
-                      const txt = (el.innerText || el.textContent || '').trim().toLowerCase();
-                      const aria = (el.getAttribute('aria-label') || '').toLowerCase();
-                      const href = (el.getAttribute('href') || '').toLowerCase();
-                      if (href.includes('premium') || href.includes('survey') || href.includes('upsell') || aria.includes('premium') || txt.includes('premium')) return false;
-                      if (txt.includes('easy apply') || aria.includes('easy apply')) return false;
-                      return href.includes('externalapply') || aria.includes('company website') || txt.includes('company website') || (el.className || '').includes('jobs-apply-button');
-                    }) || null;
-                  });
-
-                  const extEl = externalApplyBtn.asElement();
-                  if (extEl) {
-                    this.logger('action', 'LinkedIn', `[LinkedIn External Link] Opening company apply link for "${jobDetails.title}"...`);
-                    const pagesBefore = await this.chrome.browser.pages();
-                    await extEl.evaluate(b => b.click());
-                    await this.randomDelay(2500, 4000);
-
-                    const pagesAfter = await this.chrome.browser.pages();
-                    const newExternalTabs = pagesAfter.filter(p => !pagesBefore.includes(p));
-                    const externalTab = newExternalTabs[0] || null;
-                    let extUrl = page.url();
-
-                    try {
-                      if (externalTab) {
-                        extUrl = externalTab.url();
-                        this.logger('success', 'LinkedIn', `Company career portal opened: ${extUrl}`);
-                        jobRecord.externalUrl = extUrl;
-                        jobRecord.directApplicationUrl = extUrl;
-
-                        // Auto-apply to external career portal if enabled
-                        if (this.settings.automation?.autoSubmitCareerSites !== false && this.careerSiteBot) {
-                          this.logger('action', 'LinkedIn', `Automating external application for "${jobDetails.title}" at ${jobDetails.company}...`);
-                          const careerRes = await this.careerSiteBot.applyToCareerPage(externalTab, {
-                            title: jobDetails.title,
-                            company: jobDetails.company
-                          });
-
-                          jobRecord.status = careerRes.status || ApplicationStates.MANUAL_ACTION_REQUIRED;
-                          jobRecord.reason = careerRes.reason || (careerRes.status?.includes('applied') ? 'Applied on company career site' : 'External form needs manual review');
-                          jobRecord.questionsAnswered = careerRes.questionsAnswered || [];
-
-                          if (careerRes.status === ApplicationStates.APPLIED_CONFIRMED) {
-                            this.logger('success', 'LinkedIn', `Confirmed applied on external portal for "${jobDetails.title}" at ${jobDetails.company}!`);
-                            totalProcessedCount++;
-                          } else {
-                            this.logger('info', 'LinkedIn', `External application preserved in queue: ${jobRecord.reason}`);
-                          }
-                        } else {
-                          jobRecord.status = 'MANUAL_ACTION_REQUIRED';
-                          jobRecord.actionRequired = true;
-                          jobRecord.reason = `High match (${evaluation.score}%) - LinkedIn external employer application preserved in Manual Apply Queue`;
-                        }
-                      } else {
-                        jobRecord.status = 'MANUAL_ACTION_REQUIRED';
-                        jobRecord.actionRequired = true;
-                        jobRecord.directApplicationUrl = extUrl;
-                        jobRecord.applicationMethod = 'manual_shortlist';
-                        jobRecord.reason = `High match (${evaluation.score}%) - LinkedIn external employer application preserved in Manual Apply Queue`;
-                      }
-                    } catch (extErr) {
-                      this.logger('warn', 'LinkedIn', `Error during external apply processing: ${extErr.message}`);
-                      jobRecord.status = 'MANUAL_ACTION_REQUIRED';
-                      jobRecord.actionRequired = true;
-                      jobRecord.reason = `External application error: ${extErr.message}`;
-                    } finally {
-                      // ALWAYS immediately close all opened external tabs so system does NOT lag or leak memory
-                      for (const t of newExternalTabs) {
-                        try {
-                          if (!t.isClosed()) await t.close();
-                        } catch (e) {}
-                      }
-                    }
-
-                    markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
-
-                    if (onJobProcessed) onJobProcessed(jobRecord);
-                    await this.randomDelay(1000, 1800);
-                    continue;
-                  }
-
-                  this.logger('info', 'LinkedIn', `Neither Easy Apply nor External Apply button found for "${jobDetails.title}".`);
+                  this.logger('info', 'LinkedIn', `Skipping external-only job "${jobDetails.title}" at ${jobDetails.company} — only Easy Apply jobs are processed.`);
                   jobRecord.status = 'skipped';
-                  jobRecord.skipReason = 'No applicable apply button';
+                  jobRecord.skipReason = 'External apply disabled for LinkedIn';
                   markJobSeen(jobDetails.title, jobDetails.company, detailJobId);
                   if (onJobProcessed) onJobProcessed(jobRecord);
                   continue;
